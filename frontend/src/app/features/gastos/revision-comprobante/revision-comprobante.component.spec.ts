@@ -123,6 +123,20 @@ async function montar(op: Opciones = {}) {
 }
 
 describe('RevisionComprobanteComponent', () => {
+  it('cancelar el rechazo conserva el checklist y no envía ninguna decisión', async () => {
+    const { el, store, boton, marcar, refrescar } = await montar();
+    await marcar(3);
+    boton('Rechazar').click();
+    await refrescar();
+    boton('Cancelar').click();
+    await refrescar();
+    expect(el.querySelector('#motivo-rechazo')).toBeNull();
+    expect(el.querySelector('.checklist__conteo')?.textContent?.trim()).toBe('3 de 5 criterios');
+    expect(boton('Aprobar').disabled).toBe(true);
+    expect(store.rechazar).not.toHaveBeenCalled();
+    expect(store.aprobar).not.toHaveBeenCalled();
+  });
+
   it('muestra el comprobante para revisarlo', async () => {
     const { el } = await montar();
     expect(el.querySelector('img')?.getAttribute('src')).toBe('http://localhost:8081/uploads/9.jpg');
