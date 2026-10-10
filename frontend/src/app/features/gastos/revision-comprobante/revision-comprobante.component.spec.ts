@@ -137,6 +137,16 @@ describe('RevisionComprobanteComponent', () => {
     expect(store.aprobar).not.toHaveBeenCalled();
   });
 
+  it('un checklist sin criterios bloquea la aprobación', async () => {
+    const { store, boton, casillas } = await montar({
+      checklist: () => of({ cliente_id: 1, personalizado: true, criterios: [] }),
+    });
+    expect(casillas()).toHaveLength(0);
+    expect(boton('Aprobar').disabled).toBe(true);
+    boton('Aprobar').click();
+    expect(store.aprobar).not.toHaveBeenCalled();
+  });
+
   it('muestra el comprobante para revisarlo', async () => {
     const { el } = await montar();
     expect(el.querySelector('img')?.getAttribute('src')).toBe('http://localhost:8081/uploads/9.jpg');
