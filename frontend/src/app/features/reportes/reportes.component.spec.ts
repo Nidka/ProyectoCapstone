@@ -94,6 +94,16 @@ describe('ReportesComponent', () => {
     expect(boton('Últimos 12 meses').getAttribute('aria-pressed')).toBe('true');
   });
 
+  it('actualizar la vista sin cambiar el rango no repite la consulta del reporte', async () => {
+    const { f, servicio } = await montar({ desde: '2025-11-01', hasta: '2026-01-31' });
+    expect(servicio.resumen).toHaveBeenCalledTimes(1);
+    for (let i = 0; i < 5; i++) {
+      f.detectChanges();
+      await f.whenStable();
+    }
+    expect(servicio.resumen).toHaveBeenCalledTimes(1);
+  });
+
   it('muestra los indicadores, los gráficos y la tabla de datos del rango de la URL', async () => {
     const { el, servicio, configs } = await montar({ desde: '2025-11-01', hasta: '2026-01-31' });
     expect(servicio.resumen).toHaveBeenCalledWith({ desde: '2025-11-01', hasta: '2026-01-31' });
