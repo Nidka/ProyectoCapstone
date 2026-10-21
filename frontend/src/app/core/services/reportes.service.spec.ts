@@ -18,6 +18,17 @@ function montar(cabeceras: Record<string, string> = {}) {
 const filtro = { desde: '2025-11-01', hasta: '2026-10-17' };
 
 describe('ReportesService', () => {
+  it('exporta a Excel conservando simultáneamente viaje, cliente, estado y fechas', () => {
+    const { servicio, api } = montar();
+    servicio.descargarExcel({
+      viaje_id: 14, cliente_id: 5, estado: 'Sustentado', desde: '2026-10-01', hasta: '2026-10-21',
+    }).subscribe();
+    expect(api.getBlob).toHaveBeenCalledWith(
+      '/gastos/exportar.xlsx?viaje_id=14&cliente_id=5&estado=Sustentado&desde=2026-10-01&hasta=2026-10-21',
+    );
+    expect(api.getBlob).toHaveBeenCalledTimes(1);
+  });
+
   it('pide el resumen del rango', () => {
     const { servicio, api } = montar();
     servicio.resumen(filtro).subscribe();
