@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,7 +13,10 @@ import (
 	"strings"
 	"time"
 
+	"gastos-service/internal/checklist"
 	"gastos-service/internal/models"
+
+	"github.com/jackc/pgx/v5"
 )
 
 const maxUploadSize = 10 << 20 // 10 MB
@@ -119,6 +123,7 @@ func (h *Handler) uploadComprobante(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	c.Checklist = []models.ItemChecklist{}
 	writeJSON(w, http.StatusCreated, c)
 }
 
@@ -138,7 +143,7 @@ func clasificarTipoArchivo(contentType, filename string) (string, bool) {
 }
 
 // listComprobantes soporta la pantalla de aprobación (filtrando por
-// ?estado=Pendiente); la consulta general no es alcance de esta iteración.
+// ?estado=Pendiente) y el historial; cada comprobante trae su checklist.
 func (h *Handler) listComprobantes(w http.ResponseWriter, r *http.Request) {
 	estado := r.URL.Query().Get("estado")
 	ctx := context.Background()
@@ -161,23 +166,112 @@ func (h *Handler) listComprobantes(w http.ResponseWriter, r *http.Request) {
 	defer rows.Close()
 
 	out := []models.Comprobante{}
+	ids := []int{}
 	for rows.Next() {
 		var c models.Comprobante
 		if err := rows.Scan(&c.ID, &c.GastoID, &c.ArchivoURL, &c.TipoArchivo, &c.Estado, &c.MotivoRechazo, &c.AprobadoPor, &c.AprobadoEn, &c.CreadoEn); err != nil {
 			writeError(w, http.StatusInternalServerError, "error leyendo los comprobantes")
 			return
 		}
+		c.Checklist = []models.ItemChecklist{}
 		out = append(out, c)
+		ids = append(ids, c.ID)
+	}
+	if err := rows.Err(); err != nil {
+		writeError(w, http.StatusInternalServerError, "error leyendo los comprobantes")
+		return
+	}
+	rows.Close()
+
+	if err := h.adjuntarChecklists(ctx, out, ids); err != nil {
+		writeError(w, http.StatusInternalServerError, "error leyendo los checklists")
+		return
 	}
 	writeJSON(w, http.StatusOK, out)
 }
 
+// adjuntarChecklists carga en una sola consulta el checklist de los comprobantes listados.
+func (h *Handler) adjuntarChecklists(ctx context.Context, comprobantes []models.Comprobante, ids []int) error {
+	if len(ids) == 0 {
+		return nil
+	}
+	rows, err := h.DB.Query(ctx, `SELECT comprobante_id, criterio, cumple FROM checklist_comprobante WHERE comprobante_id = ANY($1)`, ids)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	porComprobante := map[int][]models.ItemChecklist{}
+	for rows.Next() {
+		var id int
+		var it models.ItemChecklist
+		if err := rows.Scan(&id, &it.Criterio, &it.Cumple); err != nil {
+			return err
+		}
+		porComprobante[id] = append(porComprobante[id], it)
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+	for i := range comprobantes {
+		if items, ok := porComprobante[comprobantes[i].ID]; ok {
+			comprobantes[i].Checklist = checklist.Ordenar(items)
+		}
+	}
+	return nil
+}
+
+var (
+	errComprobanteNoEncontrado = errors.New("comprobante no encontrado")
+	errYaRevisado              = errors.New("el comprobante ya fue revisado")
+)
+
+// bloquearPendiente toma el comprobante con FOR UPDATE y exige que siga Pendiente;
+// devuelve el gasto al que pertenece.
+func bloquearPendiente(ctx context.Context, tx pgx.Tx, id int) (int, error) {
+	var gastoID int
+	var estado string
+	err := tx.QueryRow(ctx, `SELECT gasto_id, estado FROM comprobante WHERE id = $1 FOR UPDATE`, id).Scan(&gastoID, &estado)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return 0, errComprobanteNoEncontrado
+	}
+	if err != nil {
+		return 0, err
+	}
+	if estado != "Pendiente" {
+		return 0, errYaRevisado
+	}
+	return gastoID, nil
+}
+
+func guardarChecklist(ctx context.Context, tx pgx.Tx, id int, items []models.ItemChecklist) error {
+	for _, it := range items {
+		if _, err := tx.Exec(ctx, `INSERT INTO checklist_comprobante (comprobante_id, criterio, cumple) VALUES ($1, $2, $3)`, id, it.Criterio, it.Cumple); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func escribirErrorRevision(w http.ResponseWriter, err error) {
+	switch {
+	case errors.Is(err, errComprobanteNoEncontrado):
+		writeError(w, http.StatusNotFound, err.Error())
+	case errors.Is(err, errYaRevisado):
+		writeError(w, http.StatusConflict, err.Error())
+	default:
+		writeError(w, http.StatusInternalServerError, "no se pudo completar la revisión")
+	}
+}
+
 type aprobarRequest struct {
-	AprobadoPor string `json:"aprobado_por"`
+	AprobadoPor string          `json:"aprobado_por"`
+	Checklist   map[string]bool `json:"checklist"`
 }
 
 // aprobarComprobante implementa RF-7 (aprobar) para el rol Encargado de
-// Logística, y hace avanzar el gasto a "Sustentado".
+// Logística: exige el checklist documental completo y hace avanzar el gasto
+// a "Sustentado".
 func (h *Handler) aprobarComprobante(w http.ResponseWriter, r *http.Request) {
 	nombre, autorizado := requireLogistica(r)
 	if !autorizado {
@@ -192,7 +286,14 @@ func (h *Handler) aprobarComprobante(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req aprobarRequest
-	_ = json.NewDecoder(r.Body).Decode(&req) // cuerpo opcional
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "cuerpo inválido")
+		return
+	}
+	if err := checklist.ValidarAprobacion(req.Checklist); err != nil {
+		writeError(w, http.StatusUnprocessableEntity, err.Error())
+		return
+	}
 	if req.AprobadoPor != "" {
 		nombre = req.AprobadoPor
 	}
@@ -205,16 +306,19 @@ func (h *Handler) aprobarComprobante(w http.ResponseWriter, r *http.Request) {
 	}
 	defer tx.Rollback(ctx)
 
-	var gastoID int
-	err = tx.QueryRow(ctx, `
-		UPDATE comprobante SET estado = 'Aprobado', aprobado_por = $1, aprobado_en = now()
-		WHERE id = $2 RETURNING gasto_id
-	`, nombre, id).Scan(&gastoID)
+	gastoID, err := bloquearPendiente(ctx, tx, id)
 	if err != nil {
-		writeError(w, http.StatusNotFound, "comprobante no encontrado")
+		escribirErrorRevision(w, err)
 		return
 	}
-
+	if err := guardarChecklist(ctx, tx, id, checklist.Items(req.Checklist)); err != nil {
+		writeError(w, http.StatusInternalServerError, "no se pudo guardar el checklist")
+		return
+	}
+	if _, err := tx.Exec(ctx, `UPDATE comprobante SET estado = 'Aprobado', aprobado_por = $1, aprobado_en = now() WHERE id = $2`, nombre, id); err != nil {
+		writeError(w, http.StatusInternalServerError, "no se pudo aprobar el comprobante")
+		return
+	}
 	if _, err := tx.Exec(ctx, `UPDATE gasto SET estado = 'Sustentado' WHERE id = $1`, gastoID); err != nil {
 		writeError(w, http.StatusInternalServerError, "no se pudo actualizar el gasto")
 		return
@@ -229,12 +333,13 @@ func (h *Handler) aprobarComprobante(w http.ResponseWriter, r *http.Request) {
 }
 
 type rechazarRequest struct {
-	MotivoRechazo string `json:"motivo_rechazo"`
-	AprobadoPor   string `json:"aprobado_por"`
+	MotivoRechazo string          `json:"motivo_rechazo"`
+	AprobadoPor   string          `json:"aprobado_por"`
+	Checklist     map[string]bool `json:"checklist"`
 }
 
 // rechazarComprobante implementa RF-8 (motivo obligatorio) y RF-9 (el gasto
-// vuelve a "Registrado").
+// vuelve a "Registrado"); guarda el checklist si viene.
 func (h *Handler) rechazarComprobante(w http.ResponseWriter, r *http.Request) {
 	nombre, autorizado := requireLogistica(r)
 	if !autorizado {
@@ -257,6 +362,10 @@ func (h *Handler) rechazarComprobante(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "motivo_rechazo es obligatorio")
 		return
 	}
+	if err := checklist.ValidarRechazo(req.Checklist); err != nil {
+		writeError(w, http.StatusUnprocessableEntity, err.Error())
+		return
+	}
 	if req.AprobadoPor != "" {
 		nombre = req.AprobadoPor
 	}
@@ -269,16 +378,19 @@ func (h *Handler) rechazarComprobante(w http.ResponseWriter, r *http.Request) {
 	}
 	defer tx.Rollback(ctx)
 
-	var gastoID int
-	err = tx.QueryRow(ctx, `
-		UPDATE comprobante SET estado = 'Rechazado', motivo_rechazo = $1, aprobado_por = $2, aprobado_en = now()
-		WHERE id = $3 RETURNING gasto_id
-	`, req.MotivoRechazo, nombre, id).Scan(&gastoID)
+	gastoID, err := bloquearPendiente(ctx, tx, id)
 	if err != nil {
-		writeError(w, http.StatusNotFound, "comprobante no encontrado")
+		escribirErrorRevision(w, err)
 		return
 	}
-
+	if err := guardarChecklist(ctx, tx, id, checklist.Items(req.Checklist)); err != nil {
+		writeError(w, http.StatusInternalServerError, "no se pudo guardar el checklist")
+		return
+	}
+	if _, err := tx.Exec(ctx, `UPDATE comprobante SET estado = 'Rechazado', motivo_rechazo = $1, aprobado_por = $2, aprobado_en = now() WHERE id = $3`, req.MotivoRechazo, nombre, id); err != nil {
+		writeError(w, http.StatusInternalServerError, "no se pudo rechazar el comprobante")
+		return
+	}
 	if _, err := tx.Exec(ctx, `UPDATE gasto SET estado = 'Registrado' WHERE id = $1`, gastoID); err != nil {
 		writeError(w, http.StatusInternalServerError, "no se pudo actualizar el gasto")
 		return

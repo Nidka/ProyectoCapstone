@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strings"
 	"time"
 
 	"gastos-service/internal/models"
@@ -96,10 +97,18 @@ func (h *Handler) createGasto(w http.ResponseWriter, r *http.Request) {
 // aprobación puedan elegir un gasto; la consulta de gastos completa (con
 // filtros y búsqueda) es una iteración posterior.
 func (h *Handler) listGastos(w http.ResponseWriter, r *http.Request) {
-	rows, err := h.DB.Query(context.Background(), `
-		SELECT id, viaje_id, cliente_id, monto, fecha, estado, creado_por, creado_en
-		FROM gasto ORDER BY creado_en DESC LIMIT 200
-	`)
+	filtro, mensaje := leerFiltroGastos(r)
+	if mensaje != "" {
+		writeError(w, http.StatusBadRequest, mensaje)
+		return
+	}
+	cond, args := filtro.condiciones(0)
+	consulta := `SELECT g.id, g.viaje_id, g.cliente_id, g.monto, g.fecha, g.estado, g.creado_por, g.creado_en FROM gasto g`
+	if len(cond) > 0 {
+		consulta += " WHERE " + strings.Join(cond, " AND ")
+	}
+	consulta += " ORDER BY g.creado_en DESC, g.id DESC LIMIT 200"
+	rows, err := h.DB.Query(context.Background(), consulta, args...)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "no se pudo listar los gastos")
 		return

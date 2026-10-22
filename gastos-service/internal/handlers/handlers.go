@@ -27,6 +27,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	// Registro de Gasto Adicional (RF-1, RF-2, RF-3)
 	mux.HandleFunc("POST /gastos", h.createGasto)
 	mux.HandleFunc("GET /gastos", h.listGastos)
+	mux.HandleFunc("GET /gastos/exportar.xlsx", h.exportarGastos)
 	mux.HandleFunc("GET /gastos/{id}", h.getGasto)
 
 	// Registro de Comprobante de Pago (RF-4, RF-5, RF-6)
@@ -36,6 +37,11 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /comprobantes", h.listComprobantes)
 	mux.HandleFunc("POST /comprobantes/{id}/aprobar", h.aprobarComprobante)
 	mux.HandleFunc("POST /comprobantes/{id}/rechazar", h.rechazarComprobante)
+
+	// Reportes estadísticos (dashboard gerencial y PDF)
+	mux.HandleFunc("GET /reportes/resumen", h.resumenReporte)
+	mux.HandleFunc("GET /reportes/estadistico.pdf", h.pdfEstadistico)
+	mux.HandleFunc("GET /reportes/detalle.pdf", h.pdfDetalle)
 
 	// Archivos de comprobantes servidos estáticamente
 	mux.Handle("GET /uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir(h.Cfg.UploadsDir))))

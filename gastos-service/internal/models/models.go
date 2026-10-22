@@ -17,13 +17,20 @@ type Gasto struct {
 
 // Comprobante representa un comprobante de pago adjuntado a un gasto.
 type Comprobante struct {
-	ID            int        `json:"id"`
-	GastoID       int        `json:"gasto_id"`
-	ArchivoURL    string     `json:"archivo_url"`
-	TipoArchivo   string     `json:"tipo_archivo"`
-	Estado        string     `json:"estado"`
-	MotivoRechazo *string    `json:"motivo_rechazo,omitempty"`
-	AprobadoPor   *string    `json:"aprobado_por,omitempty"`
-	AprobadoEn    *time.Time `json:"aprobado_en,omitempty"`
-	CreadoEn      time.Time  `json:"creado_en"`
+	ID            int             `json:"id"`
+	GastoID       int             `json:"gasto_id"`
+	ArchivoURL    string          `json:"archivo_url"`
+	TipoArchivo   string          `json:"tipo_archivo"`
+	Estado        string          `json:"estado"`
+	MotivoRechazo *string         `json:"motivo_rechazo,omitempty"`
+	AprobadoPor   *string         `json:"aprobado_por,omitempty"`
+	AprobadoEn    *time.Time      `json:"aprobado_en,omitempty"`
+	CreadoEn      time.Time       `json:"creado_en"`
+	Checklist     []ItemChecklist `json:"checklist"`
+}
+
+// ItemChecklist es un criterio del checklist documental con su resultado.
+type ItemChecklist struct {
+	Criterio string `json:"criterio"`
+	Cumple   bool   `json:"cumple"`
 }
