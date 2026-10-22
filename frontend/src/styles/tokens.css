@@ -1,0 +1,114 @@
+/* ══ Tokens: única fuente de verdad del sistema visual ══ */
+:root {
+  color-scheme: light;
+
+  /* Superficies */
+  --asfalto: #1e2124;
+  --asfalto-2: #2a2e33;
+  --asfalto-3: #3a3f45;
+  --asfalto-tinta: #c9cdd1;
+  --suelo: #f7f7f5;
+  --panel: #fdfdfc;
+  --panel-2: #f0f1ee;
+  --linea: #e2e3e0;
+  --linea-2: #c9ccc8;
+  /* Borde que identifica un control (campos, selector): 3:1 sobre suelo, panel y panel-2 (WCAG 1.4.11) */
+  --borde-control: #858a85;
+
+  /* Tinta */
+  --tinta: #1e2124;
+  --tinta-2: #4a5056;
+  --tinta-3: #656b71;
+
+  /* Marca y atención */
+  --rojo: #e11d48;
+  --rojo-hover: #c8113d;
+  --rojo-presionado: #ad0e35;
+  --rojo-suave: #fdecef;
+  --rojo-tinta: #b4123a;
+  --rojo-borde: #f6c7d1;
+  --via: #f2c200;
+  --via-suave: #fff5cc;
+  --via-tinta: #6b5300;
+
+  /* Estados (fijados por el producto; coinciden con la señalización vial) */
+  --registrado: #8a9096;
+  --registrado-suave: #eeefec;
+  --registrado-tinta: #4a5056;
+  --pagado: #2563eb;
+  --pagado-suave: #e8effe;
+  --pagado-tinta: #1e4fc2;
+  --sustentado: #15803d;
+  --sustentado-suave: #e6f4ea;
+  --sustentado-tinta: #166534;
+  --sustentado-presionado: #14532d;
+  --pendiente: var(--via);
+  --pendiente-suave: var(--via-suave);
+  --pendiente-tinta: var(--via-tinta);
+  --rechazado: var(--rojo);
+  --rechazado-suave: var(--rojo-suave);
+  --rechazado-tinta: var(--rojo-tinta);
+
+  /* Tipografía */
+  --fuente: 'Overpass Variable', 'Overpass', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fuente-mono: 'Overpass Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --t-12: 0.75rem;
+  --t-13: 0.8125rem;
+  --t-14: 0.875rem;
+  --t-15: 0.9375rem;
+  --t-16: 1rem;
+  --t-18: 1.125rem;
+  --t-20: 1.25rem;
+  --t-24: 1.5rem;
+  --t-32: 2rem;
+  --t-40: 2.5rem;
+
+  /* Espaciado (base 4 px) */
+  --e-1: 4px;
+  --e-2: 8px;
+  --e-3: 12px;
+  --e-4: 16px;
+  --e-5: 20px;
+  --e-6: 24px;
+  --e-8: 32px;
+  --e-10: 40px;
+  --e-12: 48px;
+  --e-16: 64px;
+
+  /* Forma: controles e insignias 6 px, paneles 10 px, contadores en pastilla */
+  --r-control: 6px;
+  --r-panel: 10px;
+  --r-pastilla: 999px;
+
+  /* Sombras teñidas de asfalto, solo en lo flotante */
+  --sombra-1: 0 1px 2px rgb(30 33 36 / 0.06);
+  --sombra-2: 0 8px 24px rgb(30 33 36 / 0.12), 0 2px 6px rgb(30 33 36 / 0.08);
+
+  /* Capas */
+  --z-barra: 100;
+  --z-tabbar: 110;
+  --z-avisos: 300;
+
+  /* Movimiento (Emil Kowalski) */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --d-press: 140ms;
+  --d-fast: 180ms;
+  --d-base: 240ms;
+  --d-hoja: 320ms;
+  --d-ruta: 420ms;
+
+  /* Layout */
+  --barra-h: 56px;
+  --tabbar-h: 64px;
+  --contenido-max: 1240px;
+  --margen: 32px;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --barra-h: 52px;
+    --margen: 16px;
+  }
+}

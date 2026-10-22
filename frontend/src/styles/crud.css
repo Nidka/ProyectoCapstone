@@ -1,0 +1,43 @@
+/* ══ Operación y Catálogos ══ */
+.pestanas--seccion {
+  margin-bottom: var(--e-4);
+}
+
+.pestanas--seccion .pestanas__item .icono {
+  color: var(--tinta-3);
+}
+
+.pestanas--seccion .pestanas__item--activa .icono {
+  color: var(--rojo);
+}
+
+.pagina > .alerta {
+  margin-bottom: var(--e-4);
+}
+
+.formulario--rejilla .combo__lista {
+  max-height: 200px;
+}
+
+/* Celular: la columna de acciones queda fija a la derecha mientras la tabla se desliza,
+   así «Registrar gasto» y «Ver registro» siempre están a la vista */
+@media (max-width: 767px) {
+  .tabla__acciones {
+    position: sticky;
+    right: 0;
+    z-index: 1;
+    background: var(--panel);
+    box-shadow: -12px 0 12px -12px rgb(30 33 36 / 0.3);
+  }
+
+  /* Los botones se apilan para que la columna fija no tape la tabla */
+  .tabla__acciones .btn {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .tabla__acciones .btn + .btn {
+    margin-top: var(--e-1);
+  }
+}

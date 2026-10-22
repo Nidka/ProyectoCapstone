@@ -1,0 +1,78 @@
+<div class="revision">
+  <figure class="revision__vista">
+    @if (esPdf()) {
+      <div class="revision__pdf">
+        <app-icono nombre="file-type-pdf" [tamano]="40" />
+        <span>Comprobante en PDF</span>
+      </div>
+    } @else {
+      <img class="revision__imagen" [src]="url()" alt="Comprobante de pago adjuntado" loading="lazy" />
+    }
+    <figcaption class="revision__pie">
+      <span>Adjuntado el {{ formatFechaHora(comprobante().creado_en) }}</span>
+      <a class="enlace" [href]="url()" target="_blank" rel="noopener">{{ esPdf() ? 'Abrir PDF' : 'Ver en tamaño completo' }}</a>
+    </figcaption>
+  </figure>
+
+  <fieldset class="checklist" [disabled]="enviando()">
+    <legend class="checklist__titulo">Checklist documental</legend>
+    <ul class="checklist__lista">
+      @for (criterio of criterios; track criterio.clave) {
+        <li>
+          <label class="casilla checklist__criterio">
+            <input
+              type="checkbox"
+              [checked]="checklist()[criterio.clave]"
+              (change)="marcar(criterio.clave, $any($event.target).checked)"
+            />
+            <span>{{ criterio.texto(gasto()) }}</span>
+          </label>
+        </li>
+      }
+    </ul>
+    <p class="checklist__conteo" aria-live="polite">{{ marcados() }} de {{ total }} criterios</p>
+  </fieldset>
+
+  @if (!rechazando()) {
+    <div class="formulario__acciones">
+      <button
+        type="button"
+        class="btn btn--guia"
+        [disabled]="enviando() || !completo()"
+        [attr.aria-describedby]="completo() ? null : 'checklist-aviso'"
+        (click)="aprobar()"
+      >
+        <app-icono nombre="check" [tamano]="18" />Aprobar
+      </button>
+      <button type="button" class="btn btn--secundario" [disabled]="enviando()" (click)="abrirRechazo()">
+        <app-icono nombre="x" [tamano]="18" />Rechazar
+      </button>
+    </div>
+    @if (!completo()) {
+      <p class="campo__ayuda" id="checklist-aviso">Marca los 5 criterios para aprobar.</p>
+    }
+  } @else {
+    <div class="revision__rechazo">
+      <div class="campo" [class.campo--con-error]="motivoError()">
+        <label class="campo__etiqueta" for="motivo-rechazo">Motivo del rechazo <span class="req" aria-hidden="true">*</span></label>
+        <textarea
+          class="control"
+          id="motivo-rechazo"
+          name="motivo"
+          rows="3"
+          [(ngModel)]="motivo"
+          placeholder="Explica por qué se rechaza este comprobante (ej. monto no coincide, comprobante ilegible)"
+          [attr.aria-invalid]="!!motivoError() || null"
+          [attr.aria-describedby]="motivoError() ? 'motivo-error' : null"
+        ></textarea>
+        @if (motivoError()) {
+          <p class="campo__error" id="motivo-error">{{ motivoError() }}</p>
+        }
+      </div>
+      <div class="formulario__acciones">
+        <button type="button" class="btn btn--peligro" [disabled]="enviando()" (click)="confirmarRechazo()">Confirmar rechazo</button>
+        <button type="button" class="btn btn--fantasma" (click)="cancelarRechazo()">Cancelar</button>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,215 @@
+<div class="pagina">
+  <header class="pagina__encabezado">
+    <div>
+      <h1 class="pagina__titulo">Reportes</h1>
+      <p class="pagina__bajada">Gastos adicionales del {{ formatFecha(filtro().desde) }} al {{ formatFecha(filtro().hasta) }}.</p>
+    </div>
+    <div class="pagina__acciones">
+      <button type="button" class="btn btn--primario" [disabled]="!!errorFiltro() || !!descargando()" (click)="descargar('estadistico')">
+        <app-icono nombre="download" />{{ descargando() === 'estadistico' ? 'Generando…' : 'Descargar reporte estadístico (PDF)' }}
+      </button>
+      <button type="button" class="btn btn--secundario" [disabled]="!!errorFiltro() || !!descargando()" (click)="descargar('detalle')">
+        <app-icono nombre="download" />{{ descargando() === 'detalle' ? 'Generando…' : 'Descargar detalle de gastos (PDF)' }}
+      </button>
+      <button type="button" class="btn btn--secundario" [disabled]="!!errorFiltro() || !!descargando()" (click)="descargar('excel')">
+        <app-icono nombre="download" />{{ descargando() === 'excel' ? 'Generando…' : 'Descargar detalle (Excel)' }}
+      </button>
+    </div>
+  </header>
+
+  <section class="reportes__filtro" aria-label="Rango de fechas">
+    <div class="pestanas reportes__atajos" role="group" aria-label="Atajos de rango">
+      @for (a of atajos; track a.id) {
+        <button
+          type="button"
+          class="pestanas__item"
+          [class.pestanas__item--activa]="atajosActivos().includes(a.id)"
+          [attr.aria-pressed]="atajosActivos().includes(a.id)"
+          (click)="elegirAtajo(a.id)"
+        >
+          {{ a.etiqueta }}
+        </button>
+      }
+    </div>
+    <div class="reportes__fechas">
+      <div class="campo" [class.campo--con-error]="errorFiltro()">
+        <label class="campo__etiqueta" for="reporte-desde">Desde</label>
+        <input
+          class="control"
+          id="reporte-desde"
+          #campoDesde
+          type="date"
+          [value]="filtro().desde"
+          (change)="cambiarRango(campoDesde.value, campoHasta.value)"
+          [attr.aria-invalid]="!!errorFiltro() || null"
+          [attr.aria-describedby]="errorFiltro() ? 'reporte-error' : null"
+        />
+      </div>
+      <div class="campo" [class.campo--con-error]="errorFiltro()">
+        <label class="campo__etiqueta" for="reporte-hasta">Hasta</label>
+        <input
+          class="control"
+          id="reporte-hasta"
+          #campoHasta
+          type="date"
+          [value]="filtro().hasta"
+          (change)="cambiarRango(campoDesde.value, campoHasta.value)"
+          [attr.aria-invalid]="!!errorFiltro() || null"
+          [attr.aria-describedby]="errorFiltro() ? 'reporte-error' : null"
+        />
+      </div>
+    </div>
+    @if (errorFiltro(); as error) {
+      <p class="campo__error" id="reporte-error">{{ error }}</p>
+    }
+  </section>
+
+  <!-- Región viva fija: los lectores de pantalla anuncian el aviso cuando aparece -->
+  <div role="status">
+    @if (mesVisto(); as mes) {
+      <p class="alerta alerta--via reportes__aviso">
+        <app-icono nombre="calendar" [tamano]="18" />
+        <span>Viendo: {{ nombreMes(mes) }}</span>
+        <button type="button" class="enlace" (click)="quitarMes()">Quitar</button>
+      </p>
+    }
+  </div>
+
+  @if (errorFiltro()) {
+    <!-- Con el rango inválido no se consulta: el mensaje ya está junto a las fechas -->
+  } @else if (resumen.isLoading()) {
+    <div class="reportes__esqueleto" aria-busy="true">
+      <div class="esqueleto esqueleto--franja"></div>
+      <div class="esqueleto esqueleto--bloque"></div>
+      <div class="esqueleto esqueleto--bloque"></div>
+    </div>
+  } @else if (resumen.error()) {
+    <app-estado-vacio icono="cloud-off" titulo="No se pudo cargar el reporte." texto="Revisa tu conexión e inténtalo de nuevo.">
+      <button type="button" class="btn btn--secundario" (click)="resumen.reload()">Reintentar</button>
+    </app-estado-vacio>
+  } @else if (datos(); as r) {
+    @if (r.indicadores.cantidad === 0) {
+      <app-estado-vacio icono="chart-bar" titulo="No hay gastos en este período." texto="Prueba con otro rango de fechas." />
+    } @else {
+      <section class="indicadores" aria-label="Indicadores del período">
+        <div class="indicador">
+          <span class="indicador__etiqueta">Total gastado</span>
+          <span class="indicador__valor">{{ formatMonto(r.indicadores.total) }}</span>
+        </div>
+        <div class="indicador">
+          <span class="indicador__etiqueta">Gastos registrados</span>
+          <span class="indicador__valor">{{ r.indicadores.cantidad }}</span>
+        </div>
+        <div class="indicador">
+          <span class="indicador__etiqueta">Gasto promedio</span>
+          <span class="indicador__valor">{{ formatMonto(r.indicadores.promedio) }}</span>
+        </div>
+        <div class="indicador indicador--destacado">
+          <span class="indicador__etiqueta">ISC · gastos sustentados</span>
+          <span class="indicador__valor">{{ porcentaje(r.indicadores.isc) }}</span>
+          <span class="indicador__nota">{{ r.indicadores.gastos_sustentados }} de {{ r.indicadores.cantidad }} gastos</span>
+          <span class="indicador__formula">Sustentados ÷ totales × 100</span>
+        </div>
+        <div class="indicador">
+          <span class="indicador__etiqueta">Sustentado</span>
+          <span class="indicador__valor">{{ porcentaje(r.indicadores.porcentaje_sustentado) }}</span>
+          <span class="indicador__nota">Pendiente: {{ formatMonto(r.indicadores.pendiente) }}</span>
+        </div>
+      </section>
+
+      <section class="panel reportes__tarjeta" aria-labelledby="t-por-mes">
+        <h2 id="t-por-mes" class="seccion-titulo">Gasto por mes</h2>
+        <p class="reportes__ayuda">Haz clic en un mes para ver solo ese mes.</p>
+        <app-grafico [config]="configMes()!" [descripcion]="descripcionPorMes(r.por_mes)" [alto]="300" />
+        <details class="reportes__datos">
+          <summary>Ver datos</summary>
+          <div class="tabla-marco">
+            <table class="tabla">
+              <thead>
+                <tr>
+                  <th scope="col">Mes</th><th scope="col">Registrado</th><th scope="col">Pagado</th><th scope="col">Sustentado</th><th scope="col">Total</th>
+                  <th scope="col"><span class="oculto-visual">Acción</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (m of r.por_mes; track m.mes) {
+                  <tr>
+                    <th scope="row">{{ nombreMes(m.mes) }}</th>
+                    <td>{{ formatMonto(m.registrado) }}</td>
+                    <td>{{ formatMonto(m.pagado) }}</td>
+                    <td>{{ formatMonto(m.sustentado) }}</td>
+                    <td>{{ formatMonto(m.total) }}</td>
+                    <td>
+                      <button type="button" class="btn btn--fantasma btn--sm" (click)="elegirMes(m.mes)">
+                        Ver mes<span class="oculto-visual"> {{ nombreMes(m.mes) }}</span>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </details>
+      </section>
+
+      <section class="panel reportes__tarjeta" aria-labelledby="t-por-estado">
+        <h2 id="t-por-estado" class="seccion-titulo">Distribución por estado</h2>
+        <app-grafico [config]="configEstado()!" [descripcion]="descripcionPorEstado(r.por_estado)" [alto]="150" />
+        <details class="reportes__datos">
+          <summary>Ver datos</summary>
+          <div class="tabla-marco">
+            <table class="tabla">
+              <thead>
+                <tr><th scope="col">Estado</th><th scope="col">Gastos</th><th scope="col">Monto</th><th scope="col">%</th></tr>
+              </thead>
+              <tbody>
+                @for (e of r.por_estado; track e.estado) {
+                  <tr>
+                    <th scope="row"><span class="reportes__muestra" [style.background]="colorEstado[e.estado]" aria-hidden="true"></span>{{ e.estado }}</th>
+                    <td>{{ e.cantidad }}</td>
+                    <td>{{ formatMonto(e.monto) }}</td>
+                    <td>{{ porcentaje(e.porcentaje) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </details>
+      </section>
+
+      <div class="reportes__rankings">
+        @for (k of rankings(); track k.id) {
+          <section class="panel reportes__tarjeta" [attr.aria-labelledby]="'t-' + k.id">
+            <h2 [id]="'t-' + k.id" class="seccion-titulo">{{ k.titulo }}</h2>
+            @if (k.filas.length === 0) {
+              <p class="reportes__ayuda">Sin datos en este período.</p>
+            } @else {
+              <app-grafico [config]="k.config" [descripcion]="k.descripcion" [alto]="60 + k.filas.length * 28" />
+              <details class="reportes__datos">
+                <summary>Ver datos</summary>
+                <div class="tabla-marco">
+                  <table class="tabla">
+                    <thead>
+                      <tr><th scope="col">Puesto</th><th scope="col">{{ k.columna }}</th><th scope="col">Gastos</th><th scope="col">Monto</th><th scope="col">%</th></tr>
+                    </thead>
+                    <tbody>
+                      @for (f of k.filas; track $index) {
+                        <tr>
+                          <td>{{ f.puesto }}</td>
+                          <th scope="row">{{ f.etiqueta }}</th>
+                          <td>{{ f.cantidad }}</td>
+                          <td>{{ formatMonto(f.monto) }}</td>
+                          <td>{{ porcentaje(f.porcentaje) }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </details>
+            }
+          </section>
+        }
+      </div>
+    }
+  }
+</div>

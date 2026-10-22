@@ -1,9 +1,7 @@
-import { Injectable, signal } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-/** Rol simulado mientras no exista Gestión de Usuarios (RF-19 a RF-21). */
-export type RolSimulado = 'operador' | 'logistica';
+import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class GastosApiService {
@@ -12,11 +10,7 @@ export class GastosApiService {
   private _base = signal(localStorage.getItem(this.storageKey) ?? this.defaultBase);
   readonly base = this._base.asReadonly();
 
-  /** Usuario/rol actual simulado por header (RF-7). */
-  readonly currentUser = signal<{ nombre: string; rol: RolSimulado }>({
-    nombre: 'Ana Torres',
-    rol: 'operador',
-  });
+  private auth = inject(AuthService);
 
   constructor(private http: HttpClient) {}
 
@@ -26,13 +20,21 @@ export class GastosApiService {
     localStorage.setItem(this.storageKey, normalized);
   }
 
+  // Mientras no exista Gestión de Usuarios (RF-19 a RF-21), la persona con
+  // sesión iniciada actúa como Encargado de Logística para aprobar o
+  // rechazar comprobantes; es un usuario fijo, sin selector visible.
   private headers(): HttpHeaders {
-    const u = this.currentUser();
-    return new HttpHeaders({ 'X-User-Name': u.nombre, 'X-User-Role': u.rol });
+    const nombre = this.auth.usuario()?.nombre ?? 'Encargado de Logística';
+    return new HttpHeaders({ 'X-User-Name': nombre, 'X-User-Role': 'logistica' });
   }
 
   get<T>(path: string): Observable<T> {
     return this.http.get<T>(`${this._base()}${path}`, { headers: this.headers() });
+  }
+
+  /** Descarga un archivo con sus cabeceras (para leer el nombre en Content-Disposition). */
+  getBlob(path: string): Observable<HttpResponse<Blob>> {
+    return this.http.get(`${this._base()}${path}`, { headers: this.headers(), responseType: 'blob', observe: 'response' });
   }
 
   post<T>(path: string, body: unknown): Observable<T> {

@@ -1,0 +1,49 @@
+<dialog #dialogo class="paleta" aria-label="Buscar o ir a" (click)="cerrarSiFondo($event)">
+  <div class="paleta__marco">
+    <div class="paleta__campo">
+      <app-icono nombre="search" [tamano]="18" />
+      <input
+        #campo
+        class="paleta__input"
+        type="text"
+        role="combobox"
+        aria-expanded="true"
+        aria-controls="paleta-lista"
+        aria-autocomplete="list"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="Buscar o ir a…"
+        [attr.aria-activedescendant]="activoId()"
+        (input)="escribir($event)"
+        (keydown)="teclear($event)"
+      />
+      <kbd class="paleta__esc">Esc</kbd>
+    </div>
+    <div class="paleta__lista" id="paleta-lista" role="listbox" aria-label="Resultados">
+      @for (g of grupos(); track g.nombre) {
+        <div class="paleta__grupo" role="group" [attr.aria-label]="g.nombre">
+          <p class="paleta__grupo-titulo" aria-hidden="true">{{ g.nombre }}</p>
+          @for (x of g.entradas; track x.entrada.id) {
+            <div
+              class="paleta__opcion"
+              role="option"
+              [id]="x.entrada.id"
+              [attr.aria-selected]="x.indice === activo()"
+              [class.paleta__opcion--activa]="x.indice === activo()"
+              (click)="ir(x.entrada)"
+              (pointermove)="activo.set(x.indice)"
+            >
+              <app-icono [nombre]="x.entrada.icono" [tamano]="18" />
+              <span class="paleta__etiqueta">{{ x.entrada.etiqueta }}</span>
+              @if (x.entrada.detalle) {
+                <span class="paleta__detalle">{{ x.entrada.detalle }}</span>
+              }
+            </div>
+          }
+        </div>
+      } @empty {
+        <p class="paleta__vacio">Sin resultados para «{{ termino() }}».</p>
+      }
+    </div>
+  </div>
+</dialog>

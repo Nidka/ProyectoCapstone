@@ -1,5 +1,0 @@
-/* Landing-specific styles — importa el CSS original */
-@import '../../../assets/css/landing.css';
-
-/* Fix para Angular: el host ocupa todo */
-:host { display: block; height: 100vh; overflow: hidden; }

@@ -1,0 +1,59 @@
+<nav class="tabbar" aria-label="Principal (celular)">
+  <a class="tabbar__item" routerLink="/app/inicio" routerLinkActive="tabbar__item--activo" ariaCurrentWhenActive="page">
+    <app-icono nombre="home" [tamano]="22" /><span>Inicio</span>
+  </a>
+  <a class="tabbar__item" routerLink="/app/gastos" routerLinkActive="tabbar__item--activo" ariaCurrentWhenActive="page">
+    <span class="tabbar__icono">
+      <app-icono nombre="receipt" [tamano]="22" />
+      @if (pendientes() > 0) {
+        <span class="tabbar__punto">{{ pendientes() }}<span class="oculto-visual"> por aprobar</span></span>
+      }
+    </span>
+    <span>Gastos</span>
+  </a>
+  <a class="tabbar__item" routerLink="/app/operacion" routerLinkActive="tabbar__item--activo" ariaCurrentWhenActive="page">
+    <app-icono nombre="route" [tamano]="22" /><span>Operación</span>
+  </a>
+  <button type="button" class="tabbar__item" [class.tabbar__item--activo]="enMas()" aria-haspopup="dialog" (click)="abrirMas()">
+    <app-icono nombre="dots" [tamano]="22" /><span>Más</span>
+  </button>
+</nav>
+
+<dialog #hojaMas class="hoja hoja--inferior" aria-labelledby="mas-titulo" (click)="cerrarSiFondo($event)">
+  <div class="hoja__marco">
+    <header class="hoja__cabecera">
+      <h2 id="mas-titulo" class="hoja__titulo">Más</h2>
+      <button type="button" class="btn btn--fantasma btn--icono" (click)="cerrarMas()" aria-label="Cerrar"><app-icono nombre="x" /></button>
+    </header>
+    <div class="hoja__cuerpo">
+      <p class="hoja__grupo">Gerencia</p>
+      <ul class="lista-enlaces">
+        <li>
+          <a class="lista-enlaces__item" routerLink="/app/reportes" (click)="cerrarMas()">
+            <app-icono nombre="chart-bar" [tamano]="20" />Reportes
+            <app-icono class="lista-enlaces__flecha" nombre="chevron-right" [tamano]="16" />
+          </a>
+        </li>
+      </ul>
+      <p class="hoja__grupo">Catálogos</p>
+      <ul class="lista-enlaces">
+        @for (m of catalogos; track m.slug) {
+          <li>
+            <a class="lista-enlaces__item" [routerLink]="rutaModulo(m)" (click)="cerrarMas()">
+              <app-icono [nombre]="m.icono" [tamano]="20" />{{ m.etiqueta }}
+              <app-icono class="lista-enlaces__flecha" nombre="chevron-right" [tamano]="16" />
+            </a>
+          </li>
+        }
+      </ul>
+      <p class="hoja__grupo">Cuenta</p>
+      <div class="lista-enlaces__cuenta">
+        <span class="usuario__iniciales" aria-hidden="true">{{ siglas() }}</span>
+        <span>{{ nombre() }}</span>
+      </div>
+      <button type="button" class="btn btn--secundario btn--bloque" (click)="salir()">
+        <app-icono nombre="logout" [tamano]="18" />Cerrar sesión
+      </button>
+    </div>
+  </div>
+</dialog>

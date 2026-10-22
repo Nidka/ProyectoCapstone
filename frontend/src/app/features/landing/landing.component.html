@@ -1,113 +1,121 @@
-<div id="screen-landing">
-  <!-- BG layers -->
-  <div class="l-bg">
-    <img class="l-bg-img"
-      src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=1920&q=80&auto=format&fit=crop"
-      alt="Autopista Lima"/>
-    <div class="l-bg-overlay"></div>
-    <div class="l-bg-grid"></div>
-  </div>
-  <div class="l-scanline"></div>
-  <div class="l-particles" id="particles"></div>
-  <div class="l-orb l-orb-1"></div>
-  <div class="l-orb l-orb-2"></div>
-  <div class="l-orb l-orb-3"></div>
-
-  <!-- Header -->
-  <header class="l-header">
-    <a class="l-logo" [routerLink]="['/']">
-      <div class="l-logo-badge">
-        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="1" y="4" width="14" height="13" rx="2"/>
-          <path d="M15 9h4.5L22 13v4h-7V9z"/>
-          <circle cx="5.5" cy="19.5" r="2.5"/>
-          <circle cx="18.5" cy="19.5" r="2.5"/>
-        </svg>
-      </div>
-      <div>
-        <div class="l-logo-name">LIZAR SRL</div>
-        <span class="l-logo-sub">Fleet Manager Pro</span>
-      </div>
-    </a>
-
-    <nav class="l-nav">
-      @for (link of navLinks; track link) {
-        <button class="l-nav-link" [class.active]="activeNav === link" (click)="setNav(link)">
-          {{ link }}
-        </button>
+<div class="landing">
+  <header class="landing__barra">
+    <div class="landing__barra-interior">
+      <a class="landing__marca" routerLink="/" aria-label="LIZAR SRL, inicio"><app-marca /></a>
+      @if (auth.isAuth()) {
+        <a class="btn btn--primario" routerLink="/app/inicio">Ir a Inicio<app-icono nombre="arrow-right" [tamano]="16" /></a>
+      } @else {
+        <a class="btn btn--primario" routerLink="/login">Ingresar<app-icono nombre="arrow-right" [tamano]="16" /></a>
       }
-    </nav>
-
-    <button class="l-enter-btn" (click)="goToDashboard()">
-      Ingresar al sistema
-      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-    </button>
+    </div>
+    <div class="cinta" aria-hidden="true"></div>
   </header>
 
-  <!-- Hero -->
-  <section class="l-hero">
-    <div class="l-hero-eyebrow">
-      <div class="l-hero-dot"></div>
-      <div class="l-hero-tag">
-        <span class="l-hero-dot-live"></span>
-        Sistema en vivo
+  <main>
+    <!-- La portada es la carretera: la foto a sangre, el titular en placas de asfalto y los hitos con los conteos reales -->
+    <section class="portada" aria-labelledby="t-portada">
+      <figure class="portada__foto">
+        <img
+          src="https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=1400&q=75&auto=format&fit=crop"
+          srcset="
+            https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=640&q=75&auto=format&fit=crop 640w,
+            https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=960&q=75&auto=format&fit=crop 960w,
+            https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=1400&q=75&auto=format&fit=crop 1400w,
+            https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=2000&q=70&auto=format&fit=crop 2000w
+          "
+          sizes="100vw"
+          width="1400"
+          height="928"
+          alt="Camión de carga avanzando por una carretera de montaña con postes y señales de tránsito"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </figure>
+      <div class="portada__interior">
+        <h1 id="t-portada" class="portada__titulo"><span>Gastos de viaje con su comprobante,</span>&ngsp;<span>de la ruta a la oficina.</span></h1>
+        <div class="portada__cartel">
+          <p class="portada__bajada">Registra cada gasto adicional, adjunta su comprobante desde el celular y apruébalo desde la oficina.</p>
+          <div class="portada__acciones">
+            @if (auth.isAuth()) {
+              <a class="btn btn--primario btn--lg" routerLink="/app/inicio">Ir a Inicio</a>
+            } @else {
+              <a class="btn btn--primario btn--lg" routerLink="/login">Ingresar</a>
+              <a class="enlace portada__enlace" routerLink="/register">Crear usuario</a>
+            }
+          </div>
+        </div>
       </div>
-      <div class="l-hero-dot"></div>
-      <span>Lima, Perú · 2025</span>
-    </div>
 
-    <h1 class="l-hero-title">
-      Gestión<br>
-      <span class="accent">Inteligente</span><br>
-      de Gastos
-    </h1>
-
-    <p class="l-hero-desc">
-      Registra los gastos adicionales de cada viaje, adjunta el comprobante
-      de pago y da seguimiento a su aprobación — todo conectado en tiempo
-      real con tu API empresarial.
-    </p>
-
-    <div class="l-hero-actions">
-      <button class="l-btn-primary" (click)="goToDashboard()">
-        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-        </svg>
-        Abrir Dashboard
-      </button>
-      <button class="l-btn-secondary" (click)="goToDashboard()">
-        Ver módulos
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-      </button>
-    </div>
-  </section>
-
-  <!-- Deco truck -->
-  <div class="l-deco">
-    <img src="https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=900&q=80&auto=format&fit=crop" alt="Camión"/>
-  </div>
-
-  <!-- Stats en vivo -->
-  <div class="l-stats">
-    @for (s of stats; track s.id) {
-      <div class="l-stat">
-        <div class="l-stat-n">{{ s.value }}</div>
-        <div class="l-stat-l">{{ s.label }}</div>
+      <div class="via" role="group" aria-label="Estado actual de los gastos">
+        <div class="cinta" aria-hidden="true"></div>
+        <div class="via__interior">
+          <span class="via__linea" aria-hidden="true"></span>
+          <span class="via__camion" aria-hidden="true"><app-camion /></span>
+          <ol class="via__hitos">
+            @for (h of hitos; track h) {
+              <li class="via__hito">
+                <app-hito [estado]="h" [cabezal]="etiqueta[h]" [cifra]="sinDatos() ? '—' : (conteo()?.[h] ?? '…')" />
+              </li>
+            }
+          </ol>
+          @if (sinDatos()) {
+            <p class="via__nota">Los indicadores no están disponibles en este momento.</p>
+          } @else {
+            <!-- El rombo y la placa amarilla solo cuando algo espera aprobación; con cero, placa neutra -->
+            <p class="via__pendientes" [class.via__pendientes--espera]="(pendientes() ?? 0) > 0">
+              @if ((pendientes() ?? 0) > 0) {
+                <app-senal tipo="preventiva" icono="exclamation-mark" [tamano]="48" />
+              }
+              <span class="via__placa">{{ pendientes() ?? '…' }} {{ pendientes() === 1 ? 'comprobante por aprobar' : 'comprobantes por aprobar' }}</span>
+            </p>
+          }
+        </div>
       </div>
-    }
-  </div>
+    </section>
 
-  <!-- Pills -->
-  <div class="l-pills">
-    <div class="l-pill"><div class="l-pill-icon">🧾</div>Registro de gastos adicionales</div>
-    <div class="l-pill"><div class="l-pill-icon">📎</div>Comprobantes de pago digitales</div>
-    <div class="l-pill"><div class="l-pill-icon">✅</div>Aprobación de comprobantes</div>
-  </div>
+    <section class="como" aria-labelledby="t-como">
+      <h2 id="t-como" class="landing__h2">Cómo avanza un gasto</h2>
+      <ol class="como__pasos">
+        <li class="como__paso" data-estado="Registrado">
+          <span class="como__poste" aria-hidden="true"></span>
+          <h3>Registra</h3>
+          <p>Anota el gasto adicional con su viaje, cliente, monto y fecha.</p>
+          <app-insignia-estado estado="Registrado" />
+        </li>
+        <li class="como__paso" data-estado="Pagado">
+          <span class="como__poste" aria-hidden="true"></span>
+          <h3>Adjunta</h3>
+          <p>Sube la foto o el PDF del comprobante, también desde el celular.</p>
+          <app-insignia-estado estado="Pagado" />
+        </li>
+        <li class="como__paso" data-estado="Sustentado">
+          <span class="como__poste" aria-hidden="true"></span>
+          <h3>Aprueba</h3>
+          <p>Logística revisa el comprobante y lo aprueba, o lo rechaza con un motivo.</p>
+          <app-insignia-estado estado="Sustentado" />
+        </li>
+      </ol>
+    </section>
 
-  <!-- Scroll cue -->
-  <div class="l-scroll-cue">
-    <div class="l-scroll-wheel"></div>
-    <span>Scroll</span>
-  </div>
+    <section class="lugares" aria-labelledby="t-lugares">
+      <h2 id="t-lugares" class="landing__h2">Desde la oficina y desde la ruta</h2>
+      <div class="lugares__bloques">
+        <div class="lugares__bloque">
+          <app-icono nombre="building" [tamano]="20" />
+          <h3>En la oficina</h3>
+          <p>Logística ve qué gastos esperan revisión y aprueba cada comprobante con un clic.</p>
+        </div>
+        <div class="lugares__bloque">
+          <app-icono nombre="truck" [tamano]="20" />
+          <h3>En la ruta</h3>
+          <p>El conductor busca su gasto en el celular y adjunta la foto del comprobante en el momento.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="landing__pie">
+    <span>LIZAR SRL · Trujillo, Perú</span>
+    <span>© 2026</span>
+  </footer>
 </div>

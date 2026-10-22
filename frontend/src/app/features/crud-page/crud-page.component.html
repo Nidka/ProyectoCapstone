@@ -1,0 +1,214 @@
+@if (def(); as d) {
+  <div class="pagina">
+    <header class="pagina__encabezado">
+      <div>
+        <h1 class="pagina__titulo">{{ mod()?.etiqueta }}</h1>
+        <p class="pagina__bajada">{{ d.desc }}</p>
+      </div>
+      <div class="pagina__acciones">
+        <button type="button" class="btn btn--primario" (click)="nuevo()">
+          <app-icono nombre="plus" />{{ d.textos?.nuevo ?? 'Nuevo registro' }}
+        </button>
+      </div>
+    </header>
+
+    <nav class="pestanas pestanas--seccion" [attr.aria-label]="'Módulos de ' + seccionNav().etiqueta">
+      @for (m of seccionNav().modulos; track m.slug) {
+        <a
+          class="pestanas__item"
+          [routerLink]="rutaModulo(m)"
+          [class.pestanas__item--activa]="m.slug === mod()?.slug"
+          [attr.aria-current]="m.slug === mod()?.slug ? 'page' : null"
+        >
+          <app-icono [nombre]="m.icono" [tamano]="16" />{{ m.etiqueta }}
+        </a>
+      }
+    </nav>
+
+    @if (faltantes().length) {
+      <div class="alerta alerta--via">
+        <app-icono nombre="alert-triangle" [tamano]="18" />
+        <div>
+          <p>Antes de crear {{ d.textos?.plural ?? 'registros' }} necesitas registrar:</p>
+          <ul class="alerta__lista">
+            @for (r of faltantes(); track r.clave) {
+              <li>
+                @if (r.ruta) {
+                  <a class="enlace" [routerLink]="r.ruta">{{ r.texto }}</a>
+                } @else {
+                  {{ r.texto }}
+                }
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
+    }
+
+    <div class="barra-herramientas">
+      <label class="buscador">
+        <app-icono nombre="search" [tamano]="16" />
+        <span class="oculto-visual">Buscar en {{ mod()?.etiqueta }}</span>
+        <input class="control buscador__input" type="search" placeholder="Buscar" [value]="termino()" (input)="buscar($event)" />
+      </label>
+      @if (!conError()) {
+        <span class="barra-herramientas__conteo">{{ filas().length }} {{ filas().length === 1 ? 'registro' : 'registros' }}</span>
+      }
+      <button type="button" class="btn btn--fantasma btn--sm" (click)="actualizar()">
+        <app-icono nombre="refresh" [tamano]="16" />Actualizar
+      </button>
+    </div>
+
+    @if (cargando()) {
+      <div class="tabla-marco" aria-busy="true">
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <div class="esqueleto esqueleto--fila"></div>
+        }
+      </div>
+    } @else if (conError()) {
+      <app-estado-vacio icono="cloud-off" [titulo]="'No se pudo cargar la lista de ' + (d.textos?.plural ?? 'registros') + '.'" texto="Revisa tu conexión e inténtalo de nuevo.">
+        <button type="button" class="btn btn--secundario" (click)="reintentar()">Reintentar</button>
+      </app-estado-vacio>
+    } @else if (filas().length === 0) {
+      @if (termino()) {
+        <app-estado-vacio icono="search" titulo="Ningún registro coincide con la búsqueda." />
+      } @else {
+        <app-estado-vacio [icono]="mod()?.icono ?? 'inbox'" [titulo]="'Aún no hay ' + (d.textos?.plural ?? 'registros') + '.'" [texto]="requisitosTexto()">
+          <button type="button" class="btn btn--primario" (click)="nuevo()">{{ d.textos?.nuevo ?? 'Nuevo registro' }}</button>
+        </app-estado-vacio>
+      }
+    } @else {
+      <div class="tabla-marco">
+        <table class="tabla">
+          <thead>
+            <tr>
+              @for (col of d.cols; track col) {
+                <th scope="col">{{ col }}</th>
+              }
+              <th scope="col" class="tabla__acciones"><span class="oculto-visual">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (fila of filas(); track $index) {
+              <tr>
+                @for (celda of fila.celdas; track $index) {
+                  <td [innerHTML]="celda"></td>
+                }
+                <td class="tabla__acciones">
+                  @if (d.accionFila; as a) {
+                    <a class="btn btn--secundario btn--sm" [routerLink]="a.ruta" [queryParams]="consultaAccion(a.parametro, fila.item)">
+                      <app-icono nombre="plus" [tamano]="16" />{{ a.texto }}
+                    </a>
+                  }
+                  <button type="button" class="btn btn--fantasma btn--sm" (click)="verRegistro(fila.item)">
+                    Ver registro
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+  <dialog #hoja class="hoja" aria-labelledby="hoja-titulo" (click)="cerrarSiFondo($event, hoja)">
+    <form class="hoja__marco" (ngSubmit)="guardar()" novalidate>
+      <header class="hoja__cabecera">
+        <h2 id="hoja-titulo" class="hoja__titulo">{{ d.textos?.nuevo ?? 'Nuevo registro' }}</h2>
+        <button type="button" class="btn btn--fantasma btn--icono" (click)="cerrarHoja()" aria-label="Cerrar">
+          <app-icono nombre="x" />
+        </button>
+      </header>
+      <div class="hoja__cuerpo">
+        <p class="hoja__nota">Los campos con <span class="req">*</span> son obligatorios.</p>
+        <div class="formulario formulario--rejilla">
+          @for (c of campos(); track c.field.id) {
+            <div class="campo" [class.campo--medio]="c.field.half" [class.campo--con-error]="!!c.error">
+              <label class="campo__etiqueta" [for]="c.field.id">
+                {{ c.field.l }}
+                @if (c.field.req) {
+                  <span class="req" aria-hidden="true">*</span>
+                }
+              </label>
+              @switch (c.field.tp) {
+                @case ('ref') {
+                  <app-selector-referencia
+                    [idControl]="c.field.id"
+                    [opciones]="opciones()[c.field.ref!] ?? []"
+                    [(valor)]="c.value"
+                    [invalido]="!!c.error"
+                    [describedBy]="c.error ? c.field.id + '-error' : null"
+                    [cargando]="crud.estaCargando(c.field.ref!)"
+                    [vacioTexto]="crud.estaConError(c.field.ref!) ? 'No se pudo cargar la lista. Cierra y vuelve a intentarlo.' : textoVacio(c.field.ref!)"
+                    [crearRuta]="crud.estaConError(c.field.ref!) ? null : rutaDeClave(c.field.ref!)"
+                    [crearTexto]="textoNuevo(c.field.ref!)"
+                    (creando)="cerrarHoja()"
+                  />
+                }
+                @case ('textarea') {
+                  <textarea
+                    class="control"
+                    rows="3"
+                    [id]="c.field.id"
+                    [name]="c.field.id"
+                    [(ngModel)]="c.value"
+                    [placeholder]="c.field.placeholder ?? ''"
+                    [attr.aria-invalid]="!!c.error || null"
+                    [attr.aria-describedby]="c.error ? c.field.id + '-error' : null"
+                  ></textarea>
+                }
+                @default {
+                  <input
+                    class="control"
+                    [id]="c.field.id"
+                    [name]="c.field.id"
+                    [type]="c.field.tp"
+                    [(ngModel)]="c.value"
+                    [placeholder]="c.field.placeholder ?? ''"
+                    [attr.inputmode]="c.field.tp === 'number' ? 'decimal' : null"
+                    [attr.aria-invalid]="!!c.error || null"
+                    [attr.aria-describedby]="c.error ? c.field.id + '-error' : null"
+                  />
+                }
+              }
+              @if (c.error) {
+                <p class="campo__error" [id]="c.field.id + '-error'">{{ c.error }}</p>
+              }
+            </div>
+          }
+        </div>
+        @if (errorGuardado()) {
+          <p class="alerta alerta--error hoja__error" role="alert">
+            <app-icono nombre="alert-triangle" [tamano]="18" /><span>No se pudo guardar. {{ errorGuardado() }}</span>
+          </p>
+        }
+      </div>
+      <footer class="hoja__pie">
+        <button type="submit" class="btn btn--primario" [disabled]="guardando()">{{ guardando() ? 'Guardando…' : 'Guardar' }}</button>
+        <button type="button" class="btn btn--fantasma" (click)="cerrarHoja()">Cancelar</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog #dialogoRegistro class="dialogo" aria-labelledby="registro-titulo" (click)="cerrarSiFondo($event, dialogoRegistro)">
+    @if (registro(); as r) {
+      <div class="dialogo__marco">
+        <header class="dialogo__cabecera">
+          <h2 id="registro-titulo">{{ r.titulo }}</h2>
+          <button type="button" class="btn btn--fantasma btn--icono" (click)="dialogoRegistro.close()" aria-label="Cerrar">
+            <app-icono nombre="x" />
+          </button>
+        </header>
+        <dl class="registro">
+          @for (c of r.campos; track c.etiqueta) {
+            <div class="registro__fila">
+              <dt>{{ c.etiqueta }}</dt>
+              <dd [innerHTML]="c.valor"></dd>
+            </div>
+          }
+        </dl>
+      </div>
+    }
+  </dialog>
+}

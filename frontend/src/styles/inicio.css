@@ -1,0 +1,193 @@
+/* ══ Inicio ══ */
+.inicio__bloque {
+  margin-bottom: var(--e-8);
+}
+
+.inicio__bloque > .seccion-titulo {
+  margin-bottom: var(--e-3);
+}
+
+.inicio__esqueleto {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--e-4);
+}
+
+.inicio__esqueleto .esqueleto--franja {
+  grid-column: 1 / -1;
+}
+
+/* Para atender: lo que espera aprobación se anuncia con la señal preventiva y su placa complementaria */
+.atender {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--e-4) var(--e-6);
+}
+
+.atender__item {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  color: var(--tinta);
+  text-decoration: none;
+}
+
+/* Sin señal que anunciar: el poste gris del estado Registrado, el mismo de la ruta */
+.atender__poste {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  margin: 0 14px;
+  border: 2px solid var(--asfalto);
+  border-radius: 3px;
+  background: var(--registrado);
+}
+
+.atender__placa {
+  flex: 1;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--e-2) var(--e-4);
+  min-height: 84px;
+  padding: var(--e-4) var(--e-5);
+  border: 1px solid var(--linea-2);
+  border-radius: var(--r-control);
+  background: var(--panel);
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+/* Placa complementaria de la preventiva: amarilla, borde y leyenda negros */
+.atender__item--via .atender__placa {
+  border: 2px solid var(--asfalto);
+  background: var(--via);
+  color: var(--asfalto);
+}
+
+.atender__numero {
+  font-size: var(--t-40);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.atender__texto {
+  font-size: var(--t-16);
+  font-weight: 600;
+}
+
+.atender__flecha {
+  color: var(--tinta-2);
+}
+
+.atender__item--via .atender__flecha {
+  color: var(--asfalto);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .atender__item:hover .atender__placa {
+    border-color: var(--tinta-3);
+  }
+
+  .atender__item--via:hover .atender__placa {
+    border-color: var(--asfalto);
+    background: #f7cc1c;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .atender__flecha {
+    transition: transform var(--d-fast) var(--ease-out);
+  }
+
+  .atender__item:hover .atender__flecha {
+    transform: translateX(3px);
+  }
+}
+
+/* Recorrido de los gastos: la carretera en asfalto con un hito kilométrico por estado */
+.recorrido {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  overflow: hidden;
+  border-radius: var(--r-panel);
+  background: var(--asfalto);
+  color: #fff;
+}
+
+/* La línea discontinua del centro de la vía pasa por detrás de los hitos */
+.recorrido::before {
+  content: '';
+  position: absolute;
+  top: 63px;
+  left: 0;
+  right: 0;
+  border-top: 3px dashed rgb(255 255 255 / 0.35);
+}
+
+.recorrido__enlace {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  align-content: start;
+  gap: var(--e-3);
+  height: 100%;
+  padding: var(--e-6);
+  color: inherit;
+  text-decoration: none;
+}
+
+.recorrido__monto {
+  color: var(--asfalto-tinta);
+  font-size: var(--t-14);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .recorrido__enlace:hover {
+    background: var(--asfalto-2);
+  }
+}
+
+@media (max-width: 767px) {
+  .atender,
+  .inicio__esqueleto {
+    grid-template-columns: 1fr;
+  }
+
+  .atender__placa {
+    min-height: 72px;
+    padding: var(--e-3) var(--e-4);
+  }
+
+  .atender__numero {
+    font-size: var(--t-32);
+  }
+
+  .recorrido {
+    grid-template-columns: 1fr;
+  }
+
+  .recorrido::before {
+    top: 0;
+    bottom: 0;
+    left: calc(var(--e-5) + 43px);
+    right: auto;
+    border-top: 0;
+    border-left: 3px dashed rgb(255 255 255 / 0.35);
+  }
+
+  .recorrido__enlace {
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: var(--e-4);
+    padding: var(--e-3) var(--e-5);
+  }
+
+  .recorrido__monto {
+    justify-self: end;
+  }
+}

@@ -1,0 +1,182 @@
+/* ══ Reportes: dashboard gerencial ══ */
+.reportes__filtro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--e-3) var(--e-6);
+  margin-bottom: var(--e-5);
+}
+
+.reportes__atajos {
+  margin-bottom: 0;
+}
+
+/* Los atajos son botones con el aspecto de las pestañas */
+.reportes__atajos .pestanas__item {
+  border: 0;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.reportes__fechas {
+  display: flex;
+  gap: var(--e-3);
+}
+
+.reportes__fechas .campo {
+  margin: 0;
+}
+
+.reportes__filtro .campo__error {
+  flex-basis: 100%;
+}
+
+.reportes__aviso {
+  align-items: center;
+  margin-bottom: var(--e-5);
+}
+
+.reportes__aviso .enlace {
+  margin-left: auto;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reportes__esqueleto {
+  display: grid;
+  gap: var(--e-4);
+}
+
+/* ── Indicadores ── */
+.indicadores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--e-4);
+  margin-bottom: var(--e-5);
+}
+
+.indicador {
+  display: grid;
+  gap: var(--e-1);
+  padding: var(--e-4) var(--e-5);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-panel);
+  background: var(--panel);
+}
+
+.indicador__etiqueta {
+  color: var(--tinta-2);
+  font-size: var(--t-13);
+  font-weight: 600;
+}
+
+.indicador__valor {
+  font-size: var(--t-24);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* El ISC va destacado: borde de la señal de guía (verde) y su fórmula a la vista */
+.indicador--destacado {
+  border-color: var(--sustentado);
+  background: var(--sustentado-suave);
+}
+
+.indicador--destacado .indicador__valor {
+  color: var(--sustentado-tinta);
+}
+
+.indicador__formula {
+  color: var(--tinta-2);
+  font-size: var(--t-12);
+}
+
+.indicador__nota {
+  color: var(--tinta-3);
+  font-size: var(--t-13);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Tarjetas de gráficos ── */
+.reportes__tarjeta {
+  display: grid;
+  gap: var(--e-3);
+  min-width: 0;
+  margin-bottom: var(--e-5);
+}
+
+.reportes__ayuda {
+  margin-top: calc(-1 * var(--e-2));
+  color: var(--tinta-3);
+  font-size: var(--t-13);
+}
+
+.grafico {
+  position: relative;
+  width: 100%;
+}
+
+.reportes__datos summary {
+  width: fit-content;
+  color: var(--tinta-2);
+  font-size: var(--t-14);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reportes__datos .tabla-marco {
+  margin-top: var(--e-3);
+}
+
+.reportes__datos td {
+  font-variant-numeric: tabular-nums;
+}
+
+.reportes__muestra {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: var(--e-2);
+  border-radius: 2px;
+  vertical-align: baseline;
+}
+
+.reportes__rankings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 var(--e-5);
+}
+
+/* Los nombres de cliente son los más largos: su ranking va a todo el ancho */
+.reportes__rankings > :first-child {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 767px) {
+  .reportes__fechas {
+    width: 100%;
+  }
+
+  .reportes__fechas .campo {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .indicador {
+    padding: var(--e-3) var(--e-4);
+  }
+
+  .indicador__valor {
+    font-size: var(--t-20);
+  }
+
+  .reportes__rankings {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

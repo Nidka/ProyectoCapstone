@@ -1,0 +1,59 @@
+<div class="combo__control">
+  <input
+    class="control combo__input"
+    type="text"
+    role="combobox"
+    autocomplete="off"
+    spellcheck="false"
+    aria-autocomplete="list"
+    [id]="idControl()"
+    [value]="texto()"
+    [placeholder]="placeholder()"
+    [attr.aria-expanded]="abierto()"
+    [attr.aria-controls]="listaId()"
+    [attr.aria-activedescendant]="activoId()"
+    [attr.aria-invalid]="invalido() || null"
+    [attr.aria-describedby]="describedBy()"
+    (focus)="abrir()"
+    (click)="abrir()"
+    (input)="escribir($event)"
+    (keydown)="teclear($event)"
+    (blur)="cerrar()"
+  />
+  <app-icono class="combo__chevron" nombre="chevron-down" [tamano]="16" />
+</div>
+@if (abierto()) {
+  <ul class="combo__lista" role="listbox" [id]="listaId()" (pointerdown)="$event.preventDefault()">
+    @for (o of visibles(); track o.valor; let i = $index) {
+      <li
+        class="combo__opcion"
+        role="option"
+        [id]="listaId() + '-' + i"
+        [attr.aria-selected]="o.valor === valor()"
+        [class.combo__opcion--activa]="i === activo()"
+        (click)="elegir(o)"
+      >
+        <span>{{ o.etiqueta }}</span>
+        @if (o.valor === valor()) {
+          <app-icono nombre="check" [tamano]="16" />
+        }
+      </li>
+    } @empty {
+      <li class="combo__nota" role="presentation">
+        @if (cargando()) {
+          Cargando…
+        } @else if (opciones().length === 0) {
+          {{ vacioTexto() }}
+          @if (crearRuta(); as ruta) {
+            <a class="enlace" [routerLink]="ruta" (click)="creando.emit()">{{ crearTexto() }}</a>
+          }
+        } @else {
+          Sin coincidencias.
+        }
+      </li>
+    }
+    @if (todas().length > visibles().length) {
+      <li class="combo__nota" role="presentation">Mostrando {{ visibles().length }} de {{ todas().length }}. Escribe para filtrar.</li>
+    }
+  </ul>
+}

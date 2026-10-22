@@ -1,0 +1,112 @@
+<div class="pagina pagina--media">
+  <a class="volver" routerLink="/app/gastos" [queryParams]="volverQuery()"><app-icono nombre="arrow-left" [tamano]="16" />Gastos</a>
+
+  @if (gasto(); as g) {
+    <header class="detalle__cabecera">
+      <div class="detalle__titulo-fila">
+        <h1 class="pagina__titulo">Gasto <span class="mono">N° {{ g.id }}</span></h1>
+        <!-- El monto va pintado en el hito del estado en que está el gasto -->
+        <app-hito class="detalle__hito" [estado]="g.estado" [cabezal]="etiquetaEstado[g.estado]" [cifra]="formatMonto(g.monto)" tamano="grande" />
+      </div>
+      <dl class="detalle__datos">
+        <div>
+          <dt>Cliente</dt>
+          <dd><a class="enlace" routerLink="/app/operacion/clientes" [queryParams]="{ ver: g.cliente_id }">{{ cliente() }}</a></dd>
+        </div>
+        <div>
+          <dt>Viaje</dt>
+          <dd><a class="enlace" routerLink="/app/operacion/viajes" [queryParams]="{ ver: g.viaje_id }">{{ viaje() }}</a></dd>
+        </div>
+        <div><dt>Fecha del gasto</dt><dd>{{ formatFecha(g.fecha) }}</dd></div>
+        <div><dt>Registrado por</dt><dd>{{ g.creado_por }} · {{ formatFechaHora(g.creado_en) }}</dd></div>
+      </dl>
+    </header>
+
+    <section class="panel detalle__ruta" aria-labelledby="t-ruta">
+      <h2 id="t-ruta" class="seccion-titulo">Recorrido</h2>
+      <app-ruta-gasto [pasos]="pasos()" variante="completa" [rechazo]="rechazoReciente()" />
+    </section>
+
+    <section class="panel detalle__paso" [class.detalle__paso--senal]="g.estado !== 'Registrado'" id="paso" aria-labelledby="t-paso">
+      <!-- Un bloque por gasto: al pasar a otro gasto, el paso empieza de cero (archivo elegido, motivo escrito) -->
+      @for (actual of [g]; track actual.id) {
+      @switch (actual.estado) {
+        @case ('Registrado') {
+          <h2 id="t-paso" class="seccion-titulo">Adjuntar comprobante de pago</h2>
+          <app-adjuntar-comprobante [gasto]="g" [rechazoPrevio]="rechazoPrevio()" />
+        }
+        @case ('Pagado') {
+          <h2 id="t-paso" class="cartel cartel--informativa"><app-icono nombre="info-circle" [tamano]="20" />Revisar comprobante</h2>
+          @if (pendiente(); as c) {
+            <app-revision-comprobante [comprobante]="c" [gasto]="g" />
+          } @else {
+            <p class="texto-secundario">
+              No encontramos el comprobante pendiente.
+              <button type="button" class="enlace-boton" (click)="store.cargar()">Actualizar</button>
+            </p>
+          }
+        }
+        @default {
+          <h2 id="t-paso" class="cartel cartel--guia"><app-icono nombre="circle-check" [tamano]="20" />Gasto sustentado</h2>
+          @if (aprobado(); as c) {
+            <p class="detalle__cierre">
+              Aprobado por {{ c.aprobado_por ?? 'Logística' }} el {{ formatFechaHora(c.aprobado_en) }}.
+            </p>
+            <a class="btn btn--secundario btn--sm" [href]="archivo(c)" target="_blank" rel="noopener">
+              <app-icono nombre="external-link" [tamano]="16" />Ver comprobante
+            </a>
+          }
+        }
+      }
+      }
+    </section>
+
+    <section class="detalle__historial" aria-labelledby="t-historial">
+      <h2 id="t-historial" class="seccion-titulo">Comprobantes</h2>
+      @if (comprobantes().length === 0) {
+        <p class="texto-secundario">Este gasto aún no tiene comprobantes adjuntos.</p>
+      } @else {
+        <ul class="historial">
+          @for (c of comprobantes(); track c.id) {
+            <li class="historial__item">
+              <app-icono [nombre]="c.tipo_archivo === 'pdf' ? 'file-type-pdf' : 'photo'" />
+              <div class="historial__texto">
+                <span class="historial__fecha">{{ formatFechaHora(c.creado_en) }}</span>
+                @if (c.estado === 'Rechazado' && c.motivo_rechazo) {
+                  <span class="historial__motivo">Motivo: {{ c.motivo_rechazo }}</span>
+                }
+                @if (c.checklist?.length) {
+                  <ul class="historial__checklist" aria-label="Checklist documental">
+                    @for (item of c.checklist; track item.criterio) {
+                      <li [class.historial__criterio--no]="!item.cumple">
+                        <app-icono [nombre]="item.cumple ? 'check' : 'x'" [tamano]="14" />{{ cortoDe(item.criterio) }}<span class="oculto-visual">{{ item.cumple ? ': cumple' : ': no cumple' }}</span>
+                      </li>
+                    }
+                  </ul>
+                  <span class="historial__revisor">Revisado por {{ c.aprobado_por }} el {{ formatFechaHora(c.aprobado_en) }}</span>
+                }
+              </div>
+              <app-insignia-estado tipo="comprobante" [estado]="c.estado" />
+              <a class="enlace" [href]="archivo(c)" target="_blank" rel="noopener">Ver comprobante</a>
+            </li>
+          }
+        </ul>
+        <p class="campo__ayuda">Este comprobante no se puede editar. Si es incorrecto, adjunta uno nuevo.</p>
+      }
+    </section>
+  } @else if (sinServicio()) {
+    <app-estado-vacio icono="cloud-off" titulo="No se pudieron cargar los gastos." texto="Revisa tu conexión e inténtalo de nuevo.">
+      <button type="button" class="btn btn--secundario" (click)="reintentar()">Reintentar</button>
+    </app-estado-vacio>
+  } @else if (store.cargando() || !store.cargado() || buscando()) {
+    <div class="detalle__esqueleto" aria-busy="true">
+      <div class="esqueleto esqueleto--franja"></div>
+      <div class="esqueleto esqueleto--bloque"></div>
+      <div class="esqueleto esqueleto--bloque"></div>
+    </div>
+  } @else {
+    <app-estado-vacio icono="receipt" [titulo]="'No encontramos el gasto N° ' + id() + '.'" texto="Puede que el número no exista o que ya no esté en la lista.">
+      <a class="btn btn--secundario" routerLink="/app/gastos">Ir a Gastos</a>
+    </app-estado-vacio>
+  }
+</div>

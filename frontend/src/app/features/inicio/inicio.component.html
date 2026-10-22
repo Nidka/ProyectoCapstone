@@ -1,0 +1,87 @@
+<div class="pagina">
+  <header class="pagina__encabezado">
+    <div>
+      <h1 class="pagina__titulo">Inicio</h1>
+      @if (auth.usuario(); as u) {
+        <p class="pagina__bajada">Hola, {{ u.nombre }}.</p>
+      }
+    </div>
+    <div class="pagina__acciones">
+      <a class="btn btn--secundario" routerLink="/app/gastos" [queryParams]="{ estado: 'sin-comprobante' }">
+        <app-icono nombre="paperclip" />Adjuntar comprobante
+      </a>
+      <a class="btn btn--primario" routerLink="/app/gastos/nuevo"><app-icono nombre="plus" />Registrar gasto</a>
+    </div>
+  </header>
+
+  @if (store.cargando() && !store.cargado()) {
+    <div class="inicio__esqueleto" aria-busy="true">
+      <div class="esqueleto esqueleto--bloque"></div>
+      <div class="esqueleto esqueleto--bloque"></div>
+      <div class="esqueleto esqueleto--franja"></div>
+    </div>
+  } @else if (store.error() && !store.cargado()) {
+    <!-- Sin servicio no hay ceros que mostrar: decirlo, para que nadie crea que no hay nada por aprobar -->
+    <app-estado-vacio icono="cloud-off" titulo="No se pudieron cargar los gastos." texto="Revisa tu conexión e inténtalo de nuevo.">
+      <button type="button" class="btn btn--secundario" (click)="store.cargar()">Reintentar</button>
+    </app-estado-vacio>
+  } @else if (store.cargado() && store.gastos().length === 0) {
+    <app-estado-vacio icono="receipt" titulo="Todavía no hay gastos registrados." texto="Para registrar un gasto necesitas al menos un viaje y un cliente.">
+      <a class="btn btn--primario" routerLink="/app/gastos/nuevo">Registrar gasto</a>
+      <a class="btn btn--secundario" routerLink="/app/operacion/viajes">Ver viajes</a>
+      <a class="btn btn--secundario" routerLink="/app/operacion/clientes">Ver clientes</a>
+    </app-estado-vacio>
+  } @else {
+    <section class="inicio__bloque" aria-labelledby="t-atender">
+      <h2 id="t-atender" class="seccion-titulo">Para atender</h2>
+      <div class="atender">
+        <a class="atender__item" [class.atender__item--via]="pendientes() > 0" routerLink="/app/gastos" [queryParams]="{ estado: 'por-aprobar' }">
+          @if (pendientes() > 0) {
+            <app-senal tipo="preventiva" icono="exclamation-mark" [tamano]="56" />
+          } @else {
+            <span class="atender__poste" aria-hidden="true"></span>
+          }
+          <span class="atender__placa">
+            <span class="atender__numero">{{ pendientes() }}</span>
+            <span class="atender__texto">{{ pendientes() === 1 ? 'comprobante por aprobar' : 'comprobantes por aprobar' }}</span>
+            <app-icono class="atender__flecha" nombre="arrow-right" />
+          </span>
+        </a>
+        <a class="atender__item" routerLink="/app/gastos" [queryParams]="{ estado: 'sin-comprobante' }">
+          <span class="atender__poste" aria-hidden="true"></span>
+          <span class="atender__placa">
+            <span class="atender__numero">{{ store.conteo().Registrado }}</span>
+            <span class="atender__texto">{{ store.conteo().Registrado === 1 ? 'gasto sin comprobante' : 'gastos sin comprobante' }}</span>
+            <app-icono class="atender__flecha" nombre="arrow-right" />
+          </span>
+        </a>
+      </div>
+    </section>
+
+    <section class="inicio__bloque" aria-labelledby="t-recorrido">
+      <h2 id="t-recorrido" class="seccion-titulo">Recorrido de los gastos</h2>
+      <ol class="recorrido">
+        @for (e of orden; track e) {
+          <li class="recorrido__hito" [attr.data-estado]="e">
+            <a class="recorrido__enlace" routerLink="/app/gastos" [queryParams]="{ estado: pestanaDe[e] }">
+              <app-hito [estado]="e" [cabezal]="etiqueta[e]" [cifra]="store.conteo()[e]" />
+              <span class="recorrido__monto">{{ formatMonto(sumas()[e]) }}</span>
+            </a>
+          </li>
+        }
+      </ol>
+    </section>
+
+    <section class="inicio__bloque" aria-labelledby="t-ultimos">
+      <div class="seccion-cabecera">
+        <h2 id="t-ultimos" class="seccion-titulo">Últimos gastos</h2>
+        <a class="enlace" routerLink="/app/gastos">Ver todos</a>
+      </div>
+      <ul class="lista-gastos lista-gastos--compacta">
+        @for (g of ultimos(); track g.id) {
+          <li app-fila-gasto [gasto]="g"></li>
+        }
+      </ul>
+    </section>
+  }
+</div>

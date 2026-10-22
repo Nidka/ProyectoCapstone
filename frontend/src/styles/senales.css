@@ -1,0 +1,131 @@
+/* ══ Objetos del camino: hitos kilométricos y señales viales (MTC) ══ */
+
+/* ── Hito kilométrico: cuerpo claro de concreto, cabezal del color del estado y la cifra pintada ── */
+.hito {
+  --c: var(--registrado-tinta);
+  display: inline-grid;
+  grid-template-rows: auto 1fr;
+  min-width: 88px;
+  overflow: hidden;
+  border: 2px solid var(--asfalto);
+  border-radius: var(--r-panel) var(--r-panel) 2px 2px;
+  background: var(--panel);
+  color: var(--tinta);
+  text-align: center;
+}
+
+.hito[data-estado='Pagado'] {
+  --c: var(--pagado);
+}
+
+.hito[data-estado='Sustentado'] {
+  --c: var(--sustentado);
+}
+
+.hito__cabezal {
+  padding: 5px var(--e-3) 4px;
+  background: var(--c);
+  color: #fff;
+  font-size: var(--t-12);
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.hito__cifra {
+  padding: var(--e-2) var(--e-3) var(--e-3);
+  font-size: var(--t-32);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.hito--grande {
+  min-width: 168px;
+}
+
+.hito--grande .hito__cabezal {
+  padding: 6px var(--e-4) 5px;
+  font-size: var(--t-13);
+}
+
+.hito--grande .hito__cifra {
+  padding: var(--e-3) var(--e-5) var(--e-4);
+  font-size: var(--t-40);
+}
+
+/* ── Señal vial: la forma y el color dicen la clase de aviso ── */
+.senal {
+  --tam: 40px;
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: var(--tam);
+  height: var(--tam);
+}
+
+.senal__forma {
+  display: grid;
+  place-items: center;
+}
+
+/* Preventiva: rombo amarillo (un cuadrado girado que llena el cuadro) con símbolo negro.
+   El filete negro va por dentro del borde, como en la señal real: así se lee también sobre asfalto. */
+.senal--preventiva .senal__forma {
+  width: 70.72%;
+  height: 70.72%;
+  border-radius: 3px;
+  background: var(--via);
+  color: var(--asfalto);
+  outline: max(1.5px, calc(var(--tam) * 0.04)) solid var(--asfalto);
+  outline-offset: calc(var(--tam) * -0.1);
+  transform: rotate(45deg);
+}
+
+.senal--preventiva .icono {
+  transform: rotate(-45deg);
+}
+
+/* Guía (verde) e informativa (azul): placa con orla blanca y leyenda blanca */
+.senal--guia .senal__forma,
+.senal--informativa .senal__forma {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--r-control);
+  color: #fff;
+  outline: 2px solid #fff;
+  outline-offset: -5px;
+}
+
+.senal--guia .senal__forma {
+  background: var(--sustentado);
+}
+
+.senal--informativa .senal__forma {
+  background: var(--pagado);
+}
+
+/* ── Cartel: el título de un paso pintado como banda de guía o informativa, de borde a borde de su tarjeta.
+   Va a todo el ancho y sin esquinas propias para que se lea como señal y no como botón. ── */
+.cartel {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+  padding: var(--e-3) var(--e-5);
+  outline: 2px solid #fff;
+  outline-offset: -5px;
+  color: #fff;
+  font-size: var(--t-18);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.cartel--guia {
+  background: var(--sustentado);
+}
+
+.cartel--informativa {
+  background: var(--pagado);
+}

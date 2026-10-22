@@ -1,0 +1,487 @@
+/* ══ Landing (modo Persuadir dentro del mismo mundo) ══ */
+.landing {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--suelo);
+}
+
+.landing main {
+  flex: 1;
+}
+
+.landing__barra {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-barra);
+  background: var(--asfalto);
+  color: #fff;
+}
+
+.landing__barra-interior {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-4);
+  max-width: var(--contenido-max);
+  height: 64px;
+  margin: 0 auto;
+  padding: 0 var(--margen);
+}
+
+.landing__marca {
+  display: inline-flex;
+  text-decoration: none;
+}
+
+.landing__h2 {
+  max-width: 22ch;
+  font-size: var(--t-32);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+/* ── Portada: la foto de la carretera a sangre y, al pie, la vía con los hitos de los conteos reales ── */
+.portada {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-height: calc(100dvh - 68px);
+  background: var(--asfalto);
+}
+
+.portada__foto {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.portada__foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 62% 58%;
+}
+
+.portada__interior {
+  position: relative;
+  align-self: center;
+  width: 100%;
+  /* El titular y la placa de la bajada comparten sangría: su texto arranca en la misma vertical */
+  --titulo-tam: clamp(2.5rem, 3.9vw, 3.5rem);
+  --sangria: calc(var(--titulo-tam) * 0.24);
+  max-width: var(--contenido-max);
+  margin: 0 auto;
+  padding: var(--e-12) var(--margen) var(--e-16);
+}
+
+/* El titular va en placas de asfalto, una por línea: se lee siempre y la foto sigue a la vista */
+.portada__titulo {
+  color: #fff;
+  font-size: var(--titulo-tam);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.04;
+}
+
+.portada__titulo > span {
+  display: block;
+  width: fit-content;
+  padding: 0.06em var(--sangria) 0.1em;
+  background: var(--asfalto);
+}
+
+.portada__cartel {
+  width: fit-content;
+  max-width: 30rem;
+  padding: var(--e-4) var(--e-6) var(--e-6) var(--sangria);
+  background: var(--asfalto);
+  color: #fff;
+}
+
+.portada__bajada {
+  color: var(--asfalto-tinta);
+  font-size: var(--t-18);
+  line-height: 1.55;
+}
+
+.portada__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e-5);
+  margin-top: var(--e-5);
+}
+
+.portada__enlace,
+.portada__enlace:hover {
+  color: #fff;
+}
+
+/* La vía al pie de la portada: los hitos se plantan en el borde, entre la foto y el asfalto */
+.via {
+  position: relative;
+  background: var(--asfalto);
+  color: #fff;
+}
+
+.via__interior {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--e-6);
+  max-width: var(--contenido-max);
+  margin: 0 auto;
+  padding: var(--e-4) var(--margen) var(--e-5);
+}
+
+/* Línea discontinua del centro de la vía */
+.via__linea {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 3px dashed rgb(255 255 255 / 0.45);
+}
+
+.via__camion {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 7px;
+  border-radius: 8px;
+  background: var(--rojo);
+  color: #fff;
+}
+
+.via__hitos {
+  display: flex;
+  gap: var(--e-6);
+}
+
+/* Cada hito sube hasta la mitad sobre la foto, como un poste al borde de la carretera */
+.via__hito {
+  position: relative;
+  top: -44px;
+  margin-bottom: -44px;
+}
+
+.via__pendientes {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  margin-left: auto;
+}
+
+/* Sin nada por aprobar, la placa es neutra sobre el asfalto */
+.via__placa {
+  padding: 8px var(--e-4) 7px;
+  border: 2px solid var(--asfalto-3);
+  border-radius: var(--r-control);
+  background: var(--asfalto-2);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* Placa complementaria de la preventiva: amarilla, borde y leyenda negros */
+.via__pendientes--espera .via__placa {
+  border-color: var(--asfalto);
+  background: var(--via);
+  color: var(--asfalto);
+}
+
+.via__nota {
+  position: relative;
+  margin-left: auto;
+  color: var(--asfalto-tinta);
+  font-size: var(--t-14);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .via__linea {
+    animation: trazar-via 700ms var(--ease-in-out) 120ms both;
+  }
+
+  .via__hito,
+  .via__pendientes {
+    animation: aparecer-hito 400ms var(--ease-out) both;
+  }
+
+  .via__hito:nth-child(1) {
+    animation-delay: 360ms;
+  }
+
+  .via__hito:nth-child(2) {
+    animation-delay: 420ms;
+  }
+
+  .via__hito:nth-child(3) {
+    animation-delay: 480ms;
+  }
+
+  .via__pendientes {
+    animation-delay: 560ms;
+  }
+}
+
+@keyframes trazar-via {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes aparecer-hito {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── Cómo avanza un gasto ── */
+.como {
+  max-width: var(--contenido-max);
+  margin: 0 auto;
+  padding: var(--e-16) var(--margen);
+}
+
+.como__pasos {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--e-8);
+  margin-top: var(--e-10);
+}
+
+.como__pasos::before {
+  content: '';
+  position: absolute;
+  top: 11px;
+  left: 12px;
+  right: 0;
+  border-top: 2px dashed var(--linea-2);
+}
+
+.como__paso {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  gap: var(--e-3);
+}
+
+.como__paso[data-estado='Registrado'] {
+  --c: var(--registrado);
+}
+
+.como__paso[data-estado='Pagado'] {
+  --c: var(--pagado);
+}
+
+.como__paso[data-estado='Sustentado'] {
+  --c: var(--sustentado);
+}
+
+.como__poste {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--suelo);
+  border-radius: 3px;
+  background: var(--c);
+  box-shadow: 0 0 0 2px var(--c);
+}
+
+.como__paso h3 {
+  margin-top: var(--e-2);
+  font-size: var(--t-24);
+  font-weight: 700;
+}
+
+.como__paso p {
+  max-width: 32ch;
+  color: var(--tinta-2);
+}
+
+/* ── Desde la oficina y desde la ruta ── */
+.lugares {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  align-items: start;
+  gap: var(--e-10);
+  max-width: var(--contenido-max);
+  margin: 0 auto;
+  padding: var(--e-16) var(--margen);
+  border-top: 1px solid var(--linea);
+}
+
+.lugares__bloques {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--e-8);
+}
+
+.lugares__bloque {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--e-1) var(--e-3);
+}
+
+.lugares__bloque > .icono {
+  grid-row: 1 / span 2;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-control);
+  background: var(--asfalto);
+  color: #fff;
+}
+
+.lugares__bloque h3 {
+  font-size: var(--t-18);
+  font-weight: 700;
+}
+
+.lugares__bloque p {
+  grid-column: 2;
+  color: var(--tinta-2);
+}
+
+.landing__pie {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--e-4);
+  width: 100%;
+  max-width: var(--contenido-max);
+  margin: 0 auto;
+  padding: var(--e-6) var(--margen);
+  border-top: 1px solid var(--linea);
+  color: var(--tinta-2);
+  font-size: var(--t-14);
+}
+
+/* Tableta y celular: la foto arriba, el titular sobre asfalto debajo y la vía al pie */
+@media (max-width: 1023px) {
+  .portada {
+    display: block;
+    min-height: 0;
+  }
+
+  .portada__foto {
+    position: relative;
+    inset: auto;
+    aspect-ratio: 3 / 2;
+  }
+
+  .portada__interior {
+    padding: var(--e-8) var(--margen) var(--e-10);
+  }
+
+  .portada__titulo {
+    font-size: var(--t-32);
+  }
+
+  .portada__titulo > span {
+    display: inline;
+    padding: 0;
+    background: none;
+  }
+
+  .portada__cartel {
+    width: auto;
+    max-width: none;
+    margin-top: var(--e-4);
+    padding: 0;
+    background: none;
+  }
+
+  .via__interior {
+    flex-wrap: wrap;
+    padding-top: var(--e-6);
+  }
+
+  .via__hito {
+    top: 0;
+    margin-bottom: 0;
+  }
+
+  .via__pendientes,
+  .via__nota {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .lugares {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .portada__titulo {
+    font-size: 1.75rem;
+  }
+
+  .portada__bajada {
+    font-size: var(--t-16);
+  }
+
+  .landing__h2 {
+    font-size: var(--t-24);
+  }
+
+  .via__camion {
+    display: none;
+  }
+
+  .via__hitos {
+    flex: 1;
+    gap: var(--e-3);
+  }
+
+  .via__hito {
+    flex: 1;
+  }
+
+  .via .hito {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .lugares__bloques {
+    grid-template-columns: 1fr;
+  }
+
+  .como__pasos {
+    grid-template-columns: 1fr;
+    gap: var(--e-6);
+    padding-left: var(--e-10);
+  }
+
+  .como__pasos::before {
+    top: 0;
+    bottom: 0;
+    left: 11px;
+    right: auto;
+    border-top: 0;
+    border-left: 2px dashed var(--linea-2);
+  }
+
+  .como__poste {
+    position: absolute;
+    top: 2px;
+    left: calc(-1 * var(--e-10));
+  }
+}

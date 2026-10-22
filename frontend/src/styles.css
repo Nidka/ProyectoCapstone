@@ -1,4 +1,22 @@
-/* Global styles — LIZAR SRL Fleet Manager Pro */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-@import 'assets/css/variables.css';
-@import 'assets/css/app.css';
+/* LIZAR SRL · Fleet Manager Pro. Sistema visual «Hitos de carretera».
+   Cada tarea agrega aquí la hoja de su área, siempre después de las existentes. */
+@import './styles/tokens.css';
+@import './styles/base.css';
+@import './styles/componentes.css';
+@import './styles/senales.css';
+
+@import './styles/ruta.css';
+
+@import './styles/gastos.css';
+
+@import './styles/inicio.css';
+
+@import './styles/crud.css';
+
+@import './styles/shell.css';
+
+@import './styles/landing.css';
+
+@import './styles/acceso.css';
+
+@import './styles/reportes.css';

@@ -1,0 +1,29 @@
+<ol class="ruta__via" [attr.aria-hidden]="variante() === 'compacta' ? 'true' : null">
+  @for (p of pasos(); track p.estado) {
+    <li
+      class="ruta__hito"
+      [attr.data-estado]="p.estado"
+      [class.ruta__hito--alcanzado]="p.alcanzado"
+      [class.ruta__hito--actual]="p.actual"
+      [attr.aria-current]="p.actual ? 'step' : null"
+    >
+      <span class="ruta__poste" aria-hidden="true"></span>
+      @if (variante() === 'completa') {
+        <span class="ruta__nombre">{{ nombres[p.estado] }}</span>
+        <span class="ruta__dato">{{ p.fecha ? formatFechaHora(p.fecha) : 'Pendiente' }}</span>
+        @if (p.actor) {
+          <span class="ruta__dato">{{ p.actor }}</span>
+        }
+      }
+    </li>
+  }
+</ol>
+<span class="ruta__camion" aria-hidden="true"><app-camion /></span>
+@if (variante() === 'completa') {
+  @if (rechazo(); as r) {
+    <p class="ruta__desvio">
+      <span class="ruta__desvio-marca" aria-hidden="true"></span>
+      <span>Comprobante rechazado el {{ formatFechaHora(r.aprobado_en ?? r.creado_en) }}.</span>
+    </p>
+  }
+}

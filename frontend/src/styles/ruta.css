@@ -1,0 +1,218 @@
+/* ══ La ruta del gasto (firma) ══ */
+.ruta {
+  --poste: 10px;
+  --camion: 18px;
+  --camion-pad: 3px;
+  --centro: 9px;
+  position: relative;
+  display: block;
+}
+
+.ruta--compacta {
+  flex-shrink: 0;
+  width: 88px;
+}
+
+.ruta--compacta .ruta__via {
+  height: 18px;
+}
+
+.ruta--completa {
+  --poste: 18px;
+  --camion: 32px;
+  --camion-pad: 6px;
+  --centro: 16px;
+}
+
+.ruta__via {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* La carretera va del centro del primer hito al centro del último */
+.ruta__via::before,
+.ruta__via::after {
+  content: '';
+  position: absolute;
+  top: calc(var(--centro) - 1px);
+  left: calc(100% / 6);
+  width: calc(100% * 2 / 3);
+}
+
+.ruta__via::before {
+  border-top: 2px dashed var(--linea-2);
+}
+
+.ruta__via::after {
+  border-top: 2px solid var(--tinta-2);
+  transform: scaleX(calc(var(--actual, 0) / 2));
+  transform-origin: left center;
+}
+
+.ruta__hito {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  text-align: center;
+}
+
+.ruta__hito[data-estado='Registrado'] {
+  --c: var(--registrado);
+}
+
+.ruta__hito[data-estado='Pagado'] {
+  --c: var(--pagado);
+}
+
+.ruta__hito[data-estado='Sustentado'] {
+  --c: var(--sustentado);
+}
+
+.ruta__poste {
+  width: var(--poste);
+  height: var(--poste);
+  margin-top: calc(var(--centro) - var(--poste) / 2);
+  border: 2px solid var(--c);
+  border-radius: 2px;
+  background: var(--panel);
+}
+
+.ruta__hito--alcanzado .ruta__poste {
+  background: var(--c);
+}
+
+.ruta__nombre {
+  margin-top: var(--e-3);
+  font-size: var(--t-14);
+  font-weight: 600;
+}
+
+.ruta__hito:not(.ruta__hito--alcanzado) .ruta__nombre {
+  color: var(--tinta-3);
+}
+
+.ruta__dato {
+  color: var(--tinta-2);
+  font-size: var(--t-13);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.ruta__camion {
+  position: absolute;
+  z-index: 2;
+  top: calc(var(--centro) - var(--camion) / 2);
+  left: 0;
+  display: flex;
+  justify-content: center;
+  width: calc(100% / 3);
+  transform: translateX(calc(var(--actual, 0) * 100%));
+  pointer-events: none;
+}
+
+.ruta__camion .camion {
+  width: var(--camion);
+  height: var(--camion);
+  padding: var(--camion-pad);
+  border-radius: 4px;
+  background: var(--rojo);
+  color: #fff;
+  box-shadow: 0 0 0 2px var(--panel);
+}
+
+.ruta__desvio {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--e-2);
+  margin-top: var(--e-5);
+  padding: var(--e-3) var(--e-4);
+  border-radius: var(--r-control);
+  background: var(--rojo-suave);
+  color: var(--rojo-tinta);
+  font-size: var(--t-14);
+}
+
+.ruta__desvio-marca {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  margin-top: 5px;
+  border-radius: 2px;
+  background: var(--rojo);
+}
+
+/* El camión se desliza al hito nuevo cuando el gasto avanza en la misma vista */
+@media (prefers-reduced-motion: no-preference) {
+  .ruta--lista .ruta__camion,
+  .ruta--lista .ruta__via::after {
+    transition: transform var(--d-ruta) var(--ease-in-out);
+  }
+}
+
+/* Celular: la versión completa se vuelve vertical */
+@media (max-width: 767px) {
+  .ruta--completa {
+    --alto: 72px;
+  }
+
+  .ruta--completa .ruta__via {
+    grid-template-columns: 1fr;
+    grid-auto-rows: var(--alto);
+  }
+
+  .ruta--completa .ruta__via::before,
+  .ruta--completa .ruta__via::after {
+    top: calc(var(--alto) / 2);
+    left: 15px;
+    width: 0;
+    height: calc(var(--alto) * 2);
+    border-top: 0;
+  }
+
+  .ruta--completa .ruta__via::before {
+    border-left: 2px dashed var(--linea-2);
+  }
+
+  .ruta--completa .ruta__via::after {
+    border-left: 2px solid var(--tinta-2);
+    transform: scaleY(calc(var(--actual, 0) / 2));
+    transform-origin: center top;
+  }
+
+  .ruta--completa .ruta__hito {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    grid-auto-rows: min-content;
+    align-content: center;
+    justify-items: start;
+    column-gap: var(--e-3);
+    text-align: left;
+  }
+
+  .ruta--completa .ruta__poste {
+    grid-row: 1 / span 3;
+    align-self: center;
+    justify-self: center;
+    margin: 0;
+  }
+
+  .ruta--completa .ruta__nombre {
+    margin-top: 0;
+  }
+
+  .ruta--completa .ruta__nombre,
+  .ruta--completa .ruta__dato {
+    grid-column: 2;
+  }
+
+  .ruta--completa .ruta__camion {
+    top: calc(var(--alto) / 2 - var(--camion) / 2);
+    width: 32px;
+    transform: translateY(calc(var(--actual, 0) * var(--alto)));
+  }
+}

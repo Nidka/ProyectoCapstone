@@ -1,0 +1,106 @@
+<div class="pagina">
+  <header class="pagina__encabezado">
+    <h1 class="pagina__titulo pagina__titulo--en-barra">Gastos</h1>
+    <div class="pagina__acciones">
+      <a class="btn btn--primario" routerLink="/app/gastos/nuevo"><app-icono nombre="plus" />Registrar gasto</a>
+    </div>
+  </header>
+
+  <nav class="pestanas" aria-label="Filtrar gastos por estado">
+    @for (p of pestanas; track p.id) {
+      <a
+        class="pestanas__item"
+        routerLink="/app/gastos"
+        [queryParams]="queryDe(p.id)"
+        [class.pestanas__item--activa]="pestana() === p.id"
+        [attr.aria-current]="pestana() === p.id ? 'page' : null"
+      >
+        {{ p.etiqueta }}
+        <span class="contador" [class.contador--via]="p.id === 'por-aprobar' && conteos()[p.id] > 0">{{ conteos()[p.id] }}</span>
+      </a>
+    }
+  </nav>
+
+  <div class="filtros" role="group" aria-label="Filtrar por viaje y cliente">
+    <label class="filtros__campo" for="filtro-viaje">
+      <span class="filtros__etiqueta">Viaje</span>
+      <select class="control" id="filtro-viaje" (change)="elegir('viaje', $event)">
+        <option value="" [selected]="viajeId() === null">Todos los viajes</option>
+        @for (o of opcionesViaje(); track o.valor) {
+          <option [value]="o.valor" [selected]="viajeId() === o.valor">{{ o.etiqueta }}</option>
+        }
+      </select>
+    </label>
+    <label class="filtros__campo" for="filtro-cliente">
+      <span class="filtros__etiqueta">Cliente</span>
+      <select class="control" id="filtro-cliente" (change)="elegir('cliente', $event)">
+        <option value="" [selected]="clienteId() === null">Todos los clientes</option>
+        @for (o of opcionesCliente(); track o.valor) {
+          <option [value]="o.valor" [selected]="clienteId() === o.valor">{{ o.etiqueta }}</option>
+        }
+      </select>
+    </label>
+    @if (hayFiltros()) {
+      <a class="enlace filtros__quitar" routerLink="/app/gastos" [queryParams]="{ estado: estado() ?? null }">Quitar filtros</a>
+    }
+  </div>
+
+  <div class="barra-herramientas barra-herramientas--gastos">
+    <label class="buscador">
+      <app-icono nombre="search" [tamano]="16" />
+      <span class="oculto-visual">Buscar gastos</span>
+      <input class="control buscador__input" type="search" placeholder="Buscar por N° o cliente" [value]="termino()" (input)="buscar($event)" />
+    </label>
+    <button type="button" class="btn btn--secundario btn--sm" [disabled]="exportando()" (click)="exportar()">
+      <app-icono nombre="download" [tamano]="16" />{{ exportando() ? 'Generando…' : 'Exportar a Excel' }}
+    </button>
+    <button type="button" class="btn btn--fantasma btn--sm boton-actualizar" (click)="store.cargar()" [disabled]="store.cargando()">
+      <app-icono nombre="refresh" [tamano]="16" /><span class="boton-actualizar__texto">Actualizar</span>
+    </button>
+  </div>
+
+  @if (store.cargando() && !store.cargado()) {
+    <div class="lista-gastos" aria-busy="true">
+      @for (i of [1, 2, 3, 4, 5]; track i) {
+        <div class="esqueleto esqueleto--fila"></div>
+      }
+    </div>
+  } @else if (store.error() && !store.cargado()) {
+    <app-estado-vacio icono="cloud-off" titulo="No se pudieron cargar los gastos." texto="Revisa tu conexión e inténtalo de nuevo.">
+      <button type="button" class="btn btn--secundario" (click)="store.cargar()">Reintentar</button>
+    </app-estado-vacio>
+  } @else if (visibles().length === 0) {
+    @if (termino()) {
+      <app-estado-vacio icono="search" titulo="Ningún gasto coincide con la búsqueda." [texto]="'Probaste con «' + termino() + '».'" />
+    } @else if (hayFiltros()) {
+      <app-estado-vacio icono="search" titulo="Ningún gasto coincide con los filtros." texto="Prueba con otro viaje o cliente, o quita los filtros.">
+        <a class="btn btn--secundario" routerLink="/app/gastos" [queryParams]="{ estado: estado() ?? null }">Quitar filtros</a>
+      </app-estado-vacio>
+    } @else {
+      <app-estado-vacio icono="inbox" [titulo]="vacio().titulo" [texto]="vacio().texto">
+        @if (pestana() === 'todos') {
+          <a class="btn btn--primario" routerLink="/app/gastos/nuevo">Registrar gasto</a>
+        }
+      </app-estado-vacio>
+    }
+  } @else {
+    <div class="lista-gastos__cabecera" aria-hidden="true">
+      <span>N°</span>
+      <span>Cliente</span>
+      <span class="lista-gastos__cabecera-viaje">Viaje</span>
+      <span>Fecha</span>
+      <span class="a-la-derecha">Monto</span>
+      <span>Estado</span>
+      <span></span>
+    </div>
+    <ul class="lista-gastos">
+      @for (g of visibles(); track g.id) {
+        <li app-fila-gasto [gasto]="g" [origen]="pestana()" [atenuar]="pestana() === 'todos'"></li>
+      }
+    </ul>
+    <p class="lista-gastos__total">
+      <span class="lista-gastos__total-etiqueta">Total</span>
+      <span class="lista-gastos__total-valor">{{ formatMonto(total()) }}</span>
+    </p>
+  }
+</div>

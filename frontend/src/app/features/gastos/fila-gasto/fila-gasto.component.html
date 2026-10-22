@@ -1,0 +1,34 @@
+<a class="fila-gasto__numero" [routerLink]="enlace()" [state]="estadoNavegacion()">N° {{ gasto().id }}</a>
+<span class="fila-gasto__cliente">
+  <span class="fila-gasto__nombre">{{ cliente() }}</span>
+  @if (rechazo(); as r) {
+    <span class="fila-gasto__rechazo">
+      <app-icono nombre="alert-triangle" [tamano]="14" />
+      <span>Comprobante rechazado: {{ r.motivo_rechazo }}</span>
+    </span>
+  }
+</span>
+<span class="fila-gasto__viaje">{{ viaje() }}</span>
+<span class="fila-gasto__fecha">{{ formatFecha(gasto().fecha) }}</span>
+<span class="fila-gasto__monto">{{ formatMonto(gasto().monto) }}</span>
+<span class="fila-gasto__estado">
+  <app-ruta-gasto [pasos]="pasos()" variante="compacta" />
+  <app-insignia-estado [estado]="gasto().estado" />
+</span>
+<span class="fila-gasto__accion">
+  @switch (paso()) {
+    @case ('adjuntar') {
+      <a class="btn btn--secundario btn--sm" [routerLink]="enlace()" [state]="estadoNavegacion()" fragment="paso">
+        <app-icono nombre="paperclip" [tamano]="16" />Adjuntar comprobante
+      </a>
+    }
+    @case ('revisar') {
+      <a class="btn btn--primario btn--sm" [routerLink]="enlace()" [state]="estadoNavegacion()" fragment="paso">
+        <app-icono nombre="clipboard-check" [tamano]="16" />Revisar
+      </a>
+    }
+    @default {
+      <a class="btn btn--fantasma btn--sm" [routerLink]="enlace()" [state]="estadoNavegacion()">Ver</a>
+    }
+  }
+</span>

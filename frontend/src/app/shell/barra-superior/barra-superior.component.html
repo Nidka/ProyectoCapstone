@@ -1,0 +1,32 @@
+<header class="barra">
+  <div class="barra__interior">
+    <a class="barra__marca" routerLink="/app/inicio" aria-label="LIZAR, ir a Inicio"><app-marca /></a>
+    <span class="barra__titulo-movil" aria-hidden="true">{{ titulo() }}</span>
+    <nav class="barra__nav" aria-label="Principal">
+      @for (e of enlaces; track e.ruta) {
+        <a class="barra__enlace" [routerLink]="e.ruta" routerLinkActive="barra__enlace--activo" ariaCurrentWhenActive="page">
+          {{ e.etiqueta }}
+          @if (e.ruta === '/app/gastos' && pendientes() > 0) {
+            <span class="contador contador--via">
+              {{ pendientes() }}<span class="oculto-visual"> por aprobar</span>
+            </span>
+          }
+        </a>
+      }
+    </nav>
+    <div class="barra__acciones">
+      @if (servicioCaido()) {
+        <button type="button" class="barra__servicio" (click)="api.checkHealth()">
+          <app-icono nombre="cloud-off" [tamano]="16" /><span>Servicio no disponible</span>
+        </button>
+      }
+      <button type="button" class="barra__buscar" (click)="buscar.emit()" aria-label="Buscar o ir a" aria-keyshortcuts="Meta+K Control+K">
+        <app-icono nombre="search" [tamano]="16" />
+        <span class="barra__buscar-texto">Buscar o ir a…</span>
+        <kbd class="barra__atajo">{{ atajo }}</kbd>
+      </button>
+      <app-menu-usuario />
+    </div>
+  </div>
+  <div class="cinta" aria-hidden="true"></div>
+</header>

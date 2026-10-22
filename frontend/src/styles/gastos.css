@@ -1,0 +1,684 @@
+/* ══ Gastos: bandeja ══ */
+.lista-gastos,
+.lista-gastos__cabecera,
+.lista-gastos__total {
+  /* Anchos medidos con los datos reales: N°, fecha, monto, estado y acción a su medida; el resto para cliente y viaje */
+  --columnas: 72px minmax(200px, 2fr) minmax(164px, 1fr) 88px 104px 196px 188px;
+  --col-monto: 5;
+}
+
+.lista-gastos__cabecera {
+  display: grid;
+  grid-template-columns: var(--columnas);
+  gap: var(--e-4);
+  padding: 0 var(--e-4) var(--e-2);
+  color: var(--tinta-2);
+  font-size: var(--t-12);
+  font-weight: 600;
+}
+
+.lista-gastos {
+  border: 1px solid var(--linea);
+  border-radius: var(--r-panel);
+  background: var(--panel);
+}
+
+.fila-gasto {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--columnas);
+  align-items: center;
+  gap: var(--e-4);
+  min-height: 60px;
+  padding: var(--e-2) var(--e-4);
+  border-bottom: 1px solid var(--linea);
+}
+
+.fila-gasto:last-child {
+  border-bottom: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .fila-gasto:hover {
+    background: var(--panel-2);
+  }
+}
+
+.fila-gasto__numero {
+  color: var(--tinta);
+  font-family: var(--fuente-mono);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* Enlace estirado: toda la fila abre el gasto */
+.fila-gasto__numero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-control);
+}
+
+.fila-gasto__numero:focus-visible {
+  outline: none;
+}
+
+.fila-gasto__numero:focus-visible::after {
+  outline: 2px solid var(--rojo);
+  outline-offset: -2px;
+}
+
+.fila-gasto__cliente {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fila-gasto__nombre,
+.fila-gasto__viaje,
+.fila-gasto__fecha {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fila-gasto__nombre {
+  font-weight: 600;
+}
+
+/* El motivo del rechazo se lee completo: hasta dos líneas bajo el cliente */
+.fila-gasto__rechazo {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+  color: var(--rojo-tinta);
+  font-size: var(--t-12);
+}
+
+.fila-gasto__rechazo > span {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.fila-gasto__rechazo > .icono {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.fila-gasto__viaje,
+.fila-gasto__fecha {
+  color: var(--tinta-2);
+  font-size: var(--t-14);
+}
+
+.fila-gasto__monto {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.fila-gasto__estado {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+}
+
+.fila-gasto__accion {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Lo cerrado retrocede para que lo pendiente mande */
+.fila-gasto--cerrada .fila-gasto__numero,
+.fila-gasto--cerrada .fila-gasto__nombre,
+.fila-gasto--cerrada .fila-gasto__monto {
+  color: var(--tinta-2);
+  font-weight: 500;
+}
+
+/* Total alineado bajo la columna Monto, con filete como en un talonario */
+.lista-gastos__total {
+  display: grid;
+  grid-template-columns: var(--columnas);
+  gap: var(--e-4);
+  padding: var(--e-3) var(--e-4);
+  font-weight: 600;
+}
+
+.lista-gastos__total-etiqueta {
+  grid-column: 1 / var(--col-monto);
+  color: var(--tinta-2);
+  text-align: right;
+}
+
+.lista-gastos__total-valor {
+  grid-column: var(--col-monto);
+  padding-top: var(--e-2);
+  border-top: 2px solid var(--tinta);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* Lista compacta de Inicio: sin viaje ni fecha */
+.lista-gastos--compacta {
+  --columnas: 72px minmax(200px, 1fr) 104px 196px 188px;
+}
+
+.lista-gastos--compacta .fila-gasto__viaje,
+.lista-gastos--compacta .fila-gasto__fecha {
+  display: none;
+}
+
+/* Escritorio angosto: se oculta la columna Viaje */
+@media (max-width: 1199px) {
+  .lista-gastos,
+  .lista-gastos__cabecera,
+  .lista-gastos__total {
+    --columnas: 72px minmax(160px, 1fr) 88px 104px 196px 188px;
+    --col-monto: 4;
+  }
+
+  .fila-gasto__viaje,
+  .lista-gastos__cabecera-viaje {
+    display: none;
+  }
+
+  .lista-gastos--compacta {
+    --columnas: 72px minmax(160px, 1fr) 104px 196px 188px;
+  }
+}
+
+/* Celular y tableta vertical: cada gasto es una tarjeta apilada (la tabla no cabe por debajo de 960 px) */
+@media (max-width: 959px) {
+  .lista-gastos__cabecera {
+    display: none;
+  }
+
+  .fila-gasto,
+  .lista-gastos--compacta .fila-gasto {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'numero monto'
+      'cliente fecha'
+      'estado estado'
+      'accion accion';
+    gap: var(--e-2) var(--e-3);
+    padding: var(--e-4);
+  }
+
+  .fila-gasto__numero {
+    grid-area: numero;
+  }
+
+  .fila-gasto__monto {
+    grid-area: monto;
+  }
+
+  .fila-gasto__cliente {
+    grid-area: cliente;
+  }
+
+  .fila-gasto__fecha,
+  .lista-gastos--compacta .fila-gasto__fecha {
+    display: block;
+    grid-area: fecha;
+    text-align: right;
+  }
+
+  .fila-gasto__estado {
+    grid-area: estado;
+  }
+
+  .fila-gasto__accion {
+    grid-area: accion;
+  }
+
+  .fila-gasto__accion .btn {
+    width: 100%;
+  }
+
+  .lista-gastos__total {
+    grid-template-columns: 1fr auto;
+  }
+
+  .lista-gastos__total-etiqueta {
+    grid-column: 1;
+    text-align: left;
+  }
+
+  .lista-gastos__total-valor {
+    grid-column: 2;
+  }
+}
+
+/* Celular: menos cromo antes de la primera tarjeta (el conductor viene a buscar su gasto) */
+@media (max-width: 767px) {
+  /* La barra superior ya dice «Gastos»: el título queda para lectores de pantalla */
+  .pagina__titulo--en-barra {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  /* Buscar y actualizar en una sola fila; Actualizar queda como botón de icono */
+  .barra-herramientas--gastos {
+    flex-wrap: nowrap;
+  }
+
+  .barra-herramientas--gastos .buscador {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .boton-actualizar {
+    position: relative;
+    flex-shrink: 0;
+    width: var(--btn-alto);
+    padding: 0;
+  }
+
+  .boton-actualizar__texto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+/* ══ Gastos: registrar ══ */
+@media (max-width: 767px) {
+  /* En el celular el botón de registrar queda a mano, sobre la barra inferior */
+  .formulario-gasto .formulario__acciones {
+    position: sticky;
+    bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+    margin: 0 calc(-1 * var(--e-4)) calc(-1 * var(--e-4));
+    padding: var(--e-3) var(--e-4);
+    border-top: 1px solid var(--linea);
+    border-radius: 0 0 var(--r-panel) var(--r-panel);
+    background: var(--panel);
+  }
+
+  .formulario-gasto .formulario__acciones .btn {
+    flex: 1;
+  }
+}
+
+/* ══ Gastos: detalle ══ */
+.detalle__cabecera {
+  margin-bottom: var(--e-6);
+}
+
+.detalle__titulo-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--e-4) var(--e-6);
+}
+
+/* El hito del monto se planta a la derecha del título, como un poste al borde de la ruta */
+.detalle__hito {
+  flex-shrink: 0;
+}
+
+.detalle__datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--e-4) var(--e-6);
+  margin-top: var(--e-5);
+}
+
+.detalle__datos dt {
+  color: var(--tinta-3);
+  font-size: var(--t-12);
+  font-weight: 600;
+}
+
+.detalle__datos dd {
+  margin: 2px 0 0;
+  font-weight: 500;
+}
+
+.detalle__ruta,
+.detalle__paso {
+  margin-bottom: var(--e-5);
+}
+
+.detalle__ruta .seccion-titulo,
+.detalle__paso .seccion-titulo,
+.detalle__paso .cartel {
+  margin-bottom: var(--e-5);
+}
+
+/* El paso que toca lleva el filete rojo de la cinta reflectiva */
+.detalle__paso {
+  border-top: 3px solid var(--rojo);
+  scroll-margin-top: calc(var(--barra-h) + 16px);
+}
+
+/* En Pagado y Sustentado la banda de la señal encabeza la tarjeta y reemplaza al filete rojo */
+.detalle__paso--senal {
+  overflow: hidden;
+  border-top: 1px solid var(--linea);
+}
+
+.detalle__paso--senal .cartel {
+  margin: calc(-1 * var(--panel-relleno)) calc(-1 * var(--panel-relleno)) var(--e-5);
+  padding-inline: var(--panel-relleno);
+}
+
+.detalle__cierre {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+  margin-bottom: var(--e-4);
+  color: var(--sustentado-tinta);
+  font-weight: 600;
+}
+
+.detalle__historial .seccion-titulo {
+  margin-bottom: var(--e-3);
+}
+
+.detalle__esqueleto {
+  display: grid;
+  gap: var(--e-4);
+}
+
+.historial {
+  margin: var(--e-3) 0;
+  border: 1px solid var(--linea);
+  border-radius: var(--r-panel);
+  background: var(--panel);
+}
+
+.historial__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e-3);
+  padding: var(--e-3) var(--e-4);
+  border-bottom: 1px solid var(--linea);
+}
+
+.historial__item:last-child {
+  border-bottom: 0;
+}
+
+.historial__item > .icono {
+  color: var(--tinta-2);
+}
+
+.historial__texto {
+  flex: 1;
+  display: grid;
+  min-width: 160px;
+}
+
+.historial__fecha {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.historial__motivo {
+  color: var(--rojo-tinta);
+  font-size: var(--t-13);
+}
+
+/* ── Zona para soltar el comprobante ── */
+.soltar {
+  display: grid;
+  justify-items: center;
+  gap: var(--e-2);
+  padding: var(--e-8) var(--e-4);
+  border: 2px dashed var(--linea-2);
+  border-radius: var(--r-panel);
+  background: var(--suelo);
+  color: var(--tinta-2);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.soltar:hover,
+.soltar--arrastrando {
+  border-color: var(--pagado);
+  background: var(--pagado-suave);
+  color: var(--tinta);
+}
+
+.soltar--con-archivo {
+  border-style: solid;
+  border-color: var(--tinta-3);
+  background: var(--panel);
+}
+
+.soltar + .campo__ayuda {
+  margin-top: var(--e-2);
+}
+
+.soltar__icono {
+  color: var(--tinta-3);
+}
+
+.soltar__texto {
+  font-weight: 600;
+}
+
+.soltar__texto--movil {
+  display: none;
+  align-items: center;
+  gap: var(--e-2);
+}
+
+.soltar__previa {
+  width: auto;
+  max-height: 180px;
+  border: 1px solid var(--linea);
+  border-radius: var(--r-control);
+}
+
+.soltar__archivo {
+  color: var(--tinta);
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.soltar__cambiar {
+  color: var(--rojo-tinta);
+  font-size: var(--t-13);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* En pantallas táctiles y celulares se ofrece cámara o archivos */
+@media (hover: none), (max-width: 767px) {
+  .soltar {
+    padding: var(--e-6) var(--e-4);
+  }
+
+  .soltar__texto--escritorio {
+    display: none;
+  }
+
+  .soltar__texto--movil {
+    display: inline-flex;
+  }
+}
+
+/* ── Revisión del comprobante ── */
+.revision {
+  display: grid;
+  gap: var(--e-5);
+}
+
+.revision__vista {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--linea);
+  border-radius: var(--r-panel);
+  background: var(--suelo);
+}
+
+.revision__imagen {
+  width: 100%;
+  max-height: 460px;
+  object-fit: contain;
+  background: var(--panel-2);
+}
+
+.revision__pdf {
+  display: grid;
+  justify-items: center;
+  gap: var(--e-2);
+  padding: var(--e-10) var(--e-4);
+  color: var(--tinta-2);
+  font-weight: 600;
+}
+
+.revision__pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-3);
+  padding: var(--e-3) var(--e-4);
+  border-top: 1px solid var(--linea);
+  background: var(--panel);
+  color: var(--tinta-2);
+  font-size: var(--t-13);
+}
+
+.revision__rechazo {
+  display: grid;
+  gap: var(--e-4);
+  padding: var(--e-4);
+  border: 1px solid var(--rojo-borde);
+  border-radius: var(--r-panel);
+  background: #fff8f9;
+}
+
+/* ══ Gastos: checklist documental de la revisión ══ */
+.checklist {
+  min-width: 0;
+  margin: 0;
+  padding: var(--e-4) var(--e-5);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-panel);
+  background: var(--panel);
+}
+
+.checklist__titulo {
+  padding: 0;
+  font-size: var(--t-16);
+  font-weight: 700;
+}
+
+.checklist__lista {
+  display: grid;
+  gap: 2px;
+  margin: var(--e-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.checklist__criterio {
+  min-height: 40px;
+  color: var(--tinta);
+  font-size: var(--t-15);
+}
+
+.checklist__conteo {
+  margin-top: var(--e-2);
+  color: var(--tinta-2);
+  font-size: var(--t-13);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 767px) {
+  /* Objetivos táctiles de 44 px */
+  .checklist__criterio {
+    min-height: 44px;
+  }
+}
+
+/* El checklist guardado de cada comprobante revisado */
+.historial__checklist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px var(--e-3);
+  margin: var(--e-1) 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--sustentado-tinta);
+  font-size: var(--t-13);
+}
+
+.historial__checklist li {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.historial__criterio--no {
+  color: var(--rojo-tinta);
+}
+
+.historial__revisor {
+  color: var(--tinta-2);
+  font-size: var(--t-13);
+}
+
+/* Filtros por viaje y por cliente de la lista de gastos */
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--e-3);
+  margin-bottom: var(--e-3);
+}
+
+.filtros__campo {
+  display: grid;
+  flex: 1 1 200px;
+  gap: var(--e-1);
+  max-width: 280px;
+}
+
+.filtros__etiqueta {
+  color: var(--tinta-2);
+  font-size: var(--t-13);
+  font-weight: 600;
+}
+
+.filtros__quitar {
+  align-self: center;
+  padding-top: var(--e-4);
+  font-size: var(--t-14);
+}
+
+@media (max-width: 767px) {
+  .filtros__campo {
+    flex-basis: calc(50% - var(--e-3));
+    max-width: none;
+  }
+
+  .filtros__quitar {
+    flex-basis: 100%;
+    padding-top: 0;
+  }
+}

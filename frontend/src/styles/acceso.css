@@ -1,0 +1,221 @@
+/* ══ Acceso: iniciar sesión y crear usuario ══ */
+.acceso {
+  display: grid;
+  grid-template-columns: minmax(360px, 2fr) 3fr;
+  grid-template-areas: 'marca principal';
+  min-height: 100dvh;
+  background: var(--suelo);
+}
+
+.acceso__marca {
+  grid-area: marca;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--asfalto);
+  color: #fff;
+}
+
+/* La foto de la carretera ocupa la parte alta del panel; la cinta reflectiva la separa del asfalto */
+.acceso__foto {
+  flex: 0 0 42%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--asfalto-2);
+}
+
+.acceso__foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 66% 60%;
+}
+
+.acceso__contenido {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--e-8);
+  padding: var(--e-8) var(--e-10) var(--e-12);
+}
+
+/* La marca a escala de cartel */
+.acceso__marca-grande {
+  gap: var(--e-3);
+}
+
+.acceso__marca-grande .marca__insignia {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--r-panel);
+}
+
+.acceso__marca-grande .marca__insignia .camion {
+  width: 30px;
+  height: 30px;
+}
+
+.acceso__marca-grande .marca__nombre {
+  font-size: var(--t-32);
+}
+
+.acceso__marca-grande .marca__sub {
+  font-size: var(--t-14);
+}
+
+/* La ruta a escala: tres postes grandes sobre la vía discontinua */
+.acceso__via {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  justify-content: space-between;
+}
+
+.acceso__via::before {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: 0;
+  right: 0;
+  border-top: 3px dashed rgb(255 255 255 / 0.4);
+}
+
+.acceso__hito {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--e-3);
+  color: var(--asfalto-tinta);
+  font-size: var(--t-16);
+  font-weight: 600;
+}
+
+.acceso__hito::before {
+  content: '';
+  width: 32px;
+  height: 32px;
+  border: 2px solid #fff;
+  border-radius: 3px;
+  background: var(--c);
+}
+
+.acceso__hito[data-estado='Registrado'] {
+  --c: var(--registrado);
+}
+
+.acceso__hito[data-estado='Pagado'] {
+  --c: var(--pagado);
+}
+
+.acceso__hito[data-estado='Sustentado'] {
+  --c: var(--sustentado);
+}
+
+.acceso__lema {
+  max-width: 20ch;
+  font-size: var(--t-32);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.acceso__cabecera-movil {
+  display: none;
+}
+
+.acceso__principal {
+  grid-area: principal;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-6);
+  padding: var(--e-10) var(--margen);
+}
+
+.acceso__tarjeta {
+  width: 100%;
+  max-width: 420px;
+}
+
+.acceso__tarjeta--ancha {
+  max-width: 560px;
+}
+
+.acceso__titulo {
+  font-size: var(--t-32);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.acceso__bajada {
+  margin: var(--e-1) 0 var(--e-6);
+  color: var(--tinta-2);
+}
+
+.acceso__tarjeta > .alerta {
+  margin-bottom: var(--e-5);
+}
+
+.acceso__pista {
+  margin-top: var(--e-5);
+  color: var(--tinta-2);
+  font-size: var(--t-13);
+}
+
+.acceso__pista code {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--panel-2);
+  color: var(--tinta);
+}
+
+.acceso__enlace {
+  margin-top: var(--e-3);
+  color: var(--tinta-2);
+  font-size: var(--t-14);
+}
+
+.acceso__enlace a {
+  color: var(--rojo-tinta);
+  font-weight: 600;
+}
+
+.acceso__pie {
+  color: var(--tinta-3);
+  font-size: var(--t-13);
+}
+
+@media (max-width: 899px) {
+  .acceso {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      'cabecera'
+      'principal';
+  }
+
+  .acceso__marca {
+    display: none;
+  }
+
+  .acceso__cabecera-movil {
+    grid-area: cabecera;
+    display: block;
+    background: var(--asfalto);
+  }
+
+  .acceso__cabecera-movil-interior {
+    display: flex;
+    align-items: center;
+    height: 56px;
+    padding: 0 var(--margen);
+  }
+
+  .acceso__principal {
+    justify-content: flex-start;
+    padding-top: var(--e-8);
+  }
+}

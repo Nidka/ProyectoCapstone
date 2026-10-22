@@ -1,31 +1,33 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { IconoComponent } from '../../shared/ui/icono/icono.component';
+import { MarcaComponent } from '../../shared/ui/marca/marca.component';
+import { PanelAccesoComponent } from '../../shared/ui/panel-acceso/panel-acceso.component';
 
 @Component({
   selector: 'app-register',
-  standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, MarcaComponent, IconoComponent, PanelAccesoComponent],
   templateUrl: './register.component.html',
-  styleUrls: ['../login/login.component.css', './register.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegisterComponent {
-  private auth = inject(AuthService);
-  private router = inject(Router);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
 
-  username = '';
-  email = '';
-  nombre = '';
-  rol: 'admin' | 'operador' = 'operador';
-  password = '';
-  confirmPassword = '';
+  protected username = '';
+  protected email = '';
+  protected nombre = '';
+  protected rol: 'admin' | 'operador' = 'operador';
+  protected password = '';
+  protected confirmPassword = '';
 
-  loading = signal(false);
-  error = signal('');
-  showPass = signal(false);
+  protected readonly loading = signal(false);
+  protected readonly error = signal('');
+  protected readonly showPass = signal(false);
 
-  submit(): void {
+  protected submit(): void {
     if (!this.username.trim() || !this.email.trim() || !this.nombre.trim() || !this.password) {
       this.error.set('Completa todos los campos obligatorios');
       return;
@@ -41,18 +43,14 @@ export class RegisterComponent {
 
     this.error.set('');
     this.loading.set(true);
-    this.auth.register({
-      username: this.username.trim(),
-      email: this.email.trim(),
-      nombre: this.nombre.trim(),
-      rol: this.rol,
-      password: this.password,
-    }).subscribe({
-      next: () => this.router.navigate(['/login'], { queryParams: { registered: '1' } }),
-      error: (e) => {
-        this.error.set(e?.error?.detail ?? 'No se pudo crear el usuario');
-        this.loading.set(false);
-      },
-    });
+    this.auth
+      .register({ username: this.username.trim(), email: this.email.trim(), nombre: this.nombre.trim(), rol: this.rol, password: this.password })
+      .subscribe({
+        next: () => this.router.navigate(['/login'], { queryParams: { registered: '1' } }),
+        error: e => {
+          this.error.set(e?.error?.detail ?? 'No se pudo crear el usuario');
+          this.loading.set(false);
+        },
+      });
   }
 }

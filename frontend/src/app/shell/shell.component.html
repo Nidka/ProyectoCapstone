@@ -1,0 +1,7 @@
+<button type="button" class="saltar" (click)="saltarAlContenido()">Saltar al contenido</button>
+<app-barra-superior (buscar)="abrirPaleta()" />
+<main id="contenido" class="contenido" tabindex="-1">
+  <router-outlet />
+</main>
+<app-barra-movil />
+<app-paleta-comandos />

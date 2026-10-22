@@ -1,95 +1,97 @@
-<div class="bc">
-  <span>Gastos</span>
-  <span class="bc-sep">/</span>
-  <strong>Registrar gasto adicional</strong>
-</div>
+<div class="pagina pagina--angosta">
+  <a class="volver" routerLink="/app/gastos"><app-icono nombre="arrow-left" [tamano]="16" />Gastos</a>
+  <header class="pagina__encabezado">
+    <h1 class="pagina__titulo">Registrar gasto adicional</h1>
+  </header>
 
-<div class="page-hd">
-  <div>
-    <h1>Registrar gasto adicional</h1>
-  </div>
-</div>
-
-<div class="split">
-  <div class="widget">
-    <div class="widget-body">
-      <form class="form" (ngSubmit)="save()">
-        <div class="field" [class.has-err]="viajeError">
-          <label for="gf-viaje">Viaje <span class="req">*</span></label>
-          <select id="gf-viaje" name="viaje" [(ngModel)]="viajeId">
-            <option value="" disabled selected>Selecciona el viaje</option>
-            @for (v of viajes; track $index) {
-              <option [value]="v['id_viaje']">Viaje #{{ v['id_viaje'] }}</option>
-            }
-          </select>
-          @if (viajeError) {
-            <div class="ferr" style="display:block">{{ viajeError }}</div>
-          }
-        </div>
-
-        <div class="field" [class.has-err]="clienteError">
-          <label for="gf-cliente">Cliente <span class="req">*</span></label>
-          <select id="gf-cliente" name="cliente" [(ngModel)]="clienteId">
-            <option value="" disabled selected>Selecciona el cliente responsable de pago</option>
-            @for (c of clientes; track $index) {
-              <option [value]="c['id_cliente']">{{ c['razon_social'] }}</option>
-            }
-          </select>
-          @if (clienteError) {
-            <div class="ferr" style="display:block">{{ clienteError }}</div>
-          }
-        </div>
-
-        <div class="frow">
-          <div class="field" [class.has-err]="montoError">
-            <label for="gf-monto">Monto (S/) <span class="req">*</span></label>
-            <input id="gf-monto" name="monto" type="number" min="0.01" step="0.01" [(ngModel)]="monto" placeholder="0.00" />
-            @if (montoError) {
-              <div class="ferr" style="display:block">{{ montoError }}</div>
-            }
-          </div>
-          <div class="field" [class.has-err]="fechaError">
-            <label for="gf-fecha">Fecha del gasto <span class="req">*</span></label>
-            <input id="gf-fecha" name="fecha" type="date" [(ngModel)]="fecha" />
-            @if (fechaError) {
-              <div class="ferr" style="display:block">{{ fechaError }}</div>
-            }
-          </div>
-        </div>
-
-        <div class="f-acts">
-          <button class="btn btn-y" type="submit" [disabled]="saving()">
-            {{ saving() ? 'Registrando…' : 'Registrar gasto' }}
-          </button>
-          <button class="btn btn-ghost" type="button" (click)="clearForm()">Cancelar</button>
-        </div>
-      </form>
+  <form class="panel formulario formulario-gasto" (ngSubmit)="save()" novalidate>
+    <div class="campo" [class.campo--con-error]="viajeError()">
+      <label class="campo__etiqueta" for="gf-viaje">Viaje <span class="req" aria-hidden="true">*</span></label>
+      <app-selector-referencia
+        idControl="gf-viaje"
+        [opciones]="opcionesViaje()"
+        [(valor)]="viajeId"
+        [invalido]="!!viajeError()"
+        [describedBy]="viajeError() ? 'gf-viaje-error' : null"
+        [cargando]="cargandoViajes()"
+        placeholder="Busca por número o fecha"
+        [vacioTexto]="errorViajes() ? textoSinLista : 'Aún no hay viajes.'"
+        [crearRuta]="errorViajes() ? null : '/app/operacion/viajes'"
+        crearTexto="Crear viaje"
+      />
+      @if (sinViajes()) {
+        <p class="campo__ayuda">Para registrar un gasto primero necesitas un viaje. <a class="enlace" routerLink="/app/operacion/viajes">Crear viaje</a></p>
+      }
+      @if (viajeError()) {
+        <p class="campo__error" id="gf-viaje-error">{{ viajeError() }}</p>
+      }
     </div>
-  </div>
 
-  <div class="widget">
-    <div class="widget-hd">
-      <div>
-        <h2>Flujo del gasto</h2>
-      </div>
+    <div class="campo" [class.campo--con-error]="clienteError()">
+      <label class="campo__etiqueta" for="gf-cliente">Cliente <span class="req" aria-hidden="true">*</span></label>
+      <app-selector-referencia
+        idControl="gf-cliente"
+        [opciones]="opcionesCliente()"
+        [(valor)]="clienteId"
+        [invalido]="!!clienteError()"
+        [describedBy]="clienteError() ? 'gf-cliente-error' : null"
+        [cargando]="cargandoClientes()"
+        placeholder="Busca por razón social"
+        [vacioTexto]="errorClientes() ? textoSinLista : 'Aún no hay clientes.'"
+        [crearRuta]="errorClientes() ? null : '/app/operacion/clientes'"
+        crearTexto="Crear cliente"
+      />
+      @if (sinClientes()) {
+        <p class="campo__ayuda">También necesitas al menos un cliente. <a class="enlace" routerLink="/app/operacion/clientes">Crear cliente</a></p>
+      }
+      @if (clienteError()) {
+        <p class="campo__error" id="gf-cliente-error">{{ clienteError() }}</p>
+      }
     </div>
-    <div class="widget-body" style="display:flex;flex-direction:column;gap:10px">
-      <div class="target-row">
-        <span class="lbl" [class]="estadoClass.Registrado">{{ estadoLabel.Registrado }}</span>
-        <span style="color:var(--t4)">→ al registrar el gasto</span>
+
+    <div class="formulario__fila">
+      <div class="campo" [class.campo--con-error]="montoError()">
+        <label class="campo__etiqueta" for="gf-monto">Monto (S/) <span class="req" aria-hidden="true">*</span></label>
+        <div class="control-prefijo">
+          <span class="control-prefijo__texto" aria-hidden="true">S/</span>
+          <input
+            class="control"
+            id="gf-monto"
+            name="monto"
+            type="number"
+            inputmode="decimal"
+            min="0.01"
+            step="0.01"
+            placeholder="0.00"
+            [(ngModel)]="monto"
+            [attr.aria-invalid]="!!montoError() || null"
+            [attr.aria-describedby]="montoError() ? 'gf-monto-error' : null"
+          />
+        </div>
+        @if (montoError()) {
+          <p class="campo__error" id="gf-monto-error">{{ montoError() }}</p>
+        }
       </div>
-      <div class="target-row">
-        <span class="lbl" [class]="estadoClass.Pagado">{{ estadoLabel.Pagado }}</span>
-        <span style="color:var(--t4)">→ al adjuntar un comprobante</span>
-      </div>
-      <div class="target-row">
-        <span class="lbl" [class]="estadoClass.Sustentado">{{ estadoLabel.Sustentado }}</span>
-        <span style="color:var(--t4)">→ al aprobar el comprobante</span>
-      </div>
-      <div class="target-row">
-        <span class="lbl" [class]="estadoClass.Registrado">{{ estadoLabel.Registrado }}</span>
-        <span style="color:var(--t4)">← si el comprobante se rechaza</span>
+      <div class="campo" [class.campo--con-error]="fechaError()">
+        <label class="campo__etiqueta" for="gf-fecha">Fecha del gasto <span class="req" aria-hidden="true">*</span></label>
+        <input
+          class="control"
+          id="gf-fecha"
+          name="fecha"
+          type="date"
+          [(ngModel)]="fecha"
+          [attr.aria-invalid]="!!fechaError() || null"
+          [attr.aria-describedby]="fechaError() ? 'gf-fecha-error' : null"
+        />
+        @if (fechaError()) {
+          <p class="campo__error" id="gf-fecha-error">{{ fechaError() }}</p>
+        }
       </div>
     </div>
-  </div>
+
+    <div class="formulario__acciones">
+      <button class="btn btn--primario" type="submit" [disabled]="saving()">{{ saving() ? 'Registrando…' : 'Registrar gasto' }}</button>
+      <a class="btn btn--fantasma" routerLink="/app/gastos">Cancelar</a>
+    </div>
+  </form>
 </div>

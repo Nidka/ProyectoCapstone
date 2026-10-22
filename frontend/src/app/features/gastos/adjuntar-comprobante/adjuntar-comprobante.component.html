@@ -1,0 +1,44 @@
+@if (rechazoPrevio(); as r) {
+  <p class="alerta alerta--error">
+    <app-icono nombre="alert-triangle" [tamano]="18" />
+    <span>El comprobante anterior fue rechazado{{ r.motivo_rechazo ? ': ' + r.motivo_rechazo : '.' }}</span>
+  </p>
+}
+<div
+  class="soltar"
+  role="button"
+  tabindex="0"
+  aria-describedby="ayuda-comprobante"
+  [class.soltar--arrastrando]="arrastrando()"
+  [class.soltar--con-archivo]="!!archivo()"
+  (click)="selector.click()"
+  (keydown.enter)="selector.click()"
+  (keydown.space)="$event.preventDefault(); selector.click()"
+  (dragover)="alArrastrar($event)"
+  (dragleave)="alSalir($event)"
+  (drop)="alSoltar($event)"
+>
+  <input #selector class="oculto" type="file" accept="image/png,image/jpeg,image/jpg,application/pdf" (change)="alSeleccionar($event)" />
+  @if (archivo(); as f) {
+    @if (previa(); as url) {
+      <img class="soltar__previa" [src]="url" alt="Vista previa del comprobante seleccionado" />
+    } @else {
+      <app-icono class="soltar__icono" nombre="file-type-pdf" [tamano]="32" />
+    }
+    <span class="soltar__archivo">{{ f.name }}</span>
+    <span class="soltar__cambiar">Cambiar archivo</span>
+  } @else {
+    <app-icono class="soltar__icono" nombre="upload" [tamano]="28" />
+    <span class="soltar__texto soltar__texto--escritorio">Arrastra el archivo aquí o haz clic para seleccionar</span>
+    <span class="soltar__texto soltar__texto--movil"><app-icono nombre="camera" [tamano]="20" />Tomar foto o elegir archivo</span>
+  }
+</div>
+<p class="campo__ayuda" id="ayuda-comprobante">Formatos permitidos: JPG, PNG o PDF. Tamaño máximo 10 MB.</p>
+@if (error()) {
+  <p class="campo__error" role="alert">{{ error() }}</p>
+}
+<div class="formulario__acciones">
+  <button class="btn btn--primario" type="button" [disabled]="subiendo()" (click)="subir()">
+    <app-icono nombre="upload" [tamano]="18" />{{ subiendo() ? 'Subiendo…' : 'Subir comprobante' }}
+  </button>
+</div>
