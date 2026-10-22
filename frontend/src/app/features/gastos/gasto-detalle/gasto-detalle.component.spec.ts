@@ -140,8 +140,8 @@ describe('GastoDetalleComponent', () => {
       id: 7, gasto_id: 31, archivo_url: '/u/7.jpg', tipo_archivo: 'imagen', estado: 'Rechazado', creado_en: '2026-10-01T17:00:00Z',
       motivo_rechazo: 'No cumple: monto coincide.', aprobado_por: 'Ana Quispe', aprobado_en: '2026-09-30T15:00:00Z',
       checklist: [
-        { criterio: 'legible', cumple: true }, { criterio: 'tipo_valido', cumple: true }, { criterio: 'a_nombre_empresa', cumple: true },
-        { criterio: 'monto_coincide', cumple: false }, { criterio: 'fecha_coincide', cumple: true },
+        { criterio: 'legible', texto: 'Legible y completo', cumple: true }, { criterio: 'tipo_valido', texto: 'Boleta o factura válida', cumple: true }, { criterio: 'a_nombre_empresa', texto: 'A nombre de LIZAR SRL', cumple: true },
+        { criterio: 'monto_coincide', texto: 'Monto coincide', cumple: false }, { criterio: 'fecha_coincide', texto: 'Fecha coincide', cumple: true },
       ],
     };
     const f = montar(storeFalso([gasto(31, 'Registrado')], [rechazado]), '31');

@@ -49,6 +49,11 @@ export const routes: Routes = [
         title: 'Reportes · LIZAR',
         loadComponent: () => import('./features/reportes/reportes.component').then(m => m.ReportesComponent),
       },
+      {
+        path: 'checklist',
+        title: 'Checklist del cliente · LIZAR',
+        loadComponent: () => import('./features/checklist-cliente/checklist-cliente.component').then(m => m.ChecklistClienteComponent),
+      },
       { path: 'operacion', pathMatch: 'full', redirectTo: 'operacion/viajes' },
       {
         path: 'operacion/:modulo',

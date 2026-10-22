@@ -14,24 +14,34 @@
     </figcaption>
   </figure>
 
-  <fieldset class="checklist" [disabled]="enviando()">
-    <legend class="checklist__titulo">Checklist documental</legend>
-    <ul class="checklist__lista">
-      @for (criterio of criterios; track criterio.clave) {
-        <li>
-          <label class="casilla checklist__criterio">
-            <input
-              type="checkbox"
-              [checked]="checklist()[criterio.clave]"
-              (change)="marcar(criterio.clave, $any($event.target).checked)"
-            />
-            <span>{{ criterio.texto(gasto()) }}</span>
-          </label>
-        </li>
-      }
-    </ul>
-    <p class="checklist__conteo" aria-live="polite">{{ marcados() }} de {{ total }} criterios</p>
-  </fieldset>
+  @if (cargaCriterios() && !criterios().length) {
+    <p class="checklist__estado" aria-busy="true">Cargando checklist…</p>
+  } @else if (falloCriterios()) {
+    <div class="alerta alerta--error" role="alert">
+      <app-icono nombre="alert-triangle" [tamano]="18" />
+      <span>No se pudo cargar el checklist de este cliente.</span>
+      <button type="button" class="enlace" (click)="reintentar()">Reintentar</button>
+    </div>
+  } @else {
+    <fieldset class="checklist" [disabled]="enviando()">
+      <legend class="checklist__titulo">Checklist documental</legend>
+      <ul class="checklist__lista">
+        @for (criterio of criterios(); track criterio.clave) {
+          <li>
+            <label class="casilla checklist__criterio">
+              <input
+                type="checkbox"
+                [checked]="checklist()[criterio.clave]"
+                (change)="marcar(criterio.clave, $any($event.target).checked)"
+              />
+              <span>{{ textoDe(criterio) }}</span>
+            </label>
+          </li>
+        }
+      </ul>
+      <p class="checklist__conteo" aria-live="polite">{{ marcados() }} de {{ criterios().length }} criterios</p>
+    </fieldset>
+  }
 
   @if (!rechazando()) {
     <div class="formulario__acciones">
@@ -49,7 +59,7 @@
       </button>
     </div>
     @if (!completo()) {
-      <p class="campo__ayuda" id="checklist-aviso">Marca los 5 criterios para aprobar.</p>
+      <p class="campo__ayuda" id="checklist-aviso">Marca todos los criterios para aprobar.</p>
     }
   } @else {
     <div class="revision__rechazo">

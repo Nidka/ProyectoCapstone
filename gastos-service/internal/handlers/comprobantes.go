@@ -195,7 +195,7 @@ func (h *Handler) adjuntarChecklists(ctx context.Context, comprobantes []models.
 	if len(ids) == 0 {
 		return nil
 	}
-	rows, err := h.DB.Query(ctx, `SELECT comprobante_id, criterio, cumple FROM checklist_comprobante WHERE comprobante_id = ANY($1)`, ids)
+	rows, err := h.DB.Query(ctx, `SELECT comprobante_id, criterio, texto, cumple FROM checklist_comprobante WHERE comprobante_id = ANY($1) ORDER BY id`, ids)
 	if err != nil {
 		return err
 	}
@@ -205,7 +205,7 @@ func (h *Handler) adjuntarChecklists(ctx context.Context, comprobantes []models.
 	for rows.Next() {
 		var id int
 		var it models.ItemChecklist
-		if err := rows.Scan(&id, &it.Criterio, &it.Cumple); err != nil {
+		if err := rows.Scan(&id, &it.Criterio, &it.Texto, &it.Cumple); err != nil {
 			return err
 		}
 		porComprobante[id] = append(porComprobante[id], it)
@@ -215,7 +215,7 @@ func (h *Handler) adjuntarChecklists(ctx context.Context, comprobantes []models.
 	}
 	for i := range comprobantes {
 		if items, ok := porComprobante[comprobantes[i].ID]; ok {
-			comprobantes[i].Checklist = checklist.Ordenar(items)
+			comprobantes[i].Checklist = items
 		}
 	}
 	return nil
@@ -244,9 +244,24 @@ func bloquearPendiente(ctx context.Context, tx pgx.Tx, id int) (int, error) {
 	return gastoID, nil
 }
 
+// criteriosDelComprobante bloquea el comprobante pendiente y devuelve su gasto y los criterios
+// vigentes del cliente de ese gasto (los suyos o los estándar).
+func criteriosDelComprobante(ctx context.Context, tx pgx.Tx, id int) (int, []checklist.Criterio, error) {
+	gastoID, err := bloquearPendiente(ctx, tx, id)
+	if err != nil {
+		return 0, nil, err
+	}
+	var clienteID int
+	if err := tx.QueryRow(ctx, `SELECT cliente_id FROM gasto WHERE id = $1`, gastoID).Scan(&clienteID); err != nil {
+		return 0, nil, err
+	}
+	vigentes, _, err := criteriosVigentes(ctx, tx, clienteID)
+	return gastoID, vigentes, err
+}
+
 func guardarChecklist(ctx context.Context, tx pgx.Tx, id int, items []models.ItemChecklist) error {
 	for _, it := range items {
-		if _, err := tx.Exec(ctx, `INSERT INTO checklist_comprobante (comprobante_id, criterio, cumple) VALUES ($1, $2, $3)`, id, it.Criterio, it.Cumple); err != nil {
+		if _, err := tx.Exec(ctx, `INSERT INTO checklist_comprobante (comprobante_id, criterio, texto, cumple) VALUES ($1, $2, $3, $4)`, id, it.Criterio, it.Texto, it.Cumple); err != nil {
 			return err
 		}
 	}
@@ -290,10 +305,6 @@ func (h *Handler) aprobarComprobante(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "cuerpo inválido")
 		return
 	}
-	if err := checklist.ValidarAprobacion(req.Checklist); err != nil {
-		writeError(w, http.StatusUnprocessableEntity, err.Error())
-		return
-	}
 	if req.AprobadoPor != "" {
 		nombre = req.AprobadoPor
 	}
@@ -306,12 +317,16 @@ func (h *Handler) aprobarComprobante(w http.ResponseWriter, r *http.Request) {
 	}
 	defer tx.Rollback(ctx)
 
-	gastoID, err := bloquearPendiente(ctx, tx, id)
+	gastoID, vigentes, err := criteriosDelComprobante(ctx, tx, id)
 	if err != nil {
 		escribirErrorRevision(w, err)
 		return
 	}
-	if err := guardarChecklist(ctx, tx, id, checklist.Items(req.Checklist)); err != nil {
+	if err := checklist.ValidarAprobacion(vigentes, req.Checklist); err != nil {
+		writeError(w, http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+	if err := guardarChecklist(ctx, tx, id, checklist.Items(vigentes, req.Checklist)); err != nil {
 		writeError(w, http.StatusInternalServerError, "no se pudo guardar el checklist")
 		return
 	}
@@ -362,10 +377,6 @@ func (h *Handler) rechazarComprobante(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "motivo_rechazo es obligatorio")
 		return
 	}
-	if err := checklist.ValidarRechazo(req.Checklist); err != nil {
-		writeError(w, http.StatusUnprocessableEntity, err.Error())
-		return
-	}
 	if req.AprobadoPor != "" {
 		nombre = req.AprobadoPor
 	}
@@ -378,12 +389,16 @@ func (h *Handler) rechazarComprobante(w http.ResponseWriter, r *http.Request) {
 	}
 	defer tx.Rollback(ctx)
 
-	gastoID, err := bloquearPendiente(ctx, tx, id)
+	gastoID, vigentes, err := criteriosDelComprobante(ctx, tx, id)
 	if err != nil {
 		escribirErrorRevision(w, err)
 		return
 	}
-	if err := guardarChecklist(ctx, tx, id, checklist.Items(req.Checklist)); err != nil {
+	if err := checklist.ValidarRechazo(vigentes, req.Checklist); err != nil {
+		writeError(w, http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+	if err := guardarChecklist(ctx, tx, id, checklist.Items(vigentes, req.Checklist)); err != nil {
 		writeError(w, http.StatusInternalServerError, "no se pudo guardar el checklist")
 		return
 	}

@@ -1,11 +1,11 @@
 export type EstadoGasto = 'Registrado' | 'Pagado' | 'Sustentado';
 export type EstadoComprobante = 'Pendiente' | 'Aprobado' | 'Rechazado';
 
-/** Criterios del checklist documental (las claves coinciden con gastos-service). */
-export type CriterioChecklist = 'legible' | 'tipo_valido' | 'a_nombre_empresa' | 'monto_coincide' | 'fecha_coincide';
-
 export interface ItemChecklist {
-  criterio: CriterioChecklist;
+  /** Clave del criterio (estable aunque el cliente cambie su texto) */
+  criterio: string;
+  /** El criterio tal como estaba cuando se revisó el comprobante */
+  texto: string;
   cumple: boolean;
 }
 

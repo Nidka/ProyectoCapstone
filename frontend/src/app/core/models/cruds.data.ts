@@ -162,6 +162,7 @@ export const CRUDS: CrudDef[] = [
     idKey: 'id_cliente',
     nombre: i => texto(i['razon_social']),
     textos: { nuevo: 'Nuevo cliente', guardado: 'Cliente guardado', singular: 'cliente', plural: 'clientes' },
+    accionFila: { texto: 'Checklist', ruta: '/app/checklist', parametro: 'cliente', icono: 'clipboard-check' },
     fields: [
       { id: 'cl_r', l: 'Razón social', tp: 'text', req: true },
       { id: 'cl_ruc', l: 'RUC', tp: 'text', req: true, half: true, rule: v => /^\d{11}$/.test(v), msg: '11 dígitos' },

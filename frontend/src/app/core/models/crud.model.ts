@@ -1,3 +1,5 @@
+import type { IconoNombre } from '../../shared/ui/icono/iconos';
+
 /** Busca el nombre legible de un registro de otro módulo: ref('cliente', 5) → «Agro Norte SAC». */
 export type RefLookup = (clave: string, id: unknown) => string;
 
@@ -38,7 +40,7 @@ export interface CrudDef {
   nombre?: (item: Record<string, unknown>, ref: RefLookup) => string;
   textos?: CrudTextos;
   /** Acción de cada fila que continúa en otro módulo (p. ej. registrar un gasto del viaje) */
-  accionFila?: { texto: string; ruta: string; parametro: string };
+  accionFila?: { texto: string; ruta: string; parametro: string; icono?: IconoNombre };
 }
 
 /** Opción de un selector de registros relacionados */

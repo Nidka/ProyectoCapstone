@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy, Component, OnInit, afterRenderEffect, computed, effect, inject, input, signal, untracked,
 } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { cortoDe } from '../../../core/models/checklist';
 import { Comprobante } from '../../../core/models/gasto.model';
 import { ESTADO_GASTO_LABEL } from '../../../core/models/gasto-estados';
 import { CrudService } from '../../../core/services/crud.service';
@@ -86,7 +85,6 @@ export class GastoDetalleComponent implements OnInit {
   protected readonly formatMonto = formatMonto;
   protected readonly formatFecha = formatFecha;
   protected readonly formatFechaHora = formatFechaHora;
-  protected readonly cortoDe = cortoDe;
 
   constructor() {
     // Al llegar con #paso (desde la bandeja o tras registrar), lleva la vista al paso que toca.

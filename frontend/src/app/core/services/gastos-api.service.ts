@@ -41,6 +41,14 @@ export class GastosApiService {
     return this.http.post<T>(`${this._base()}${path}`, body, { headers: this.headers() });
   }
 
+  put<T>(path: string, body: unknown): Observable<T> {
+    return this.http.put<T>(`${this._base()}${path}`, body, { headers: this.headers() });
+  }
+
+  delete<T>(path: string): Observable<T> {
+    return this.http.delete<T>(`${this._base()}${path}`, { headers: this.headers() });
+  }
+
   uploadFile<T>(path: string, file: File): Observable<T> {
     const form = new FormData();
     form.append('archivo', file);

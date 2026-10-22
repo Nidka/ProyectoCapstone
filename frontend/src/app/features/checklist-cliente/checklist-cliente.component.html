@@ -1,0 +1,102 @@
+<div class="pagina pagina--media">
+  <a class="volver" routerLink="/app/operacion/clientes"><app-icono nombre="arrow-left" [tamano]="16" />Clientes</a>
+
+  @if (!clienteId()) {
+    <app-estado-vacio icono="clipboard-check" titulo="Elige un cliente." texto="El checklist se configura desde la fila de cada cliente.">
+      <a class="btn btn--secundario" routerLink="/app/operacion/clientes">Ir a Clientes</a>
+    </app-estado-vacio>
+  } @else if (actual(); as c) {
+    <header class="detalle__cabecera">
+      <h1 class="pagina__titulo">Checklist de <span>{{ nombre() }}</span></h1>
+      <p class="texto-secundario">
+        Son los criterios que Logística marca al revisar cada comprobante de este cliente; para aprobar deben cumplirse todos.
+      </p>
+      <p class="checklist-config__estado">
+        <app-icono nombre="clipboard-check" [tamano]="16" />
+        {{ c.personalizado ? 'Tiene un checklist propio.' : 'Usa el checklist estándar.' }}
+      </p>
+    </header>
+
+    <section class="panel" aria-labelledby="t-criterios">
+      <h2 id="t-criterios" class="seccion-titulo">Criterios</h2>
+      <ol class="checklist-config__lista">
+        @for (f of filas(); track f.uid; let i = $index) {
+          <li class="criterio" [class.campo--con-error]="errores().get(f.uid)">
+            <span class="criterio__numero mono">{{ i + 1 }}</span>
+            <div class="criterio__campo">
+              <input
+                class="control criterio__texto"
+                type="text"
+                [attr.maxlength]="maxTexto + 20"
+                [attr.aria-label]="'Texto del criterio ' + (i + 1)"
+                [attr.aria-invalid]="errores().get(f.uid) ? true : null"
+                [value]="f.texto"
+                (input)="editar(f.uid, $any($event.target).value)"
+              />
+              @if (errores().get(f.uid); as e) {
+                <p class="campo__error">{{ e }}</p>
+              }
+            </div>
+            <div class="criterio__acciones">
+              <button type="button" class="btn btn--fantasma btn--sm" [attr.aria-label]="'Subir criterio ' + (i + 1)" [disabled]="i === 0" (click)="mover(i, -1)">
+                <app-icono nombre="arrow-up" [tamano]="16" />
+              </button>
+              <button type="button" class="btn btn--fantasma btn--sm" [attr.aria-label]="'Bajar criterio ' + (i + 1)" [disabled]="i === filas().length - 1" (click)="mover(i, 1)">
+                <app-icono nombre="arrow-down" [tamano]="16" />
+              </button>
+              <button type="button" class="btn btn--fantasma btn--sm" [attr.aria-label]="'Quitar criterio ' + (i + 1)" [disabled]="filas().length <= 1" (click)="quitar(f.uid)">
+                <app-icono nombre="trash" [tamano]="16" />
+              </button>
+            </div>
+          </li>
+        }
+      </ol>
+      <p class="checklist__conteo" aria-live="polite">{{ filas().length }} de {{ maxCriterios }} criterios</p>
+
+      <div class="criterio criterio--nuevo">
+        <div class="criterio__campo">
+          <label class="campo__etiqueta" for="nuevo-criterio">Nuevo criterio</label>
+          <input
+            class="control"
+            id="nuevo-criterio"
+            type="text"
+            name="nuevo"
+            autocomplete="off"
+            placeholder="Ej. El comprobante lleva sello de recepción"
+            [ngModel]="nuevo()"
+            (ngModelChange)="nuevo.set($event)"
+            (keydown.enter)="agregar()"
+          />
+        </div>
+        <button type="button" class="btn btn--secundario" [disabled]="!puedeAgregar()" (click)="agregar()">
+          <app-icono nombre="plus" [tamano]="18" />Agregar criterio
+        </button>
+      </div>
+
+      <div class="formulario__acciones">
+        <button type="button" class="btn btn--primario" [disabled]="!puedeGuardar()" (click)="guardar()">Guardar checklist</button>
+        @if (c.personalizado && !confirmandoRestablecer()) {
+          <button type="button" class="btn btn--fantasma" [disabled]="guardando()" (click)="confirmandoRestablecer.set(true)">Restablecer al estándar</button>
+        }
+      </div>
+
+      @if (confirmandoRestablecer()) {
+        <div class="alerta alerta--error" role="alert">
+          <app-icono nombre="alert-triangle" [tamano]="18" />
+          <span>Al restablecer, se pierden los criterios propios de este cliente y vuelve a usar el checklist estándar.</span>
+          <button type="button" class="btn btn--peligro btn--sm" [disabled]="guardando()" (click)="restablecer()">Sí, restablecer</button>
+          <button type="button" class="btn btn--fantasma btn--sm" (click)="confirmandoRestablecer.set(false)">Cancelar</button>
+        </div>
+      }
+    </section>
+  } @else if (falloCarga()) {
+    <app-estado-vacio icono="cloud-off" titulo="No se pudo cargar el checklist." texto="Revisa tu conexión e inténtalo de nuevo.">
+      <button type="button" class="btn btn--secundario" (click)="reintentar()">Reintentar</button>
+    </app-estado-vacio>
+  } @else {
+    <div class="detalle__esqueleto" aria-busy="true">
+      <div class="esqueleto esqueleto--franja"></div>
+      <div class="esqueleto esqueleto--bloque"></div>
+    </div>
+  }
+</div>

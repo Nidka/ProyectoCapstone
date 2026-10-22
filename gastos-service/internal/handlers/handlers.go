@@ -38,6 +38,11 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("POST /comprobantes/{id}/aprobar", h.aprobarComprobante)
 	mux.HandleFunc("POST /comprobantes/{id}/rechazar", h.rechazarComprobante)
 
+	// Checklist documental configurable por cliente (REQ-15, REQ-16)
+	mux.HandleFunc("GET /clientes/{id}/checklist", h.getChecklistCliente)
+	mux.HandleFunc("PUT /clientes/{id}/checklist", h.putChecklistCliente)
+	mux.HandleFunc("DELETE /clientes/{id}/checklist", h.deleteChecklistCliente)
+
 	// Reportes estadísticos (dashboard gerencial y PDF)
 	mux.HandleFunc("GET /reportes/resumen", h.resumenReporte)
 	mux.HandleFunc("GET /reportes/estadistico.pdf", h.pdfEstadistico)

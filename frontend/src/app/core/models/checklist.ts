@@ -1,49 +1,60 @@
-import { CriterioChecklist, Gasto } from './gasto.model';
+import { Gasto } from './gasto.model';
 import { formatFecha, formatMonto } from '../utils/format';
 
-/** Checklist documental en curso: un valor por criterio. */
-export type Checklist = Record<CriterioChecklist, boolean>;
-
-interface DefinicionCriterio {
-  clave: CriterioChecklist;
-  /** Texto corto del historial */
-  corto: string;
-  /** Texto de la revisión; el monto y la fecha salen del gasto para comparar */
-  texto: (gasto: Gasto) => string;
+/** Un punto del checklist de un cliente. La clave no cambia al renombrar el texto. */
+export interface CriterioCliente {
+  clave: string;
+  texto: string;
 }
 
-/** Criterios del checklist documental, en el orden en que se revisan. */
-export const CRITERIOS_CHECKLIST: readonly DefinicionCriterio[] = [
-  { clave: 'legible', corto: 'Legible y completo', texto: () => 'El comprobante es legible y está completo.' },
-  { clave: 'tipo_valido', corto: 'Boleta o factura válida', texto: () => 'Es una boleta o factura válida.' },
-  { clave: 'a_nombre_empresa', corto: 'A nombre de LIZAR SRL', texto: () => 'Está emitido a nombre de LIZAR SRL.' },
-  { clave: 'monto_coincide', corto: 'Monto coincide', texto: g => `El monto coincide con el gasto (${formatMonto(g.monto)}).` },
-  { clave: 'fecha_coincide', corto: 'Fecha coincide', texto: g => `La fecha corresponde al gasto (${formatFecha(g.fecha)}).` },
-];
+/** Lo que devuelve GET /clientes/{id}/checklist: los criterios que se revisan en sus comprobantes. */
+export interface ChecklistCliente {
+  cliente_id: number;
+  /** false = el cliente usa los criterios estándar */
+  personalizado: boolean;
+  criterios: CriterioCliente[];
+}
 
-export const TOTAL_CRITERIOS = CRITERIOS_CHECKLIST.length;
+/** Checklist en curso: un valor por clave de criterio. */
+export type Checklist = Record<string, boolean>;
 
 export const MSG_COMPROBANTE_YA_REVISADO = 'Este comprobante ya fue revisado. Actualizamos la vista.';
-export const MSG_CHECKLIST_INCOMPLETO = 'Para aprobar, el comprobante debe cumplir los 5 criterios del checklist.';
+export const MSG_CHECKLIST_INCOMPLETO = 'Para aprobar, el comprobante debe cumplir todos los criterios del checklist.';
 
-export function checklistVacio(): Checklist {
-  return { legible: false, tipo_valido: false, a_nombre_empresa: false, monto_coincide: false, fecha_coincide: false };
+export const MAX_CRITERIOS = 15;
+export const MIN_TEXTO = 3;
+export const MAX_TEXTO = 120;
+
+export function checklistVacio(criterios: CriterioCliente[]): Checklist {
+  return Object.fromEntries(criterios.map(c => [c.clave, false]));
 }
 
-export function cumplidos(checklist: Checklist): number {
-  return CRITERIOS_CHECKLIST.filter(c => checklist[c.clave]).length;
+export function cumplidos(criterios: CriterioCliente[], checklist: Checklist): number {
+  return criterios.filter(c => checklist[c.clave]).length;
 }
 
-export function checklistCompleto(checklist: Checklist): boolean {
-  return cumplidos(checklist) === TOTAL_CRITERIOS;
+/** Completo = todos los criterios marcados; sin criterios no hay checklist que dar por cumplido. */
+export function checklistCompleto(criterios: CriterioCliente[], checklist: Checklist): boolean {
+  return criterios.length > 0 && cumplidos(criterios, checklist) === criterios.length;
 }
 
-/** «No cumple: monto coincide; fecha coincide.» con lo que quedó sin marcar; vacío si cumple todo. */
-export function motivoDesdeChecklist(checklist: Checklist): string {
-  const faltan = CRITERIOS_CHECKLIST.filter(c => !checklist[c.clave]).map(c => c.corto.charAt(0).toLowerCase() + c.corto.slice(1));
+function enMinuscula(texto: string): string {
+  const sinPunto = texto.replace(/\.$/, '');
+  return sinPunto.charAt(0).toLowerCase() + sinPunto.slice(1);
+}
+
+/** «No cumple: el monto coincide con el gasto; …» con lo que quedó sin marcar; vacío si cumple todo. */
+export function motivoDesdeChecklist(criterios: CriterioCliente[], checklist: Checklist): string {
+  const faltan = criterios.filter(c => !checklist[c.clave]).map(c => enMinuscula(c.texto));
   return faltan.length ? `No cumple: ${faltan.join('; ')}.` : '';
 }
 
-export function cortoDe(clave: CriterioChecklist): string {
-  return CRITERIOS_CHECKLIST.find(c => c.clave === clave)?.corto ?? clave;
+/**
+ * El texto del criterio para revisar. Los criterios de monto y de fecha muestran el dato del gasto
+ * para que quien revisa compare sin salir de la pantalla.
+ */
+export function textoConDato(criterio: CriterioCliente, gasto: Gasto): string {
+  const dato =
+    criterio.clave === 'monto_coincide' ? formatMonto(gasto.monto) : criterio.clave === 'fecha_coincide' ? formatFecha(gasto.fecha) : '';
+  return dato ? `${criterio.texto.replace(/\.$/, '')} (${dato}).` : criterio.texto;
 }

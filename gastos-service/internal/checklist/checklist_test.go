@@ -2,99 +2,118 @@ package checklist
 
 import (
 	"errors"
-	"reflect"
+	"strings"
 	"testing"
-
-	"gastos-service/internal/models"
 )
 
-func completo() map[string]bool {
+func estandar() []Criterio {
+	return []Criterio{
+		{Clave: "legible", Texto: "El comprobante es legible y está completo."},
+		{Clave: "monto_coincide", Texto: "El monto coincide con el gasto."},
+		{Clave: "c-ab12", Texto: "Tiene sello de recepción."},
+	}
+}
+
+func marcados(claves ...string) map[string]bool {
 	m := map[string]bool{}
-	for _, c := range Criterios {
+	for _, c := range claves {
 		m[c] = true
 	}
 	return m
 }
 
-func TestCriteriosEnOrden(t *testing.T) {
-	want := []string{"legible", "tipo_valido", "a_nombre_empresa", "monto_coincide", "fecha_coincide"}
-	if !reflect.DeepEqual(Criterios, want) {
-		t.Fatalf("Criterios = %v, se esperaba %v", Criterios, want)
+func TestAprobacionExigeTodosLosCriteriosVigentes(t *testing.T) {
+	if err := ValidarAprobacion(estandar(), marcados("legible", "monto_coincide", "c-ab12")); err != nil {
+		t.Fatalf("con todos marcados se esperaba nil, llegó %v", err)
 	}
-}
-
-func TestAprobacionCompletaEsValida(t *testing.T) {
-	if err := ValidarAprobacion(completo()); err != nil {
-		t.Fatalf("se esperaba nil, llegó %v", err)
+	casos := map[string]map[string]bool{
+		"sin checklist": nil,
+		"falta uno":     marcados("legible", "monto_coincide"),
+		"uno en false":  {"legible": true, "monto_coincide": true, "c-ab12": false},
 	}
-}
-
-func TestAprobacionSinChecklistOIncompleta(t *testing.T) {
-	falta := completo()
-	delete(falta, "monto_coincide")
-	enFalso := completo()
-	enFalso["fecha_coincide"] = false
-	for nombre, c := range map[string]map[string]bool{"sin checklist": nil, "falta uno": falta, "uno en false": enFalso} {
-		if err := ValidarAprobacion(c); !errors.Is(err, ErrIncompleto) {
+	for nombre, c := range casos {
+		if err := ValidarAprobacion(estandar(), c); !errors.Is(err, ErrIncompleto) {
 			t.Errorf("%s: se esperaba ErrIncompleto, llegó %v", nombre, err)
 		}
 	}
-	if ErrIncompleto.Error() != "para aprobar, el comprobante debe cumplir los 5 criterios del checklist" {
+	if ErrIncompleto.Error() != "para aprobar, el comprobante debe cumplir todos los criterios del checklist" {
 		t.Errorf("mensaje inesperado: %q", ErrIncompleto.Error())
 	}
 }
 
-func TestCriterioDesconocido(t *testing.T) {
-	c := completo()
-	c["sello"] = true
+func TestUnCriterioQueNoEsDelClienteSeRechaza(t *testing.T) {
+	c := marcados("legible", "monto_coincide", "c-ab12", "fecha_coincide") // fecha_coincide ya no es de este cliente
 	var e ErrCriterioDesconocido
-	if err := ValidarAprobacion(c); !errors.As(err, &e) || e.Clave != "sello" {
-		t.Fatalf("se esperaba ErrCriterioDesconocido{sello}, llegó %v", err)
+	if err := ValidarAprobacion(estandar(), c); !errors.As(err, &e) || e.Clave != "fecha_coincide" {
+		t.Fatalf("se esperaba ErrCriterioDesconocido{fecha_coincide}, llegó %v", err)
 	}
-	if e.Error() != "criterio desconocido: sello" {
+	if e.Error() != "criterio desconocido: fecha_coincide" {
 		t.Errorf("mensaje inesperado: %q", e.Error())
 	}
 }
 
-func TestRechazoSinChecklistOConCriteriosEnFalseEsValido(t *testing.T) {
-	if err := ValidarRechazo(nil); err != nil {
-		t.Errorf("sin checklist: se esperaba nil, llegó %v", err)
+func TestRechazoAceptaCriteriosEnFalseYChecklistAusente(t *testing.T) {
+	if err := ValidarRechazo(estandar(), nil); err != nil {
+		t.Errorf("sin checklist: %v", err)
 	}
-	c := completo()
-	c["monto_coincide"] = false
-	c["fecha_coincide"] = false
-	if err := ValidarRechazo(c); err != nil {
-		t.Errorf("con criterios en false: se esperaba nil, llegó %v", err)
+	if err := ValidarRechazo(estandar(), map[string]bool{"legible": true, "monto_coincide": false, "c-ab12": false}); err != nil {
+		t.Errorf("con criterios en false: %v", err)
 	}
-}
-
-func TestRechazoConChecklistIncompletoOClaveDesconocida(t *testing.T) {
-	falta := completo()
-	delete(falta, "legible")
-	if err := ValidarRechazo(falta); !errors.Is(err, ErrFaltanCriterios) {
-		t.Errorf("falta uno: se esperaba ErrFaltanCriterios, llegó %v", err)
+	if err := ValidarRechazo(estandar(), marcados("legible")); !errors.Is(err, ErrFaltanCriterios) {
+		t.Errorf("checklist incompleto: se esperaba ErrFaltanCriterios, llegó %v", err)
 	}
-	extra := completo()
-	extra["firma"] = false
 	var e ErrCriterioDesconocido
-	if err := ValidarRechazo(extra); !errors.As(err, &e) {
-		t.Errorf("clave desconocida: se esperaba ErrCriterioDesconocido, llegó %v", err)
+	if err := ValidarRechazo(estandar(), map[string]bool{"legible": true, "monto_coincide": true, "c-ab12": true, "otro": true}); !errors.As(err, &e) {
+		t.Errorf("clave desconocida: %v", err)
 	}
 }
 
-func TestItemsYOrdenar(t *testing.T) {
-	c := completo()
-	c["tipo_valido"] = false
-	items := Items(c)
-	if len(items) != 5 || items[0].Criterio != "legible" || items[1].Criterio != "tipo_valido" || items[1].Cumple {
-		t.Fatalf("Items en orden inesperado: %v", items)
+func TestItemsSiguenElOrdenDeLosCriteriosYGuardanSuTexto(t *testing.T) {
+	items := Items(estandar(), map[string]bool{"c-ab12": true, "legible": false, "monto_coincide": true})
+	if len(items) != 3 || items[0].Criterio != "legible" || items[0].Cumple || items[2].Criterio != "c-ab12" || !items[2].Cumple {
+		t.Fatalf("items = %+v", items)
 	}
-	desordenados := []models.ItemChecklist{{Criterio: "fecha_coincide", Cumple: true}, {Criterio: "legible", Cumple: true}, {Criterio: "monto_coincide"}}
-	got := Ordenar(desordenados)
-	want := []string{"legible", "monto_coincide", "fecha_coincide"}
-	for i, it := range got {
-		if it.Criterio != want[i] {
-			t.Fatalf("Ordenar = %v, se esperaba el orden %v", got, want)
+	if items[2].Texto != "Tiene sello de recepción." {
+		t.Errorf("el texto del criterio se guarda con la revisión: %q", items[2].Texto)
+	}
+}
+
+func TestValidarCriteriosDeUnCliente(t *testing.T) {
+	ok := []Entrada{{Texto: "  Tiene sello  "}, {Clave: "legible", Texto: "Es legible"}}
+	if err := ValidarEntradas(ok); err != nil {
+		t.Fatalf("lista válida: %v", err)
+	}
+	casos := map[string][]Entrada{
+		"vacía":                nil,
+		"texto corto":          {{Texto: "ab"}},
+		"texto largo":          {{Texto: strings.Repeat("a", 121)}},
+		"repetidos":            {{Texto: "Tiene sello"}, {Texto: "tiene SELLO"}},
+		"clave con mayúsculas": {{Clave: "Legible", Texto: "Es legible"}},
+	}
+	for nombre, c := range casos {
+		if err := ValidarEntradas(c); !errors.Is(err, ErrCriterios) {
+			t.Errorf("%s: se esperaba ErrCriterios, llegó %v", nombre, err)
 		}
+	}
+	quince := make([]Entrada, 16)
+	for i := range quince {
+		quince[i] = Entrada{Texto: "Criterio número " + strings.Repeat("x", i+1)}
+	}
+	if err := ValidarEntradas(quince[:15]); err != nil {
+		t.Errorf("15 criterios son válidos: %v", err)
+	}
+	if err := ValidarEntradas(quince); !errors.Is(err, ErrCriterios) {
+		t.Errorf("16 criterios son demasiados: %v", err)
+	}
+}
+
+func TestClavesNuevasSonUnicasYLasExistentesSeConservan(t *testing.T) {
+	entradas := []Entrada{{Clave: "legible", Texto: "Es legible"}, {Texto: "Nuevo A"}, {Texto: "Nuevo B"}}
+	criterios := AsignarClaves(entradas)
+	if criterios[0].Clave != "legible" || criterios[0].Texto != "Es legible" {
+		t.Fatalf("la clave existente se conserva: %+v", criterios[0])
+	}
+	if criterios[1].Clave == "" || criterios[1].Clave == criterios[2].Clave || !strings.HasPrefix(criterios[1].Clave, "c-") {
+		t.Fatalf("las claves nuevas deben ser distintas: %+v", criterios)
 	}
 }

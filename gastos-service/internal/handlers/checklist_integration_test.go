@@ -9,7 +9,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"gastos-service/internal/checklist"
 	"gastos-service/internal/config"
 	"gastos-service/internal/handlers"
 	"gastos-service/internal/models"
@@ -94,9 +93,12 @@ func (e *entorno) filas(t *testing.T, comprobanteID int, soloIncumplidos bool) i
 	return n
 }
 
+// criteriosEstandar son los criterios con que parte todo cliente (los siembra la migración 0003).
+var criteriosEstandar = []string{"legible", "tipo_valido", "a_nombre_empresa", "monto_coincide", "fecha_coincide"}
+
 func completo() map[string]bool {
 	m := map[string]bool{}
-	for _, c := range checklist.Criterios {
+	for _, c := range criteriosEstandar {
 		m[c] = true
 	}
 	return m
@@ -225,7 +227,7 @@ func TestListarDevuelveChecklistOrdenado(t *testing.T) {
 		t.Fatalf("checklist del revisado: %v", got)
 	}
 	for i, it := range got {
-		if it.Criterio != checklist.Criterios[i] || !it.Cumple {
+		if it.Criterio != criteriosEstandar[i] || !it.Cumple || it.Texto == "" {
 			t.Fatalf("orden o valor inesperado: %v", got)
 		}
 	}

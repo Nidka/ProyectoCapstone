@@ -7,7 +7,7 @@ describe('rutas', () => {
     const app = routes.find(r => r.path === 'app')!;
     expect(app.canActivate).toEqual([authGuard]);
     expect(app.children?.map(c => c.path)).toEqual([
-      '', 'inicio', 'gastos', 'gastos/nuevo', 'gastos/:id', 'reportes', 'operacion', 'operacion/:modulo', 'catalogos', 'catalogos/:modulo', '**',
+      '', 'inicio', 'gastos', 'gastos/nuevo', 'gastos/:id', 'reportes', 'checklist', 'operacion', 'operacion/:modulo', 'catalogos', 'catalogos/:modulo', '**',
     ]);
     expect(app.children?.find(c => c.path === 'catalogos/:modulo')?.data).toEqual({ seccion: 'catalogos' });
   });

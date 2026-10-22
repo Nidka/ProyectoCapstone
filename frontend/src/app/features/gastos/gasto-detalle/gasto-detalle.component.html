@@ -79,7 +79,7 @@
                   <ul class="historial__checklist" aria-label="Checklist documental">
                     @for (item of c.checklist; track item.criterio) {
                       <li [class.historial__criterio--no]="!item.cumple">
-                        <app-icono [nombre]="item.cumple ? 'check' : 'x'" [tamano]="14" />{{ cortoDe(item.criterio) }}<span class="oculto-visual">{{ item.cumple ? ': cumple' : ': no cumple' }}</span>
+                        <app-icono [nombre]="item.cumple ? 'check' : 'x'" [tamano]="14" />{{ item.texto }}<span class="oculto-visual">{{ item.cumple ? ': cumple' : ': no cumple' }}</span>
                       </li>
                     }
                   </ul>

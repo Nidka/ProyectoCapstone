@@ -92,7 +92,7 @@ export class GastosStore {
       .pipe(timeout(HTTP_TIMEOUT_MS), tap(() => this.cargar()));
   }
 
-  rechazar(comprobanteId: number, motivo: string, checklist: Checklist): Observable<unknown> {
+  rechazar(comprobanteId: number, motivo: string, checklist?: Checklist): Observable<unknown> {
     return this.api
       .post(`/comprobantes/${comprobanteId}/rechazar`, { motivo_rechazo: motivo, checklist })
       .pipe(timeout(HTTP_TIMEOUT_MS), tap(() => this.cargar()));

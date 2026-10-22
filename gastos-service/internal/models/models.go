@@ -32,5 +32,8 @@ type Comprobante struct {
 // ItemChecklist es un criterio del checklist documental con su resultado.
 type ItemChecklist struct {
 	Criterio string `json:"criterio"`
-	Cumple   bool   `json:"cumple"`
+	// Texto es el criterio tal como estaba cuando se revisó el comprobante: si el cliente cambia
+	// después su checklist, lo ya revisado no se altera.
+	Texto  string `json:"texto"`
+	Cumple bool   `json:"cumple"`
 }

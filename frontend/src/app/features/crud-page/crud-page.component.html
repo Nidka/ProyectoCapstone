@@ -97,7 +97,7 @@
                 <td class="tabla__acciones">
                   @if (d.accionFila; as a) {
                     <a class="btn btn--secundario btn--sm" [routerLink]="a.ruta" [queryParams]="consultaAccion(a.parametro, fila.item)">
-                      <app-icono nombre="plus" [tamano]="16" />{{ a.texto }}
+                      <app-icono [nombre]="a.icono ?? 'plus'" [tamano]="16" />{{ a.texto }}
                     </a>
                   }
                   <button type="button" class="btn btn--fantasma btn--sm" (click)="verRegistro(fila.item)">
