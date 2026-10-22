@@ -19,7 +19,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-const maxUploadSize = 10 << 20 // 10 MB
+const maxUploadSize = 5 << 20 // 5 MB (RNF-5)
 
 // uploadComprobante implementa RF-4 (adjuntar comprobante a un gasto),
 // RF-6 (rechazar formatos que no sean imagen o PDF) y RF-5 (el gasto pasa

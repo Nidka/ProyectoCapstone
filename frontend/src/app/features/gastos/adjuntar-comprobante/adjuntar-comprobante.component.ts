@@ -7,7 +7,7 @@ import { mensajeError } from '../../../core/utils/error-messages';
 import { IconoComponent } from '../../../shared/ui/icono/icono.component';
 
 const TIPOS_PERMITIDOS = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'];
-const TAMANO_MAXIMO = 10 * 1024 * 1024; // 10 MB
+const TAMANO_MAXIMO = 5 * 1024 * 1024; // 5 MB
 
 /** Sube el comprobante de un gasto: arrastrar en escritorio, cámara o archivos en el celular. */
 @Component({
@@ -40,7 +40,7 @@ export class AdjuntarComprobanteComponent {
       return;
     }
     if (archivo.size > TAMANO_MAXIMO) {
-      this.error.set('El archivo supera el tamaño máximo permitido (10 MB).');
+      this.error.set('El archivo supera el tamaño máximo permitido (5 MB).');
       this.quitar();
       return;
     }

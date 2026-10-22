@@ -23,7 +23,7 @@ LIZAR SRL · Fleet Manager Pro es el sistema interno de LIZAR SRL, empresa de tr
 - Ciclo de un gasto: **Registrado** → (se adjunta un comprobante) **Pagado** → (se aprueba) **Sustentado**. Un rechazo exige un motivo y devuelve el gasto a **Registrado**.
 - Estados de un comprobante: **Pendiente de aprobación**, **Aprobado**, **Rechazado**.
 - Para registrar un gasto deben existir un viaje y un cliente. Cadena de datos de apoyo: Rubro → Cliente; Ubigeo → Dirección; Marca + Tipo de unidad + Subtipo → Unidad; Conductor + Unidad → Asignación C/U; Asignación + Cliente + Direcciones de origen y destino → Viaje.
-- Comprobantes aceptados: JPG, PNG o PDF de hasta 10 MB. Un comprobante adjunto no se edita; si es incorrecto se adjunta uno nuevo.
+- Comprobantes aceptados: JPG, PNG o PDF de hasta 5 MB. Un comprobante adjunto no se edita; si es incorrecto se adjunta uno nuevo.
 - Moneda: soles (`S/`). Idioma: español de Perú.
 
 ## Capabilities and Constraints

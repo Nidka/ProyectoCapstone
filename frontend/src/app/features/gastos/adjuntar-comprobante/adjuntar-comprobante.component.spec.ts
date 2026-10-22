@@ -36,11 +36,11 @@ describe('AdjuntarComprobanteComponent', () => {
     expect(adjuntar).not.toHaveBeenCalled();
   });
 
-  it('rechaza archivos de más de 10 MB', () => {
+  it('rechaza archivos de más de 5 MB', () => {
     const { f, error } = montar();
-    f.componentInstance.elegir(new File([new Uint8Array(10 * 1024 * 1024 + 1)], 'boleta.pdf', { type: 'application/pdf' }));
+    f.componentInstance.elegir(new File([new Uint8Array(5 * 1024 * 1024 + 1)], 'boleta.pdf', { type: 'application/pdf' }));
     f.detectChanges();
-    expect(error()).toBe('El archivo supera el tamaño máximo permitido (10 MB).');
+    expect(error()).toBe('El archivo supera el tamaño máximo permitido (5 MB).');
   });
 
   it('sin archivo pide elegir uno', () => {
