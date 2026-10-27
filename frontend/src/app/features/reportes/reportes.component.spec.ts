@@ -99,11 +99,10 @@ describe('ReportesComponent', () => {
     expect(servicio.resumen).toHaveBeenCalledWith({ desde: '2025-11-01', hasta: '2026-01-31' });
     const valores = [...el.querySelectorAll('.indicador__valor')].map(v => v.textContent?.trim());
     expect(valores).toEqual(['S/ 1,600.00', '12', 'S/ 133.33', '75.0 %', '78.1 %']);
-    // El ISC va destacado, con su fórmula a la vista y el conteo en que se basa
+    // El ISC va destacado, con el conteo en que se basa
     const isc = el.querySelector('.indicador--destacado')!;
     expect(isc.querySelector('.indicador__etiqueta')?.textContent?.trim()).toBe('ISC · gastos sustentados');
     expect(isc.textContent).toContain('9 de 12 gastos');
-    expect(isc.textContent).toContain('Sustentados ÷ totales × 100');
     expect([...el.querySelectorAll('.indicador__nota')].map(n => n.textContent?.trim())).toContain('Pendiente: S/ 350.50');
     // por mes, por estado, cliente y unidad; el conductor no tiene datos
     expect(configs).toHaveLength(4);

@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { cambioClaveGuard } from './core/guards/cambio-clave.guard';
+import { rolGuard } from './core/guards/rol.guard';
 
 export const routes: Routes = [
   {
@@ -13,14 +15,16 @@ export const routes: Routes = [
     loadComponent: () => import('./features/login/login.component').then(m => m.LoginComponent),
   },
   {
-    path: 'register',
-    title: 'Crear usuario · LIZAR',
-    loadComponent: () => import('./features/register/register.component').then(m => m.RegisterComponent),
+    path: 'cambiar-clave',
+    title: 'Cambiar contraseña · LIZAR',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/cambiar-clave/cambiar-clave.component').then(m => m.CambiarClaveComponent),
   },
   { path: 'dashboard', redirectTo: 'app/inicio' },
   {
     path: 'app',
     canActivate: [authGuard],
+    canActivateChild: [cambioClaveGuard],
     loadComponent: () => import('./shell/shell.component').then(m => m.ShellComponent),
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'inicio' },
@@ -37,6 +41,8 @@ export const routes: Routes = [
       {
         path: 'gastos/nuevo',
         title: 'Registrar gasto · LIZAR',
+        canActivate: [rolGuard],
+        data: { roles: ['logistica'] },
         loadComponent: () => import('./features/gastos/gasto-form/gasto-form.component').then(m => m.GastoFormComponent),
       },
       {
@@ -52,7 +58,16 @@ export const routes: Routes = [
       {
         path: 'checklist',
         title: 'Checklist del cliente · LIZAR',
+        canActivate: [rolGuard],
+        data: { roles: ['logistica'] },
         loadComponent: () => import('./features/checklist-cliente/checklist-cliente.component').then(m => m.ChecklistClienteComponent),
+      },
+      {
+        path: 'usuarios',
+        title: 'Usuarios · LIZAR',
+        canActivate: [rolGuard],
+        data: { roles: ['admin'] },
+        loadComponent: () => import('./features/usuarios/usuarios.component').then(m => m.UsuariosComponent),
       },
       { path: 'operacion', pathMatch: 'full', redirectTo: 'operacion/viajes' },
       {

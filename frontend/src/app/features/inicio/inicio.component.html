@@ -6,12 +6,14 @@
         <p class="pagina__bajada">Hola, {{ u.nombre }}.</p>
       }
     </div>
-    <div class="pagina__acciones">
-      <a class="btn btn--secundario" routerLink="/app/gastos" [queryParams]="{ estado: 'sin-comprobante' }">
-        <app-icono nombre="paperclip" />Adjuntar comprobante
-      </a>
-      <a class="btn btn--primario" routerLink="/app/gastos/nuevo"><app-icono nombre="plus" />Registrar gasto</a>
-    </div>
+    @if (auth.esLogistica()) {
+      <div class="pagina__acciones">
+        <a class="btn btn--secundario" routerLink="/app/gastos" [queryParams]="{ estado: 'sin-comprobante' }">
+          <app-icono nombre="paperclip" />Adjuntar comprobante
+        </a>
+        <a class="btn btn--primario" routerLink="/app/gastos/nuevo"><app-icono nombre="plus" />Registrar gasto</a>
+      </div>
+    }
   </header>
 
   @if (store.cargando() && !store.cargado()) {
@@ -26,11 +28,15 @@
       <button type="button" class="btn btn--secundario" (click)="store.cargar()">Reintentar</button>
     </app-estado-vacio>
   } @else if (store.cargado() && store.gastos().length === 0) {
-    <app-estado-vacio icono="receipt" titulo="Todavía no hay gastos registrados." texto="Para registrar un gasto necesitas al menos un viaje y un cliente.">
-      <a class="btn btn--primario" routerLink="/app/gastos/nuevo">Registrar gasto</a>
-      <a class="btn btn--secundario" routerLink="/app/operacion/viajes">Ver viajes</a>
-      <a class="btn btn--secundario" routerLink="/app/operacion/clientes">Ver clientes</a>
-    </app-estado-vacio>
+    @if (auth.esLogistica()) {
+      <app-estado-vacio icono="receipt" titulo="Todavía no hay gastos registrados." texto="Para registrar un gasto necesitas al menos un viaje y un cliente.">
+        <a class="btn btn--primario" routerLink="/app/gastos/nuevo">Registrar gasto</a>
+        <a class="btn btn--secundario" routerLink="/app/operacion/viajes">Ver viajes</a>
+        <a class="btn btn--secundario" routerLink="/app/operacion/clientes">Ver clientes</a>
+      </app-estado-vacio>
+    } @else {
+      <app-estado-vacio icono="receipt" titulo="Todavía no hay gastos registrados." texto="Aparecerán aquí cuando Logística registre el primero." />
+    }
   } @else {
     <section class="inicio__bloque" aria-labelledby="t-atender">
       <h2 id="t-atender" class="seccion-titulo">Para atender</h2>

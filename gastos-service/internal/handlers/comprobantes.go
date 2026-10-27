@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,8 +13,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
+	"gastos-service/internal/bitacora"
 	"gastos-service/internal/checklist"
 	"gastos-service/internal/models"
 
@@ -21,10 +23,25 @@ import (
 
 const maxUploadSize = 5 << 20 // 5 MB (RNF-5)
 
+// sufijoAleatorio son 128 bits aleatorios en hexadecimal: hace que la URL de un comprobante no se
+// pueda deducir del id del gasto ni de la hora de subida.
+func sufijoAleatorio() (string, error) {
+	b := make([]byte, 16)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(b), nil
+}
+
 // uploadComprobante implementa RF-4 (adjuntar comprobante a un gasto),
 // RF-6 (rechazar formatos que no sean imagen o PDF) y RF-5 (el gasto pasa
 // a Pagado automáticamente al adjuntar un comprobante).
 func (h *Handler) uploadComprobante(w http.ResponseWriter, r *http.Request) {
+	if _, autorizado := requireLogistica(r); !autorizado {
+		writeError(w, http.StatusForbidden, "solo el Encargado de Logística puede adjuntar comprobantes")
+		return
+	}
+
 	gastoID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil || gastoID <= 0 {
 		writeError(w, http.StatusBadRequest, "id de gasto inválido")
@@ -35,7 +52,7 @@ func (h *Handler) uploadComprobante(w http.ResponseWriter, r *http.Request) {
 
 	var gastoExiste bool
 	if err := h.DB.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM gasto WHERE id = $1)`, gastoID).Scan(&gastoExiste); err != nil {
-		writeError(w, http.StatusInternalServerError, "error validando el gasto")
+		writeFallo(w, r, err, "error validando el gasto")
 		return
 	}
 	if !gastoExiste {
@@ -61,7 +78,7 @@ func (h *Handler) uploadComprobante(w http.ResponseWriter, r *http.Request) {
 	n, _ := file.Read(buf)
 	contentType := http.DetectContentType(buf[:n])
 	if _, err := file.Seek(0, io.SeekStart); err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo leer el archivo")
+		writeFallo(w, r, err, "no se pudo leer el archivo")
 		return
 	}
 
@@ -72,18 +89,40 @@ func (h *Handler) uploadComprobante(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ext := filepath.Ext(header.Filename)
-	filename := fmt.Sprintf("gasto-%d-%d%s", gastoID, time.Now().UnixNano(), ext)
+	sufijo, err := sufijoAleatorio()
+	if err != nil {
+		writeFallo(w, r, err, "no se pudo guardar el archivo")
+		return
+	}
+	filename := fmt.Sprintf("gasto-%d-%s%s", gastoID, sufijo, ext)
 	destPath := filepath.Join(h.Cfg.UploadsDir, filename)
 
 	dest, err := os.Create(destPath)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo guardar el archivo")
+		writeFallo(w, r, err, "no se pudo guardar el archivo")
 		return
 	}
 	defer dest.Close()
+	// Si la operación no llega a confirmarse (incluida la bitácora), no queda un archivo huérfano.
+	confirmado := false
+	defer func() {
+		if !confirmado {
+			_ = os.Remove(destPath)
+		}
+	}()
 
 	if _, err := io.Copy(dest, file); err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo guardar el archivo")
+		writeFallo(w, r, err, "no se pudo guardar el archivo")
+		return
+	}
+	// RNF-5: el comprobante guardado queda en solo lectura. Borrarlo (si la operación falla)
+	// sigue funcionando, porque eso depende de los permisos del directorio y no del archivo.
+	if err := dest.Close(); err != nil {
+		writeFallo(w, r, err, "no se pudo guardar el archivo")
+		return
+	}
+	if err := os.Chmod(destPath, 0o444); err != nil {
+		writeFallo(w, r, err, "no se pudo guardar el archivo")
 		return
 	}
 
@@ -93,36 +132,57 @@ func (h *Handler) uploadComprobante(w http.ResponseWriter, r *http.Request) {
 
 	tx, err := h.DB.Begin(ctx)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo iniciar la operación")
+		writeFallo(w, r, err, "no se pudo iniciar la operación")
 		return
 	}
 	defer tx.Rollback(ctx)
+
+	estadoAntes, err := estadoDelGasto(ctx, tx, gastoID)
+	if err != nil {
+		writeFallo(w, r, err, "no se pudo leer el estado del gasto")
+		return
+	}
 
 	var c models.Comprobante
 	err = tx.QueryRow(ctx, `
 		INSERT INTO comprobante (gasto_id, archivo_url, tipo_archivo, estado, creado_en)
 		VALUES ($1, $2, $3, 'Pendiente', now())
-		RETURNING id, gasto_id, archivo_url, tipo_archivo, estado, motivo_rechazo, aprobado_por, aprobado_en, creado_en
+		RETURNING id, gasto_id, archivo_url, tipo_archivo, estado, motivo_rechazo, aprobado_por, `+instante("aprobado_en")+`, `+instante("creado_en")+`
 	`, gastoID, archivoURL, tipoArchivo).Scan(
 		&c.ID, &c.GastoID, &c.ArchivoURL, &c.TipoArchivo, &c.Estado,
 		&c.MotivoRechazo, &c.AprobadoPor, &c.AprobadoEn, &c.CreadoEn,
 	)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo registrar el comprobante")
+		writeFallo(w, r, err, "no se pudo registrar el comprobante")
 		return
 	}
 
 	// RF-5: adjuntar un comprobante cambia el gasto a "Pagado".
 	if _, err := tx.Exec(ctx, `UPDATE gasto SET estado = 'Pagado' WHERE id = $1`, gastoID); err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo actualizar el estado del gasto")
+		writeFallo(w, r, err, "no se pudo actualizar el estado del gasto")
+		return
+	}
+	err = bitacora.Registrar(ctx, tx, bitacora.Entrada{
+		Actor: actorDe(r), Accion: "comprobante.adjuntar", Entidad: "comprobante", IDEntidad: int64(c.ID),
+		Detalle: map[string]any{
+			"gasto_id": gastoID,
+			"antes":    map[string]any{"gasto_estado": estadoAntes},
+			"despues": map[string]any{
+				"estado": c.Estado, "gasto_estado": "Pagado", "archivo_url": c.ArchivoURL, "tipo_archivo": c.TipoArchivo,
+			},
+		},
+	})
+	if err != nil {
+		writeFallo(w, r, err, "no se pudo registrar el comprobante")
 		return
 	}
 
 	if err := tx.Commit(ctx); err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo confirmar la operación")
+		writeFallo(w, r, err, "no se pudo confirmar la operación")
 		return
 	}
 
+	confirmado = true
 	c.Checklist = []models.ItemChecklist{}
 	writeJSON(w, http.StatusCreated, c)
 }
@@ -149,7 +209,7 @@ func (h *Handler) listComprobantes(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	query := `
-		SELECT id, gasto_id, archivo_url, tipo_archivo, estado, motivo_rechazo, aprobado_por, aprobado_en, creado_en
+		SELECT id, gasto_id, archivo_url, tipo_archivo, estado, motivo_rechazo, aprobado_por, ` + instante("aprobado_en") + `, ` + instante("creado_en") + `
 		FROM comprobante`
 	args := []any{}
 	if estado != "" {
@@ -160,7 +220,7 @@ func (h *Handler) listComprobantes(w http.ResponseWriter, r *http.Request) {
 
 	rows, err := h.DB.Query(ctx, query, args...)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo listar los comprobantes")
+		writeFallo(w, r, err, "no se pudo listar los comprobantes")
 		return
 	}
 	defer rows.Close()
@@ -170,7 +230,7 @@ func (h *Handler) listComprobantes(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var c models.Comprobante
 		if err := rows.Scan(&c.ID, &c.GastoID, &c.ArchivoURL, &c.TipoArchivo, &c.Estado, &c.MotivoRechazo, &c.AprobadoPor, &c.AprobadoEn, &c.CreadoEn); err != nil {
-			writeError(w, http.StatusInternalServerError, "error leyendo los comprobantes")
+			writeFallo(w, r, err, "error leyendo los comprobantes")
 			return
 		}
 		c.Checklist = []models.ItemChecklist{}
@@ -178,13 +238,13 @@ func (h *Handler) listComprobantes(w http.ResponseWriter, r *http.Request) {
 		ids = append(ids, c.ID)
 	}
 	if err := rows.Err(); err != nil {
-		writeError(w, http.StatusInternalServerError, "error leyendo los comprobantes")
+		writeFallo(w, r, err, "error leyendo los comprobantes")
 		return
 	}
 	rows.Close()
 
 	if err := h.adjuntarChecklists(ctx, out, ids); err != nil {
-		writeError(w, http.StatusInternalServerError, "error leyendo los checklists")
+		writeFallo(w, r, err, "error leyendo los checklists")
 		return
 	}
 	writeJSON(w, http.StatusOK, out)
@@ -259,6 +319,32 @@ func criteriosDelComprobante(ctx context.Context, tx pgx.Tx, id int) (int, []che
 	return gastoID, vigentes, err
 }
 
+// estadoDelGasto lee el estado actual del gasto y lo bloquea hasta el final de la transacción: es
+// el «antes» que queda en la bitácora, y nadie más puede cambiarlo mientras tanto.
+func estadoDelGasto(ctx context.Context, tx pgx.Tx, gastoID int) (string, error) {
+	var estado string
+	err := tx.QueryRow(ctx, `SELECT estado FROM gasto WHERE id = $1 FOR UPDATE`, gastoID).Scan(&estado)
+	return estado, err
+}
+
+// registrarRevision deja en la bitácora la aprobación o el rechazo de un comprobante (REQ-33):
+// el estado antes y después del comprobante y del gasto, el checklist revisado y, si lo hay, el motivo.
+func registrarRevision(ctx context.Context, tx pgx.Tx, actor bitacora.Actor, accion string, comprobanteID, gastoID int, gastoAntes, estado, gastoDespues, motivo string, items []models.ItemChecklist) error {
+	despues := map[string]any{"estado": estado, "gasto_estado": gastoDespues}
+	if motivo != "" {
+		despues["motivo_rechazo"] = motivo
+	}
+	return bitacora.Registrar(ctx, tx, bitacora.Entrada{
+		Actor: actor, Accion: accion, Entidad: "comprobante", IDEntidad: int64(comprobanteID),
+		Detalle: map[string]any{
+			"gasto_id":  gastoID,
+			"antes":     map[string]any{"estado": "Pendiente", "gasto_estado": gastoAntes},
+			"despues":   despues,
+			"checklist": items,
+		},
+	})
+}
+
 func guardarChecklist(ctx context.Context, tx pgx.Tx, id int, items []models.ItemChecklist) error {
 	for _, it := range items {
 		if _, err := tx.Exec(ctx, `INSERT INTO checklist_comprobante (comprobante_id, criterio, texto, cumple) VALUES ($1, $2, $3, $4)`, id, it.Criterio, it.Texto, it.Cumple); err != nil {
@@ -268,20 +354,19 @@ func guardarChecklist(ctx context.Context, tx pgx.Tx, id int, items []models.Ite
 	return nil
 }
 
-func escribirErrorRevision(w http.ResponseWriter, err error) {
+func escribirErrorRevision(w http.ResponseWriter, r *http.Request, err error) {
 	switch {
 	case errors.Is(err, errComprobanteNoEncontrado):
 		writeError(w, http.StatusNotFound, err.Error())
 	case errors.Is(err, errYaRevisado):
 		writeError(w, http.StatusConflict, err.Error())
 	default:
-		writeError(w, http.StatusInternalServerError, "no se pudo completar la revisión")
+		writeFallo(w, r, err, "no se pudo completar la revisión")
 	}
 }
 
 type aprobarRequest struct {
-	AprobadoPor string          `json:"aprobado_por"`
-	Checklist   map[string]bool `json:"checklist"`
+	Checklist map[string]bool `json:"checklist"`
 }
 
 // aprobarComprobante implementa RF-7 (aprobar) para el rol Encargado de
@@ -305,42 +390,49 @@ func (h *Handler) aprobarComprobante(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "cuerpo inválido")
 		return
 	}
-	if req.AprobadoPor != "" {
-		nombre = req.AprobadoPor
-	}
 
 	ctx := context.Background()
 	tx, err := h.DB.Begin(ctx)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo iniciar la operación")
+		writeFallo(w, r, err, "no se pudo iniciar la operación")
 		return
 	}
 	defer tx.Rollback(ctx)
 
 	gastoID, vigentes, err := criteriosDelComprobante(ctx, tx, id)
 	if err != nil {
-		escribirErrorRevision(w, err)
+		escribirErrorRevision(w, r, err)
 		return
 	}
 	if err := checklist.ValidarAprobacion(vigentes, req.Checklist); err != nil {
 		writeError(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
-	if err := guardarChecklist(ctx, tx, id, checklist.Items(vigentes, req.Checklist)); err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo guardar el checklist")
+	items := checklist.Items(vigentes, req.Checklist)
+	if err := guardarChecklist(ctx, tx, id, items); err != nil {
+		writeFallo(w, r, err, "no se pudo guardar el checklist")
+		return
+	}
+	gastoAntes, err := estadoDelGasto(ctx, tx, gastoID)
+	if err != nil {
+		writeFallo(w, r, err, "no se pudo leer el estado del gasto")
 		return
 	}
 	if _, err := tx.Exec(ctx, `UPDATE comprobante SET estado = 'Aprobado', aprobado_por = $1, aprobado_en = now() WHERE id = $2`, nombre, id); err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo aprobar el comprobante")
+		writeFallo(w, r, err, "no se pudo aprobar el comprobante")
 		return
 	}
 	if _, err := tx.Exec(ctx, `UPDATE gasto SET estado = 'Sustentado' WHERE id = $1`, gastoID); err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo actualizar el gasto")
+		writeFallo(w, r, err, "no se pudo actualizar el gasto")
+		return
+	}
+	if err := registrarRevision(ctx, tx, actorDe(r), "comprobante.aprobar", id, gastoID, gastoAntes, "Aprobado", "Sustentado", "", items); err != nil {
+		writeFallo(w, r, err, "no se pudo registrar la revisión")
 		return
 	}
 
 	if err := tx.Commit(ctx); err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo confirmar la operación")
+		writeFallo(w, r, err, "no se pudo confirmar la operación")
 		return
 	}
 
@@ -349,7 +441,6 @@ func (h *Handler) aprobarComprobante(w http.ResponseWriter, r *http.Request) {
 
 type rechazarRequest struct {
 	MotivoRechazo string          `json:"motivo_rechazo"`
-	AprobadoPor   string          `json:"aprobado_por"`
 	Checklist     map[string]bool `json:"checklist"`
 }
 
@@ -377,42 +468,49 @@ func (h *Handler) rechazarComprobante(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "motivo_rechazo es obligatorio")
 		return
 	}
-	if req.AprobadoPor != "" {
-		nombre = req.AprobadoPor
-	}
 
 	ctx := context.Background()
 	tx, err := h.DB.Begin(ctx)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo iniciar la operación")
+		writeFallo(w, r, err, "no se pudo iniciar la operación")
 		return
 	}
 	defer tx.Rollback(ctx)
 
 	gastoID, vigentes, err := criteriosDelComprobante(ctx, tx, id)
 	if err != nil {
-		escribirErrorRevision(w, err)
+		escribirErrorRevision(w, r, err)
 		return
 	}
 	if err := checklist.ValidarRechazo(vigentes, req.Checklist); err != nil {
 		writeError(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
-	if err := guardarChecklist(ctx, tx, id, checklist.Items(vigentes, req.Checklist)); err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo guardar el checklist")
+	items := checklist.Items(vigentes, req.Checklist)
+	if err := guardarChecklist(ctx, tx, id, items); err != nil {
+		writeFallo(w, r, err, "no se pudo guardar el checklist")
+		return
+	}
+	gastoAntes, err := estadoDelGasto(ctx, tx, gastoID)
+	if err != nil {
+		writeFallo(w, r, err, "no se pudo leer el estado del gasto")
 		return
 	}
 	if _, err := tx.Exec(ctx, `UPDATE comprobante SET estado = 'Rechazado', motivo_rechazo = $1, aprobado_por = $2, aprobado_en = now() WHERE id = $3`, req.MotivoRechazo, nombre, id); err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo rechazar el comprobante")
+		writeFallo(w, r, err, "no se pudo rechazar el comprobante")
 		return
 	}
 	if _, err := tx.Exec(ctx, `UPDATE gasto SET estado = 'Registrado' WHERE id = $1`, gastoID); err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo actualizar el gasto")
+		writeFallo(w, r, err, "no se pudo actualizar el gasto")
+		return
+	}
+	if err := registrarRevision(ctx, tx, actorDe(r), "comprobante.rechazar", id, gastoID, gastoAntes, "Rechazado", "Registrado", req.MotivoRechazo, items); err != nil {
+		writeFallo(w, r, err, "no se pudo registrar la revisión")
 		return
 	}
 
 	if err := tx.Commit(ctx); err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo confirmar la operación")
+		writeFallo(w, r, err, "no se pudo confirmar la operación")
 		return
 	}
 

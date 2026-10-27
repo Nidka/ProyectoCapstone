@@ -1,0 +1,2918 @@
+[
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/asignaciones-conductor-unidad?limit=2"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/asignaciones-conductor-unidad?limit=1&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/asignaciones-conductor-unidad?limit=0"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/asignaciones-conductor-unidad?limit=201"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/asignaciones-conductor-unidad?offset=-1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/asignaciones-conductor-unidad/1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/asignaciones-conductor-unidad/999999"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/asignaciones-conductor-unidad/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/asignaciones-conductor-unidad?limit=3&order_dir=desc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/asignaciones-conductor-unidad?limit=3&order_by=id_conductor_unidad&order_dir=asc&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/asignaciones-conductor-unidad?order_dir=sideways"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/asignaciones-conductor-unidad?limit=500"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/asignaciones-conductor-unidad?filters=id_conductor_unidad:1,campo_falso:x"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/asignaciones-conductor-unidad?order_by=campo_falso&limit=2"
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/asignaciones-conductor-unidad",
+  "guarda": "id_conductor_unidad",
+  "cuerpo": {
+   "id_conductor": 1,
+   "id_unidad": 1,
+   "fecha_asignacion": "2025-07-01T19:45:29",
+   "fecha_fin": "2025-07-07T20:05:50",
+   "estado_asignacion": false
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/asignaciones-conductor-unidad",
+  "cuerpo": {
+   "id_conductor": 1,
+   "id_unidad": 1,
+   "fecha_asignacion": "2025-07-01T19:45:29",
+   "fecha_fin": "2025-07-07T20:05:50",
+   "estado_asignacion": false
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/asignaciones-conductor-unidad",
+  "cuerpo": {}
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/asignaciones-conductor-unidad",
+  "cuerpo": {
+   "id_conductor": 999999,
+   "id_unidad": 1,
+   "fecha_asignacion": "2025-07-01T19:45:29",
+   "fecha_fin": "2025-07-07T20:05:50",
+   "estado_asignacion": false
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/asignaciones-conductor-unidad",
+  "cuerpo": {
+   "id_conductor": "abc",
+   "id_unidad": 1,
+   "fecha_asignacion": "2025-07-01T19:45:29",
+   "fecha_fin": "2025-07-07T20:05:50",
+   "estado_asignacion": false
+  }
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/asignaciones-conductor-unidad?limit=200"
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/asignaciones-conductor-unidad/{id}",
+  "cuerpo": {
+   "estado_asi": false
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/asignaciones-conductor-unidad/999999",
+  "cuerpo": {
+   "estado_asi": false
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/asignaciones-conductor-unidad/abc",
+  "cuerpo": {
+   "estado_asi": false
+  }
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/asignaciones-conductor-unidad/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/asignaciones-conductor-unidad/{id}"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/asignaciones-conductor-unidad/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/asignaciones-conductor-unidad/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/categorias-producto?limit=2"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/categorias-producto?limit=1&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/categorias-producto?limit=0"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/categorias-producto?limit=201"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/categorias-producto?offset=-1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/categorias-producto/1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/categorias-producto/999999"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/categorias-producto/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/categorias-producto?limit=3&order_dir=desc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/categorias-producto?limit=3&order_by=id_categoria&order_dir=asc&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/categorias-producto?order_dir=sideways"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/categorias-producto?limit=500"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/categorias-producto?search=rut&limit=5"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/categorias-producto?search=rut&search_fields=nombre,campo_falso"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/categorias-producto?filters=nombre%3AFrutas"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/categorias-producto?filters=id_categoria:1,campo_falso:x"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/categorias-producto?order_by=campo_falso&limit=2"
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/categorias-producto",
+  "guarda": "id_categoria",
+  "cuerpo": {
+   "nombre": "Frutas-X7",
+   "descripcion": "Productos agrícolas como mango, plátano, etc.",
+   "estado_categoria": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/categorias-producto",
+  "cuerpo": {
+   "nombre": "Frutas-X7",
+   "descripcion": "Productos agrícolas como mango, plátano, etc.",
+   "estado_categoria": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/categorias-producto",
+  "cuerpo": {}
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/categorias-producto?limit=200"
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/categorias-producto/{id}",
+  "cuerpo": {
+   "descripcion": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/categorias-producto/999999",
+  "cuerpo": {
+   "descripcion": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/categorias-producto/abc",
+  "cuerpo": {
+   "descripcion": "Editado"
+  }
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/categorias-producto/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/categorias-producto/{id}"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/categorias-producto/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/categorias-producto/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/clientes?limit=2"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/clientes?limit=1&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/clientes?limit=0"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/clientes?limit=201"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/clientes?offset=-1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/clientes/1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/clientes/999999"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/clientes/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/clientes?limit=3&order_dir=desc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/clientes?limit=3&order_by=id_cliente&order_dir=asc&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/clientes?order_dir=sideways"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/clientes?limit=500"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/clientes?search=ANP&limit=5"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/clientes?search=ANP&search_fields=razon_social,campo_falso"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/clientes?filters=razon_social%3ADANPER"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/clientes?filters=id_cliente:1,campo_falso:x"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/clientes?order_by=campo_falso&limit=2"
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/clientes",
+  "guarda": "id_cliente",
+  "cuerpo": {
+   "razon_social": "DANPER",
+   "ruc": "99999999997",
+   "telefono": "044123456",
+   "correo": "contacto@agroexport.com",
+   "contacto": "Lucía Torres",
+   "id_rubro": 1,
+   "id_direccion_domicilio": 3,
+   "estado_cliente": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/clientes",
+  "cuerpo": {
+   "razon_social": "DANPER",
+   "ruc": "99999999997",
+   "telefono": "044123456",
+   "correo": "contacto@agroexport.com",
+   "contacto": "Lucía Torres",
+   "id_rubro": 1,
+   "id_direccion_domicilio": 3,
+   "estado_cliente": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/clientes",
+  "cuerpo": {}
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/clientes",
+  "cuerpo": {
+   "razon_social": "DANPER",
+   "ruc": "99999999998",
+   "telefono": "044123456",
+   "correo": "contacto@agroexport.com",
+   "contacto": "Lucía Torres",
+   "id_rubro": 999999,
+   "id_direccion_domicilio": 3,
+   "estado_cliente": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/clientes",
+  "cuerpo": {
+   "razon_social": "DANPER",
+   "ruc": "99999999997",
+   "telefono": "044123456",
+   "correo": "contacto@agroexport.com",
+   "contacto": "Lucía Torres",
+   "id_rubro": "abc",
+   "id_direccion_domicilio": 3,
+   "estado_cliente": true
+  }
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/clientes?limit=200"
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/clientes/{id}",
+  "cuerpo": {
+   "razon_social": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/clientes/999999",
+  "cuerpo": {
+   "razon_social": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/clientes/abc",
+  "cuerpo": {
+   "razon_social": "Editado"
+  }
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/clientes/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/clientes/{id}"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/clientes/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/clientes/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/conductores?limit=2"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/conductores?limit=1&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/conductores?limit=0"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/conductores?limit=201"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/conductores?offset=-1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/conductores/1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/conductores/999999"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/conductores/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/conductores?limit=3&order_dir=desc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/conductores?limit=3&order_by=id_conductor&order_dir=asc&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/conductores?order_dir=sideways"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/conductores?limit=500"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/conductores?search=uan&limit=5"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/conductores?search=uan&search_fields=nombre1,campo_falso"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/conductores?filters=nombre1%3AJuan"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/conductores?filters=id_conductor:1,campo_falso:x"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/conductores?order_by=campo_falso&limit=2"
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/conductores",
+  "guarda": "id_conductor",
+  "cuerpo": {
+   "dni": "99999997",
+   "nombre1": "Juan",
+   "nombre2": "Carlos",
+   "apellido1": "Ramirez",
+   "apellido2": "Ortega",
+   "licencia_conducir": "AII-B",
+   "telefono": "923456789",
+   "correo": "juan.ramirez@correo.com",
+   "direccion": "Av. Húsares de Junín 789, Trujillo",
+   "fecha_nacimiento": "1985-07-21",
+   "estado_conductor": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/conductores",
+  "cuerpo": {
+   "dni": "99999997",
+   "nombre1": "Juan",
+   "nombre2": "Carlos",
+   "apellido1": "Ramirez",
+   "apellido2": "Ortega",
+   "licencia_conducir": "AII-B",
+   "telefono": "923456789",
+   "correo": "juan.ramirez@correo.com",
+   "direccion": "Av. Húsares de Junín 789, Trujillo",
+   "fecha_nacimiento": "1985-07-21",
+   "estado_conductor": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/conductores",
+  "cuerpo": {}
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/conductores?limit=200"
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/conductores/{id}",
+  "cuerpo": {
+   "nombre1": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/conductores/999999",
+  "cuerpo": {
+   "nombre1": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/conductores/abc",
+  "cuerpo": {
+   "nombre1": "Editado"
+  }
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/conductores/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/conductores/{id}"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/conductores/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/conductores/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/detalles-presupuesto?limit=2"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/detalles-presupuesto?limit=1&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/detalles-presupuesto?limit=0"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/detalles-presupuesto?limit=201"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/detalles-presupuesto?offset=-1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/detalles-presupuesto/1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/detalles-presupuesto/999999"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/detalles-presupuesto/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/detalles-presupuesto?limit=3&order_dir=desc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/detalles-presupuesto?limit=3&order_by=id_detalle_presupuesto&order_dir=asc&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/detalles-presupuesto?order_dir=sideways"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/detalles-presupuesto?limit=500"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/detalles-presupuesto?filters=id_detalle_presupuesto:1,campo_falso:x"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/detalles-presupuesto?order_by=campo_falso&limit=2"
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/detalles-presupuesto",
+  "guarda": "id_detalle_presupuesto",
+  "cuerpo": {
+   "id_presupuesto": 1,
+   "id_tipo_gasto": 1,
+   "monto_estimado": "2000.00",
+   "estado_detallepresupuesto": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/detalles-presupuesto",
+  "cuerpo": {
+   "id_presupuesto": 1,
+   "id_tipo_gasto": 1,
+   "monto_estimado": "2000.00",
+   "estado_detallepresupuesto": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/detalles-presupuesto",
+  "cuerpo": {}
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/detalles-presupuesto",
+  "cuerpo": {
+   "id_presupuesto": 999999,
+   "id_tipo_gasto": 1,
+   "monto_estimado": "2000.00",
+   "estado_detallepresupuesto": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/detalles-presupuesto",
+  "cuerpo": {
+   "id_presupuesto": "abc",
+   "id_tipo_gasto": 1,
+   "monto_estimado": "2000.00",
+   "estado_detallepresupuesto": true
+  }
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/detalles-presupuesto?limit=200"
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/detalles-presupuesto/{id}",
+  "cuerpo": {
+   "estado_det": false
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/detalles-presupuesto/999999",
+  "cuerpo": {
+   "estado_det": false
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/detalles-presupuesto/abc",
+  "cuerpo": {
+   "estado_det": false
+  }
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/detalles-presupuesto/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/detalles-presupuesto/{id}"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/detalles-presupuesto/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/detalles-presupuesto/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/direcciones?limit=2"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/direcciones?limit=1&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/direcciones?limit=0"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/direcciones?limit=201"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/direcciones?offset=-1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/direcciones/1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/direcciones/999999"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/direcciones/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/direcciones?limit=3&order_dir=desc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/direcciones?limit=3&order_by=id_direccion&order_dir=asc&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/direcciones?order_dir=sideways"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/direcciones?limit=500"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/direcciones?search=v.%20&limit=5"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/direcciones?search=v.%20&search_fields=direccion_detallada,campo_falso"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/direcciones?filters=direccion_detallada%3AAv.%20Am%C3%A9rica%20Sur%201234"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/direcciones?filters=id_direccion:1,campo_falso:x"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/direcciones?order_by=campo_falso&limit=2"
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/direcciones",
+  "guarda": "id_direccion",
+  "cuerpo": {
+   "codigo_ubigeo": 130101,
+   "direccion_detallada": "Av. América Sur 1234",
+   "referencia": "Frente al Mall Aventura",
+   "descripcion": "Oficina Central",
+   "estado_direccion": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/direcciones",
+  "cuerpo": {
+   "codigo_ubigeo": 130101,
+   "direccion_detallada": "Av. América Sur 1234",
+   "referencia": "Frente al Mall Aventura",
+   "descripcion": "Oficina Central",
+   "estado_direccion": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/direcciones",
+  "cuerpo": {}
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/direcciones?limit=200"
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/direcciones/{id}",
+  "cuerpo": {
+   "direccion_detallada": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/direcciones/999999",
+  "cuerpo": {
+   "direccion_detallada": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/direcciones/abc",
+  "cuerpo": {
+   "direccion_detallada": "Editado"
+  }
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/direcciones/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/direcciones/{id}"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/direcciones/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/direcciones/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/facturas?limit=2"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/facturas?limit=1&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/facturas?limit=0"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/facturas?limit=201"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/facturas?offset=-1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/facturas/1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/facturas/999999"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/facturas/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/facturas?limit=3&order_dir=desc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/facturas?limit=3&order_by=id_factura&order_dir=asc&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/facturas?order_dir=sideways"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/facturas?limit=500"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/facturas?search=GI-&limit=5"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/facturas?search=GI-&search_fields=numero_factura,campo_falso"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/facturas?filters=numero_factura%3AVGI-909"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/facturas?filters=id_factura:1,campo_falso:x"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/facturas?order_by=campo_falso&limit=2"
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/facturas",
+  "guarda": "id_factura",
+  "cuerpo": {
+   "numero_factura": "VGI-909-X7",
+   "id_viaje_realizado": 1,
+   "monto_total": "8200.00",
+   "estado_factura": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/facturas",
+  "cuerpo": {
+   "numero_factura": "VGI-909-X7",
+   "id_viaje_realizado": 1,
+   "monto_total": "8200.00",
+   "estado_factura": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/facturas",
+  "cuerpo": {}
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/facturas",
+  "cuerpo": {
+   "numero_factura": "VGI-909-X8",
+   "id_viaje_realizado": 999999,
+   "monto_total": "8200.00",
+   "estado_factura": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/facturas",
+  "cuerpo": {
+   "numero_factura": "VGI-909-X7",
+   "id_viaje_realizado": "abc",
+   "monto_total": "8200.00",
+   "estado_factura": true
+  }
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/facturas?limit=200"
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/facturas/{id}",
+  "cuerpo": {
+   "estado_fac": false
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/facturas/999999",
+  "cuerpo": {
+   "estado_fac": false
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/facturas/abc",
+  "cuerpo": {
+   "estado_fac": false
+  }
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/facturas/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/facturas/{id}"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/facturas/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/facturas/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/guias-transportista?limit=2"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/guias-transportista?limit=1&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/guias-transportista?limit=0"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/guias-transportista?limit=201"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/guias-transportista?offset=-1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/guias-transportista/1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/guias-transportista/999999"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/guias-transportista/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/guias-transportista?limit=3&order_dir=desc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/guias-transportista?limit=3&order_by=id_guia_transportista&order_dir=asc&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/guias-transportista?order_dir=sideways"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/guias-transportista?limit=500"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/guias-transportista?search=T-0&limit=5"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/guias-transportista?search=T-0&search_fields=numero_guia,campo_falso"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/guias-transportista?filters=numero_guia%3AGT-001-TRUJILLO"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/guias-transportista?filters=id_guia_transportista:1,campo_falso:x"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/guias-transportista?order_by=campo_falso&limit=2"
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/guias-transportista",
+  "guarda": "id_guia_transportista",
+  "cuerpo": {
+   "numero_guia": "GT-001-TRUJILLO-X7",
+   "id_viaje": 1,
+   "guias_remitente": "GR-89451, GR-89452",
+   "peso_total": "11000.00",
+   "estado_guia": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/guias-transportista",
+  "cuerpo": {
+   "numero_guia": "GT-001-TRUJILLO-X7",
+   "id_viaje": 1,
+   "guias_remitente": "GR-89451, GR-89452",
+   "peso_total": "11000.00",
+   "estado_guia": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/guias-transportista",
+  "cuerpo": {}
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/guias-transportista",
+  "cuerpo": {
+   "numero_guia": "GT-001-TRUJILLO-X8",
+   "id_viaje": 999999,
+   "guias_remitente": "GR-89451, GR-89452",
+   "peso_total": "11000.00",
+   "estado_guia": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/guias-transportista",
+  "cuerpo": {
+   "numero_guia": "GT-001-TRUJILLO-X7",
+   "id_viaje": "abc",
+   "guias_remitente": "GR-89451, GR-89452",
+   "peso_total": "11000.00",
+   "estado_guia": true
+  }
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/guias-transportista?limit=200"
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/guias-transportista/{id}",
+  "cuerpo": {
+   "guias_remitente": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/guias-transportista/999999",
+  "cuerpo": {
+   "guias_remitente": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/guias-transportista/abc",
+  "cuerpo": {
+   "guias_remitente": "Editado"
+  }
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/guias-transportista/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/guias-transportista/{id}"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/guias-transportista/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/guias-transportista/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/marcas?limit=2"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/marcas?limit=1&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/marcas?limit=0"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/marcas?limit=201"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/marcas?offset=-1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/marcas/1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/marcas/999999"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/marcas/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/marcas?limit=3&order_dir=desc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/marcas?limit=3&order_by=id_marca&order_dir=asc&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/marcas?order_dir=sideways"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/marcas?limit=500"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/marcas?search=olv&limit=5"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/marcas?search=olv&search_fields=nombre,campo_falso"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/marcas?filters=nombre%3AVolvo"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/marcas?filters=id_marca:1,campo_falso:x"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/marcas?order_by=campo_falso&limit=2"
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/marcas",
+  "guarda": "id_marca",
+  "cuerpo": {
+   "nombre": "Volvo-X7",
+   "pais_origen": "Suecia",
+   "fecha_fundacion": "1927-04-14",
+   "descripcion": "Marca de camiones pesados",
+   "estado_marca": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/marcas",
+  "cuerpo": {
+   "nombre": "Volvo-X7",
+   "pais_origen": "Suecia",
+   "fecha_fundacion": "1927-04-14",
+   "descripcion": "Marca de camiones pesados",
+   "estado_marca": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/marcas",
+  "cuerpo": {}
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/marcas?limit=200"
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/marcas/{id}",
+  "cuerpo": {
+   "pais_origen": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/marcas/999999",
+  "cuerpo": {
+   "pais_origen": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/marcas/abc",
+  "cuerpo": {
+   "pais_origen": "Editado"
+  }
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/marcas/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/marcas/{id}"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/marcas/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/marcas/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/presupuestos-viaje?limit=2"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/presupuestos-viaje?limit=1&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/presupuestos-viaje?limit=0"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/presupuestos-viaje?limit=201"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/presupuestos-viaje?offset=-1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/presupuestos-viaje/1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/presupuestos-viaje/999999"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/presupuestos-viaje/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/presupuestos-viaje?limit=3&order_dir=desc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/presupuestos-viaje?limit=3&order_by=id_presupuesto&order_dir=asc&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/presupuestos-viaje?order_dir=sideways"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/presupuestos-viaje?limit=500"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/presupuestos-viaje?filters=id_presupuesto:1,campo_falso:x"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/presupuestos-viaje?order_by=campo_falso&limit=2"
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/presupuestos-viaje",
+  "guarda": "id_presupuesto",
+  "cuerpo": {
+   "id_viaje": 1,
+   "monto_total": "4000.00",
+   "fecha_registro": "2025-07-07T00:00:00",
+   "estado_presupuesto": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/presupuestos-viaje",
+  "cuerpo": {
+   "id_viaje": 1,
+   "monto_total": "4000.00",
+   "fecha_registro": "2025-07-07T00:00:00",
+   "estado_presupuesto": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/presupuestos-viaje",
+  "cuerpo": {}
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/presupuestos-viaje",
+  "cuerpo": {
+   "id_viaje": 999999,
+   "monto_total": "4000.00",
+   "fecha_registro": "2025-07-07T00:00:00",
+   "estado_presupuesto": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/presupuestos-viaje",
+  "cuerpo": {
+   "id_viaje": "abc",
+   "monto_total": "4000.00",
+   "fecha_registro": "2025-07-07T00:00:00",
+   "estado_presupuesto": true
+  }
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/presupuestos-viaje?limit=200"
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/presupuestos-viaje/{id}",
+  "cuerpo": {
+   "estado_pre": false
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/presupuestos-viaje/999999",
+  "cuerpo": {
+   "estado_pre": false
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/presupuestos-viaje/abc",
+  "cuerpo": {
+   "estado_pre": false
+  }
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/presupuestos-viaje/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/presupuestos-viaje/{id}"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/presupuestos-viaje/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/presupuestos-viaje/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/productos-transportados?limit=2"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/productos-transportados?limit=1&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/productos-transportados?limit=0"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/productos-transportados?limit=201"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/productos-transportados?offset=-1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/productos-transportados/999999"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/productos-transportados/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/productos-transportados?limit=3&order_dir=desc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/productos-transportados?limit=3&order_by=id_producto_transportado&order_dir=asc&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/productos-transportados?order_dir=sideways"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/productos-transportados?limit=500"
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/productos-transportados",
+  "guarda": "id_producto_transportado",
+  "cuerpo": {
+   "id_guia_transportista": 1,
+   "id_categoria": 1,
+   "descripcion_producto": "X",
+   "cantidad": 1,
+   "peso": "1.50"
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/productos-transportados",
+  "cuerpo": {
+   "id_guia_transportista": 1,
+   "id_categoria": 1,
+   "descripcion_producto": "X",
+   "cantidad": 1,
+   "peso": "1.50"
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/productos-transportados",
+  "cuerpo": {}
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/productos-transportados",
+  "cuerpo": {
+   "id_guia_transportista": 999999,
+   "id_categoria": 1,
+   "descripcion_producto": "X",
+   "cantidad": 1,
+   "peso": "1.50"
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/productos-transportados",
+  "cuerpo": {
+   "id_guia_transportista": "abc",
+   "id_categoria": 1,
+   "descripcion_producto": "X",
+   "cantidad": 1,
+   "peso": "1.50"
+  }
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/productos-transportados?limit=200"
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/productos-transportados/{id}",
+  "cuerpo": {
+   "descripcion_producto": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/productos-transportados/999999",
+  "cuerpo": {
+   "descripcion_producto": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/productos-transportados/abc",
+  "cuerpo": {
+   "descripcion_producto": "Editado"
+  }
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/productos-transportados/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/productos-transportados/{id}"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/productos-transportados/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/productos-transportados/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/rubros?limit=2"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/rubros?limit=1&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/rubros?limit=0"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/rubros?limit=201"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/rubros?offset=-1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/rubros/1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/rubros/999999"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/rubros/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/rubros?limit=3&order_dir=desc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/rubros?limit=3&order_by=id_rubro&order_dir=asc&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/rubros?order_dir=sideways"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/rubros?limit=500"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/rubros?search=gro&limit=5"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/rubros?search=gro&search_fields=nombre,campo_falso"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/rubros?filters=nombre%3AAgroindustria"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/rubros?filters=id_rubro:1,campo_falso:x"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/rubros?order_by=campo_falso&limit=2"
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/rubros",
+  "guarda": "id_rubro",
+  "cuerpo": {
+   "nombre": "Agroindustria-X7",
+   "descripcion": "Empresas que exportan productos agrícolas",
+   "estado_rubro": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/rubros",
+  "cuerpo": {
+   "nombre": "Agroindustria-X7",
+   "descripcion": "Empresas que exportan productos agrícolas",
+   "estado_rubro": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/rubros",
+  "cuerpo": {}
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/rubros?limit=200"
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/rubros/{id}",
+  "cuerpo": {
+   "descripcion": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/rubros/999999",
+  "cuerpo": {
+   "descripcion": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/rubros/abc",
+  "cuerpo": {
+   "descripcion": "Editado"
+  }
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/rubros/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/rubros/{id}"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/rubros/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/rubros/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/subtipos-unidad?limit=2"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/subtipos-unidad?limit=1&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/subtipos-unidad?limit=0"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/subtipos-unidad?limit=201"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/subtipos-unidad?offset=-1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/subtipos-unidad/1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/subtipos-unidad/999999"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/subtipos-unidad/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/subtipos-unidad?limit=3&order_dir=desc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/subtipos-unidad?limit=3&order_by=id_subtipo_unidad&order_dir=asc&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/subtipos-unidad?order_dir=sideways"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/subtipos-unidad?limit=500"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/subtipos-unidad?search=rac&limit=5"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/subtipos-unidad?search=rac&search_fields=nombre,campo_falso"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/subtipos-unidad?filters=nombre%3ATracto%20Americano"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/subtipos-unidad?filters=id_subtipo_unidad:1,campo_falso:x"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/subtipos-unidad?order_by=campo_falso&limit=2"
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/subtipos-unidad",
+  "guarda": "id_subtipo_unidad",
+  "cuerpo": {
+   "id_tipo_unidad": 1,
+   "nombre": "Tracto Americano",
+   "descripcion": "Ideal para distancias largas",
+   "estado_subtipounidad": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/subtipos-unidad",
+  "cuerpo": {
+   "id_tipo_unidad": 1,
+   "nombre": "Tracto Americano",
+   "descripcion": "Ideal para distancias largas",
+   "estado_subtipounidad": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/subtipos-unidad",
+  "cuerpo": {}
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/subtipos-unidad",
+  "cuerpo": {
+   "id_tipo_unidad": 999999,
+   "nombre": "Tracto Americano",
+   "descripcion": "Ideal para distancias largas",
+   "estado_subtipounidad": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/subtipos-unidad",
+  "cuerpo": {
+   "id_tipo_unidad": "abc",
+   "nombre": "Tracto Americano",
+   "descripcion": "Ideal para distancias largas",
+   "estado_subtipounidad": true
+  }
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/subtipos-unidad?limit=200"
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/subtipos-unidad/{id}",
+  "cuerpo": {
+   "nombre": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/subtipos-unidad/999999",
+  "cuerpo": {
+   "nombre": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/subtipos-unidad/abc",
+  "cuerpo": {
+   "nombre": "Editado"
+  }
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/subtipos-unidad/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/subtipos-unidad/{id}"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/subtipos-unidad/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/subtipos-unidad/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/tipos-gasto?limit=2"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/tipos-gasto?limit=1&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/tipos-gasto?limit=0"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/tipos-gasto?limit=201"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/tipos-gasto?offset=-1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/tipos-gasto/1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/tipos-gasto/999999"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/tipos-gasto/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/tipos-gasto?limit=3&order_dir=desc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/tipos-gasto?limit=3&order_by=id_tipo_gasto&order_dir=asc&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/tipos-gasto?order_dir=sideways"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/tipos-gasto?limit=500"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/tipos-gasto?search=omb&limit=5"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/tipos-gasto?search=omb&search_fields=nombre,campo_falso"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/tipos-gasto?filters=nombre%3ACombustible"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/tipos-gasto?filters=id_tipo_gasto:1,campo_falso:x"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/tipos-gasto?order_by=campo_falso&limit=2"
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/tipos-gasto",
+  "guarda": "id_tipo_gasto",
+  "cuerpo": {
+   "nombre": "Combustible-X7",
+   "descripcion": "Gasto por consumo de diésel en ruta",
+   "estado_tipogasto": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/tipos-gasto",
+  "cuerpo": {
+   "nombre": "Combustible-X7",
+   "descripcion": "Gasto por consumo de diésel en ruta",
+   "estado_tipogasto": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/tipos-gasto",
+  "cuerpo": {}
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/tipos-gasto?limit=200"
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/tipos-gasto/{id}",
+  "cuerpo": {
+   "descripcion": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/tipos-gasto/999999",
+  "cuerpo": {
+   "descripcion": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/tipos-gasto/abc",
+  "cuerpo": {
+   "descripcion": "Editado"
+  }
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/tipos-gasto/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/tipos-gasto/{id}"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/tipos-gasto/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/tipos-gasto/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/tipos-unidad?limit=2"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/tipos-unidad?limit=1&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/tipos-unidad?limit=0"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/tipos-unidad?limit=201"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/tipos-unidad?offset=-1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/tipos-unidad/1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/tipos-unidad/999999"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/tipos-unidad/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/tipos-unidad?limit=3&order_dir=desc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/tipos-unidad?limit=3&order_by=id_tipo_unidad&order_dir=asc&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/tipos-unidad?order_dir=sideways"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/tipos-unidad?limit=500"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/tipos-unidad?search=rac&limit=5"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/tipos-unidad?search=rac&search_fields=nombre,campo_falso"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/tipos-unidad?filters=nombre%3ATracto"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/tipos-unidad?filters=id_tipo_unidad:1,campo_falso:x"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/tipos-unidad?order_by=campo_falso&limit=2"
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/tipos-unidad",
+  "guarda": "id_tipo_unidad",
+  "cuerpo": {
+   "nombre": "Tracto-X7",
+   "descripcion": "Unidad motora para remolque",
+   "estado_tipounidad": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/tipos-unidad",
+  "cuerpo": {
+   "nombre": "Tracto-X7",
+   "descripcion": "Unidad motora para remolque",
+   "estado_tipounidad": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/tipos-unidad",
+  "cuerpo": {}
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/tipos-unidad?limit=200"
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/tipos-unidad/{id}",
+  "cuerpo": {
+   "descripcion": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/tipos-unidad/999999",
+  "cuerpo": {
+   "descripcion": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/tipos-unidad/abc",
+  "cuerpo": {
+   "descripcion": "Editado"
+  }
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/tipos-unidad/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/tipos-unidad/{id}"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/tipos-unidad/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/tipos-unidad/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/ubigeos?limit=2"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/ubigeos?limit=1&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/ubigeos?limit=0"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/ubigeos?limit=201"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/ubigeos?offset=-1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/ubigeos/130101"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/ubigeos/999999"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/ubigeos/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/ubigeos?limit=3&order_dir=desc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/ubigeos?limit=3&order_by=codigo_ubigeo&order_dir=asc&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/ubigeos?order_dir=sideways"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/ubigeos?limit=500"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/ubigeos?search=ruj&limit=5"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/ubigeos?search=ruj&search_fields=provincia,campo_falso"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/ubigeos?filters=provincia%3ATrujillo"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/ubigeos?filters=codigo_ubigeo:130101,campo_falso:x"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/ubigeos?order_by=campo_falso&limit=2"
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/ubigeos",
+  "guarda": "codigo_ubigeo",
+  "cuerpo": {
+   "provincia": "Trujillo",
+   "distrito": "Trujillo",
+   "departamento": "La Libertad",
+   "estado_ubigeo": true,
+   "codigo_ubigeo": 1120101
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/ubigeos",
+  "cuerpo": {
+   "provincia": "Trujillo",
+   "distrito": "Trujillo",
+   "departamento": "La Libertad",
+   "estado_ubigeo": true,
+   "codigo_ubigeo": 1120101
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/ubigeos",
+  "cuerpo": {}
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/ubigeos?limit=200"
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/ubigeos/{id}",
+  "cuerpo": {
+   "provincia": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/ubigeos/999999",
+  "cuerpo": {
+   "provincia": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/ubigeos/abc",
+  "cuerpo": {
+   "provincia": "Editado"
+  }
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/ubigeos/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/ubigeos/{id}"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/ubigeos/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/ubigeos/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/unidades?limit=2"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/unidades?limit=1&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/unidades?limit=0"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/unidades?limit=201"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/unidades?offset=-1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/unidades/1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/unidades/999999"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/unidades/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/unidades?limit=3&order_dir=desc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/unidades?limit=3&order_by=id_unidad&order_dir=asc&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/unidades?order_dir=sideways"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/unidades?limit=500"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/unidades?search=5A-&limit=5"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/unidades?search=5A-&search_fields=placa,campo_falso"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/unidades?filters=placa%3AT5A-874"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/unidades?filters=id_unidad:1,campo_falso:x"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/unidades?order_by=campo_falso&limit=2"
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/unidades",
+  "guarda": "id_unidad",
+  "cuerpo": {
+   "placa": "T5A-874-X7",
+   "id_tipo_unidad": 1,
+   "id_subtipo_unidad": 1,
+   "id_marca": 1,
+   "modelo": "FH16",
+   "anio": 2022,
+   "peso_tara": "8000.00",
+   "peso_maximo": "42000.00",
+   "estado_unidad": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/unidades",
+  "cuerpo": {
+   "placa": "T5A-874-X7",
+   "id_tipo_unidad": 1,
+   "id_subtipo_unidad": 1,
+   "id_marca": 1,
+   "modelo": "FH16",
+   "anio": 2022,
+   "peso_tara": "8000.00",
+   "peso_maximo": "42000.00",
+   "estado_unidad": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/unidades",
+  "cuerpo": {}
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/unidades",
+  "cuerpo": {
+   "placa": "T5A-874-X8",
+   "id_tipo_unidad": 999999,
+   "id_subtipo_unidad": 1,
+   "id_marca": 1,
+   "modelo": "FH16",
+   "anio": 2022,
+   "peso_tara": "8000.00",
+   "peso_maximo": "42000.00",
+   "estado_unidad": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/unidades",
+  "cuerpo": {
+   "placa": "T5A-874-X7",
+   "id_tipo_unidad": "abc",
+   "id_subtipo_unidad": 1,
+   "id_marca": 1,
+   "modelo": "FH16",
+   "anio": 2022,
+   "peso_tara": "8000.00",
+   "peso_maximo": "42000.00",
+   "estado_unidad": true
+  }
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/unidades?limit=200"
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/unidades/{id}",
+  "cuerpo": {
+   "modelo": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/unidades/999999",
+  "cuerpo": {
+   "modelo": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/unidades/abc",
+  "cuerpo": {
+   "modelo": "Editado"
+  }
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/unidades/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/unidades/{id}"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/unidades/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/unidades/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/viajes?limit=2"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/viajes?limit=1&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/viajes?limit=0"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/viajes?limit=201"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/viajes?offset=-1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/viajes/1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/viajes/999999"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/viajes/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/viajes?limit=3&order_dir=desc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/viajes?limit=3&order_by=id_viaje&order_dir=asc&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/viajes?order_dir=sideways"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/viajes?limit=500"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/viajes?filters=id_viaje:1,campo_falso:x"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/viajes?order_by=campo_falso&limit=2"
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/viajes",
+  "guarda": "id_viaje",
+  "cuerpo": {
+   "id_tracto": 2,
+   "id_carreta": 1,
+   "id_conductor_unidad": 1,
+   "id_direccion_origen": 1,
+   "id_direccion_destino": 1,
+   "fecha_programado": "2025-07-07T20:05:50",
+   "id_cliente": 1,
+   "estado_viaje": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/viajes",
+  "cuerpo": {
+   "id_tracto": 2,
+   "id_carreta": 1,
+   "id_conductor_unidad": 1,
+   "id_direccion_origen": 1,
+   "id_direccion_destino": 1,
+   "fecha_programado": "2025-07-07T20:05:50",
+   "id_cliente": 1,
+   "estado_viaje": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/viajes",
+  "cuerpo": {}
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/viajes",
+  "cuerpo": {
+   "id_tracto": 999999,
+   "id_carreta": 1,
+   "id_conductor_unidad": 1,
+   "id_direccion_origen": 1,
+   "id_direccion_destino": 1,
+   "fecha_programado": "2025-07-07T20:05:50",
+   "id_cliente": 1,
+   "estado_viaje": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/viajes",
+  "cuerpo": {
+   "id_tracto": "abc",
+   "id_carreta": 1,
+   "id_conductor_unidad": 1,
+   "id_direccion_origen": 1,
+   "id_direccion_destino": 1,
+   "fecha_programado": "2025-07-07T20:05:50",
+   "id_cliente": 1,
+   "estado_viaje": true
+  }
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/viajes?limit=200"
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/viajes/{id}",
+  "cuerpo": {
+   "estado_via": false
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/viajes/999999",
+  "cuerpo": {
+   "estado_via": false
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/viajes/abc",
+  "cuerpo": {
+   "estado_via": false
+  }
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/viajes/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/viajes/{id}"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/viajes/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/viajes/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/viajes-realizados?limit=2"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/viajes-realizados?limit=1&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/viajes-realizados?limit=0"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/viajes-realizados?limit=201"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/viajes-realizados?offset=-1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/viajes-realizados/1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/viajes-realizados/999999"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/viajes-realizados/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/viajes-realizados?limit=3&order_dir=desc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/viajes-realizados?limit=3&order_by=id_viaje_realizado&order_dir=asc&offset=1"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/viajes-realizados?order_dir=sideways"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/viajes-realizados?limit=500"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/viajes-realizados?search=e%20r&limit=5"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/viajes-realizados?search=e%20r&search_fields=observaciones,campo_falso"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/viajes-realizados?filters=observaciones%3ASe%20realizo%20correctamente"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/viajes-realizados?filters=id_viaje_realizado:1,campo_falso:x"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/advanced/viajes-realizados?order_by=campo_falso&limit=2"
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/viajes-realizados",
+  "guarda": "id_viaje_realizado",
+  "cuerpo": {
+   "id_guia_transportista": 1,
+   "flete": "8000.00",
+   "fecha_llegada": "2025-07-07T20:55:03",
+   "observaciones": "Se realizo correctamente",
+   "estado_viaje_realizado": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/viajes-realizados",
+  "cuerpo": {
+   "id_guia_transportista": 1,
+   "flete": "8000.00",
+   "fecha_llegada": "2025-07-07T20:55:03",
+   "observaciones": "Se realizo correctamente",
+   "estado_viaje_realizado": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/viajes-realizados",
+  "cuerpo": {}
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/viajes-realizados",
+  "cuerpo": {
+   "id_guia_transportista": 999999,
+   "flete": "8000.00",
+   "fecha_llegada": "2025-07-07T20:55:03",
+   "observaciones": "Se realizo correctamente",
+   "estado_viaje_realizado": true
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/viajes-realizados",
+  "cuerpo": {
+   "id_guia_transportista": "abc",
+   "flete": "8000.00",
+   "fecha_llegada": "2025-07-07T20:55:03",
+   "observaciones": "Se realizo correctamente",
+   "estado_viaje_realizado": true
+  }
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/viajes-realizados?limit=200"
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/viajes-realizados/{id}",
+  "cuerpo": {
+   "observaciones": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/viajes-realizados/999999",
+  "cuerpo": {
+   "observaciones": "Editado"
+  }
+ },
+ {
+  "metodo": "PUT",
+  "ruta": "/api/v1/viajes-realizados/abc",
+  "cuerpo": {
+   "observaciones": "Editado"
+  }
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/viajes-realizados/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/viajes-realizados/{id}"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/viajes-realizados/{id}"
+ },
+ {
+  "metodo": "DELETE",
+  "ruta": "/api/v1/viajes-realizados/abc"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/health"
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/auth/register",
+  "cuerpo": {
+   "username": "ana",
+   "email": "ana@lizar.pe",
+   "password": "secreta1",
+   "nombre": "Ana Quispe",
+   "rol": "operador"
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/auth/register",
+  "cuerpo": {
+   "username": "ana",
+   "email": "otra@lizar.pe",
+   "password": "secreta1",
+   "nombre": "Ana",
+   "rol": "operador"
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/auth/register",
+  "cuerpo": {
+   "username": "luis",
+   "email": "ana@lizar.pe",
+   "password": "secreta1",
+   "nombre": "Luis",
+   "rol": "operador"
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/auth/register",
+  "cuerpo": {
+   "username": "luis",
+   "email": "luis@lizar.pe",
+   "password": "secreta1",
+   "nombre": "Luis",
+   "rol": "gerente"
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/auth/register",
+  "cuerpo": {
+   "username": "luis",
+   "email": "no-es-correo",
+   "password": "secreta1",
+   "nombre": "Luis"
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/auth/register",
+  "cuerpo": {
+   "username": "luis"
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/auth/login",
+  "cuerpo": {
+   "username": "admin",
+   "password": "admin123"
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/auth/login",
+  "cuerpo": {
+   "username": "admin",
+   "password": "mala"
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/auth/login",
+  "cuerpo": {
+   "username": "nadie",
+   "password": "x"
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/auth/login",
+  "cuerpo": {
+   "username": "ana",
+   "password": "secreta1"
+  }
+ },
+ {
+  "metodo": "POST",
+  "ruta": "/api/v1/auth/login",
+  "cuerpo": {}
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/auth/me"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/auth/me",
+  "token": "@login-admin"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/auth/me",
+  "token": "token-malo"
+ },
+ {
+  "metodo": "GET",
+  "ruta": "/api/v1/auth/me",
+  "cabeceras": {
+   "Authorization": "Basic abc"
+  }
+ }
+]

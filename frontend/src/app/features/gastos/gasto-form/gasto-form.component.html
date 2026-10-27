@@ -81,12 +81,34 @@
           type="date"
           [(ngModel)]="fecha"
           [attr.aria-invalid]="!!fechaError() || null"
-          [attr.aria-describedby]="fechaError() ? 'gf-fecha-error' : null"
+          [attr.aria-describedby]="fechaError() ? 'gf-fecha-error' : avisoFecha() ? 'gf-fecha-aviso' : null"
         />
         @if (fechaError()) {
           <p class="campo__error" id="gf-fecha-error">{{ fechaError() }}</p>
+        } @else if (avisoFecha(); as aviso) {
+          <p class="campo__ayuda campo__ayuda--aviso" id="gf-fecha-aviso" role="status">
+            <app-icono nombre="alert-triangle" [tamano]="16" />{{ aviso }}
+          </p>
         }
       </div>
+    </div>
+
+    <div class="campo" [class.campo--con-error]="fechaCobroError()">
+      <label class="campo__etiqueta" for="gf-cobro">Fecha de cobro (opcional)</label>
+      <input
+        class="control"
+        id="gf-cobro"
+        name="fechaCobro"
+        type="date"
+        [(ngModel)]="fechaCobro"
+        [attr.aria-invalid]="!!fechaCobroError() || null"
+        [attr.aria-describedby]="fechaCobroError() ? 'gf-cobro-error' : 'gf-cobro-ayuda'"
+      />
+      @if (fechaCobroError()) {
+        <p class="campo__error" id="gf-cobro-error">{{ fechaCobroError() }}</p>
+      } @else {
+        <p class="campo__ayuda" id="gf-cobro-ayuda">Si la sabes, te avisaremos cuando falten 2 días y el comprobante aún no esté aprobado.</p>
+      }
     </div>
 
     <div class="formulario__acciones">

@@ -3,6 +3,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { EntradaPaleta, GrupoPaleta } from '../../core/navigation/navegacion';
+import { AuthService } from '../../core/services/auth.service';
 import { CrudService } from '../../core/services/crud.service';
 import { GastosStore } from '../../core/state/gastos.store';
 import { IconoComponent } from '../../shared/ui/icono/icono.component';
@@ -21,13 +22,14 @@ export class PaletaComandosComponent {
   private readonly router = inject(Router);
   private readonly store = inject(GastosStore);
   private readonly crud = inject(CrudService);
+  private readonly auth = inject(AuthService);
   private readonly dialogo = viewChild.required<ElementRef<HTMLDialogElement>>('dialogo');
   private readonly campo = viewChild.required<ElementRef<HTMLInputElement>>('campo');
 
   protected readonly termino = signal('');
   protected readonly activo = signal(0);
   protected readonly resultados = computed(() =>
-    resultadosPaleta(this.termino(), this.store.gastos(), id => this.crud.etiqueta('cliente', id)),
+    resultadosPaleta(this.termino(), this.store.gastos(), id => this.crud.etiqueta('cliente', id), this.auth.usuario()?.rol),
   );
   protected readonly grupos = computed(() => {
     const conIndice = this.resultados().map((entrada, indice) => ({ entrada, indice }));

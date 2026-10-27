@@ -15,6 +15,8 @@ export interface Gasto {
   cliente_id: number;
   monto: number;
   fecha: string;
+  /** Cuándo se espera cobrar al cliente; null si no se indicó */
+  fecha_cobro?: string | null;
   estado: EstadoGasto;
   creado_por: string;
   creado_en: string;

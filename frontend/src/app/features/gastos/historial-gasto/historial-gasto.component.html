@@ -1,0 +1,37 @@
+<section class="panel detalle__bitacora" aria-labelledby="t-bitacora">
+  <h2 id="t-bitacora" class="seccion-titulo">Historial de cambios</h2>
+  @switch (estado()) {
+    @case ('cargando') {
+      <div class="bitacora__esqueleto" aria-busy="true">
+        <div class="esqueleto esqueleto--fila"></div>
+        <div class="esqueleto esqueleto--fila"></div>
+        <div class="esqueleto esqueleto--fila"></div>
+      </div>
+    }
+    @case ('error') {
+      <app-estado-vacio [compacto]="true" icono="cloud-off" titulo="No se pudo cargar el historial." texto="Revisa tu conexión e inténtalo de nuevo.">
+        <button type="button" class="btn btn--secundario btn--sm" (click)="reintentar()">Reintentar</button>
+      </app-estado-vacio>
+    }
+    @default {
+      @if (registros().length === 0) {
+        <p class="texto-secundario">Todavía no hay cambios registrados para este gasto.</p>
+      } @else {
+        <ol class="bitacora">
+          @for (r of registros(); track $index) {
+            <li class="bitacora__item">
+              <time class="bitacora__fecha" [attr.datetime]="r.fecha">{{ formatFechaHora(r.fecha) }}</time>
+              <div class="bitacora__texto">
+                <span class="bitacora__accion">{{ textoAccion(r.accion) }}</span>
+                <span class="bitacora__usuario">{{ r.usuario }}</span>
+                @if (detalleDeRegistro(r); as extra) {
+                  <span class="bitacora__detalle">{{ extra }}</span>
+                }
+              </div>
+            </li>
+          }
+        </ol>
+      }
+    }
+  }
+</section>

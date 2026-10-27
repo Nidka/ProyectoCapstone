@@ -70,6 +70,8 @@ describe('LandingComponent', () => {
   it('sin sesión ofrece Ingresar, con sesión Ir a Inicio, y no usa raya larga', () => {
     const sin = montar(() => of([]));
     expect(sin.querySelector('.portada__acciones a')?.getAttribute('href')).toBe('/login');
+    expect(sin.querySelectorAll('.portada__acciones a')).toHaveLength(1);
+    expect(sin.querySelector('a[href="/register"]')).toBeNull();
     expect(sin.textContent).not.toMatch(/[—–]/);
     TestBed.resetTestingModule();
     const con = montar(() => of([]), true);

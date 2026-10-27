@@ -1,0 +1,251 @@
+<div class="pagina">
+  <header class="pagina__encabezado">
+    <div>
+      <h1 class="pagina__titulo">Usuarios</h1>
+      <p class="pagina__bajada">
+        Quiénes pueden ingresar al sistema. Un usuario desactivado ya no puede ingresar; sus datos se conservan.
+      </p>
+    </div>
+    <div class="pagina__acciones">
+      <button type="button" class="btn btn--primario" (click)="nuevo()">
+        <app-icono nombre="user-plus" />Nuevo usuario
+      </button>
+    </div>
+  </header>
+
+  <div class="barra-herramientas">
+    <label class="buscador">
+      <app-icono nombre="search" [tamano]="16" />
+      <span class="oculto-visual">Buscar usuarios</span>
+      <input class="control buscador__input" id="usuarios-buscar" type="search" placeholder="Buscar por nombre, usuario o correo" [value]="termino()" (input)="buscar($event)" />
+    </label>
+    @if (usuarios()) {
+      <span class="barra-herramientas__conteo">{{ usuarios()!.length }} {{ usuarios()!.length === 1 ? 'usuario' : 'usuarios' }}</span>
+    }
+    <button type="button" class="btn btn--fantasma btn--sm" (click)="reintentar()">
+      <app-icono nombre="refresh" [tamano]="16" />Actualizar
+    </button>
+  </div>
+
+  @if (cargando()) {
+    <div class="tabla-marco" aria-busy="true">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="esqueleto esqueleto--fila"></div>
+      }
+    </div>
+  } @else if (falloCarga()) {
+    <app-estado-vacio icono="cloud-off" titulo="No se pudo cargar la lista de usuarios." texto="Revisa tu conexión e inténtalo de nuevo.">
+      <button type="button" class="btn btn--secundario" (click)="reintentar()">Reintentar</button>
+    </app-estado-vacio>
+  } @else if (filas().length === 0) {
+    @if (termino()) {
+      <app-estado-vacio icono="search" titulo="Ningún usuario coincide con la búsqueda." />
+    } @else {
+      <app-estado-vacio icono="users" titulo="Aún no hay usuarios." texto="Crea el primero para que pueda ingresar al sistema.">
+        <button type="button" class="btn btn--primario" (click)="nuevo()">Nuevo usuario</button>
+      </app-estado-vacio>
+    }
+  } @else {
+    <div class="tabla-marco">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th scope="col">Nombre</th>
+            <th scope="col">Usuario</th>
+            <th scope="col">Correo</th>
+            <th scope="col">Rol</th>
+            <th scope="col">Estado</th>
+            <th scope="col" class="tabla__acciones"><span class="oculto-visual">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of filas(); track u.id_usuario) {
+            <tr [class.usuarios__fila--inactiva]="!u.estado">
+              <td>
+                <span class="usuarios__nombre">{{ u.nombre }}</span>
+                @if (u.id_usuario === yo()) {
+                  <span class="lbl lbl-n usuarios__yo">Tú</span>
+                }
+              </td>
+              <td class="mono">{{ u.username }}</td>
+              <td>{{ u.email }}</td>
+              <td>{{ rolEtiqueta[u.rol] }}</td>
+              <td>
+                <div class="celda-doble">
+                  @if (u.estado) {
+                    <span class="lbl lbl-ok"><span class="lbl__poste" aria-hidden="true"></span>Activo</span>
+                  } @else {
+                    <span class="lbl lbl-n"><span class="lbl__poste" aria-hidden="true"></span>Inactivo</span>
+                  }
+                  @if (u.debe_cambiar_clave) {
+                    <span class="celda-secundaria">Debe cambiar su contraseña</span>
+                  }
+                </div>
+              </td>
+              <td class="tabla__acciones">
+                <button type="button" class="btn btn--secundario btn--sm" [attr.aria-label]="'Editar a ' + u.nombre" (click)="editar(u)">Editar</button>
+                @if (u.id_usuario !== yo()) {
+                  @if (u.estado) {
+                    <button type="button" class="btn btn--fantasma btn--sm" [attr.aria-label]="'Desactivar a ' + u.nombre" (click)="pedirConfirmacion(u, 'desactivar')">Desactivar</button>
+                  } @else {
+                    <button type="button" class="btn btn--fantasma btn--sm" [attr.aria-label]="'Activar a ' + u.nombre" (click)="pedirConfirmacion(u, 'activar')">Activar</button>
+                  }
+                }
+              </td>
+            </tr>
+            @if (confirmando(); as c) {
+              @if (c.id === u.id_usuario) {
+                <tr class="usuarios__confirmacion">
+                  <td colspan="6">
+                    <div class="alerta" [class.alerta--error]="c.accion === 'desactivar'" [class.alerta--via]="c.accion === 'activar'" role="alert">
+                      <app-icono nombre="alert-triangle" [tamano]="18" />
+                      <div class="usuarios__confirmacion-texto">
+                        @if (c.accion === 'desactivar') {
+                          <p>¿Desactivar a {{ u.nombre }}? Ya no podrá ingresar al sistema.</p>
+                        } @else {
+                          <p>¿Activar a {{ u.nombre }}? Podrá ingresar de nuevo al sistema.</p>
+                        }
+                        @if (errorAccion()) {
+                          <p class="usuarios__confirmacion-error">{{ errorAccion() }}</p>
+                        }
+                      </div>
+                      <div class="usuarios__confirmacion-acciones">
+                        <button type="button" class="btn btn--sm" [class.btn--peligro]="c.accion === 'desactivar'" [class.btn--secundario]="c.accion === 'activar'" [disabled]="trabajando()" (click)="confirmar(u)">
+                          {{ trabajando() ? 'Guardando…' : c.accion === 'desactivar' ? 'Sí, desactivar' : 'Sí, activar' }}
+                        </button>
+                        <button type="button" class="btn btn--fantasma btn--sm" [disabled]="trabajando()" (click)="cancelarConfirmacion()">Cancelar</button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+<dialog #hoja class="hoja" aria-labelledby="usuario-titulo" (click)="cerrarSiFondo($event)">
+  <form class="hoja__marco" (ngSubmit)="guardar()" novalidate>
+    <header class="hoja__cabecera">
+      <h2 id="usuario-titulo" class="hoja__titulo">{{ modo() === 'crear' ? 'Nuevo usuario' : 'Editar usuario' }}</h2>
+      <button type="button" class="btn btn--fantasma btn--icono" (click)="cerrarHoja()" aria-label="Cerrar">
+        <app-icono nombre="x" />
+      </button>
+    </header>
+    <div class="hoja__cuerpo">
+      <p class="hoja__nota">Todos los campos son obligatorios.</p>
+      <div class="formulario">
+        <div class="campo" [class.campo--con-error]="!!errores().nombre">
+          <label class="campo__etiqueta" for="usuario-nombre">Nombre</label>
+          <input
+            class="control" id="usuario-nombre" name="nombre" type="text" autocomplete="off" placeholder="Nombre completo"
+            [attr.maxlength]="limites.nombre + 20"
+            [ngModel]="valores().nombre" (ngModelChange)="poner('nombre', $event)"
+            [attr.aria-invalid]="errores().nombre ? true : null" [attr.aria-describedby]="errores().nombre ? 'usuario-nombre-error' : null"
+          />
+          @if (errores().nombre; as e) {
+            <p class="campo__error" id="usuario-nombre-error">{{ e }}</p>
+          }
+        </div>
+
+        <div class="campo" [class.campo--con-error]="!!errores().username">
+          <label class="campo__etiqueta" for="usuario-username">Usuario</label>
+          <input
+            class="control" id="usuario-username" name="username" type="text" autocomplete="off" autocapitalize="none" placeholder="Ej. aquispe"
+            [attr.maxlength]="limites.username + 20" [disabled]="modo() === 'editar'"
+            [ngModel]="valores().username" (ngModelChange)="poner('username', $event)"
+            [attr.aria-invalid]="errores().username ? true : null" [attr.aria-describedby]="errores().username ? 'usuario-username-error' : null"
+          />
+          @if (modo() === 'editar') {
+            <p class="campo__ayuda">El usuario no se puede cambiar.</p>
+          }
+          @if (errores().username; as e) {
+            <p class="campo__error" id="usuario-username-error">{{ e }}</p>
+          }
+        </div>
+
+        <div class="campo" [class.campo--con-error]="!!errores().email">
+          <label class="campo__etiqueta" for="usuario-email">Correo</label>
+          <input
+            class="control" id="usuario-email" name="email" type="email" autocomplete="off" placeholder="usuario@empresa.com"
+            [attr.maxlength]="limites.email + 20"
+            [ngModel]="valores().email" (ngModelChange)="poner('email', $event)"
+            [attr.aria-invalid]="errores().email ? true : null" [attr.aria-describedby]="errores().email ? 'usuario-email-error' : null"
+          />
+          @if (errores().email; as e) {
+            <p class="campo__error" id="usuario-email-error">{{ e }}</p>
+          }
+        </div>
+
+        <div class="campo" [class.campo--con-error]="!!errores().rol">
+          <label class="campo__etiqueta" for="usuario-rol">Rol</label>
+          <select
+            class="control" id="usuario-rol" name="rol"
+            [disabled]="esPropio()"
+            [ngModel]="valores().rol" (ngModelChange)="poner('rol', $event)"
+            [attr.aria-invalid]="errores().rol ? true : null" [attr.aria-describedby]="errores().rol ? 'usuario-rol-error' : null"
+          >
+            @for (r of roles; track r) {
+              <option [value]="r">{{ rolEtiqueta[r] }}</option>
+            }
+          </select>
+          @if (esPropio()) {
+            <p class="campo__ayuda">No puedes cambiar tu propio rol.</p>
+          }
+          @if (errores().rol; as e) {
+            <p class="campo__error" id="usuario-rol-error">{{ e }}</p>
+          }
+        </div>
+
+        @if (!esPropio()) {
+          <div class="campo" [class.campo--con-error]="!!errores().password">
+            <label class="campo__etiqueta" for="usuario-password">
+              {{ modo() === 'crear' ? 'Contraseña' : 'Contraseña nueva (opcional)' }}
+            </label>
+            <div class="control-con-icono">
+              <app-icono nombre="lock" [tamano]="18" />
+              <input
+                class="control" id="usuario-password" name="password" autocomplete="new-password"
+                [type]="mostrarClave() ? 'text' : 'password'" [placeholder]="'Mínimo ' + limites.clave + ' caracteres'"
+                [ngModel]="valores().password" (ngModelChange)="poner('password', $event)"
+                [attr.aria-invalid]="errores().password ? true : null" [attr.aria-describedby]="errores().password ? 'usuario-password-error' : 'usuario-password-ayuda'"
+              />
+              <button
+                type="button" class="control-con-icono__boton"
+                [attr.aria-label]="mostrarClave() ? 'Ocultar contraseña' : 'Mostrar contraseña'" [attr.aria-pressed]="mostrarClave()"
+                (click)="mostrarClave.set(!mostrarClave())"
+              >
+                <app-icono [nombre]="mostrarClave() ? 'eye-off' : 'eye'" [tamano]="18" />
+              </button>
+            </div>
+            <p class="campo__ayuda" id="usuario-password-ayuda">
+              @if (modo() === 'crear') {
+                El usuario deberá cambiarla la primera vez que ingrese.
+              } @else {
+                Si la escribes, se restablece la contraseña y el usuario deberá cambiarla al ingresar.
+              }
+            </p>
+            @if (errores().password; as e) {
+              <p class="campo__error" id="usuario-password-error">{{ e }}</p>
+            }
+          </div>
+        } @else {
+          <p class="campo__ayuda">Para cambiar tu contraseña usa «Cambiar contraseña» en el menú de tu cuenta.</p>
+        }
+      </div>
+
+      @if (errorGuardado()) {
+        <p class="alerta alerta--error hoja__error" role="alert">
+          <app-icono nombre="alert-triangle" [tamano]="18" /><span>{{ errorGuardado() }}</span>
+        </p>
+      }
+    </div>
+    <footer class="hoja__pie">
+      <button type="submit" class="btn btn--primario" [disabled]="guardando() || sinCambios()">{{ guardando() ? 'Guardando…' : 'Guardar' }}</button>
+      <button type="button" class="btn btn--fantasma" (click)="cerrarHoja()">Cancelar</button>
+    </footer>
+  </form>
+</dialog>

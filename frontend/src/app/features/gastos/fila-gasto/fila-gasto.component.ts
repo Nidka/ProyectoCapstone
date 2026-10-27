@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Gasto } from '../../../core/models/gasto.model';
+import { AuthService } from '../../../core/services/auth.service';
 import { CrudService } from '../../../core/services/crud.service';
 import { GastosStore } from '../../../core/state/gastos.store';
 import { Pestana, pasosRuta, siguientePaso, ultimoRechazo } from '../../../core/state/gastos.logic';
@@ -23,10 +24,12 @@ export class FilaGastoComponent {
   readonly atenuar = input(false);
 
   private readonly store = inject(GastosStore);
+  private readonly auth = inject(AuthService);
   private readonly crud = inject(CrudService);
 
   protected readonly pasos = computed(() => pasosRuta(this.gasto(), this.store.comprobantes()));
-  protected readonly paso = computed(() => siguientePaso(this.gasto()));
+  /** Adjuntar y revisar son de Logística: el administrador solo abre el gasto */
+  protected readonly paso = computed(() => (this.auth.esLogistica() ? siguientePaso(this.gasto()) : 'ninguno'));
   protected readonly rechazo = computed(() =>
     this.gasto().estado === 'Registrado' ? ultimoRechazo(this.store.comprobantes(), this.gasto().id) : undefined,
   );

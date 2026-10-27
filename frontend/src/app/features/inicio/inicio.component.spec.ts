@@ -13,7 +13,7 @@ function gasto(id: number, estado: Gasto['estado'], monto: number): Gasto {
   return { id, estado, monto, viaje_id: 1, cliente_id: 1, fecha: '2026-10-01T00:00:00Z', creado_por: 'Ana', creado_en: `2026-10-0${id}T12:00:00Z` };
 }
 
-function montar(gastos: Gasto[], pendientes: Comprobante[], estado = { cargado: true, error: false }) {
+function montar(gastos: Gasto[], pendientes: Comprobante[], estado = { cargado: true, error: false }, rol: 'admin' | 'logistica' = 'logistica') {
   const lista = signal(gastos);
   TestBed.configureTestingModule({
     providers: [
@@ -26,7 +26,7 @@ function montar(gastos: Gasto[], pendientes: Comprobante[], estado = { cargado: 
         },
       },
       { provide: CrudService, useValue: { asegurarCargado: vi.fn(), etiqueta: () => 'Agro Norte SAC' } },
-      { provide: AuthService, useValue: { usuario: signal({ nombre: 'Ana Quispe' }) } },
+      { provide: AuthService, useValue: { usuario: signal({ nombre: 'Ana Quispe', rol }), esLogistica: signal(rol === 'logistica') } },
     ],
   });
   const f = TestBed.createComponent(InicioComponent);
@@ -39,6 +39,28 @@ describe('InicioComponent', () => {
     const el = montar([], []);
     expect(el.textContent).toContain('Todavía no hay gastos registrados.');
     expect(el.querySelector('a[href="/app/operacion/viajes"]')).not.toBeNull();
+  });
+
+  it('Logística ve Registrar gasto y Adjuntar comprobante arriba', () => {
+    const el = montar([gasto(1, 'Registrado', 120)], []);
+    expect(el.querySelector('.pagina__acciones a[href="/app/gastos/nuevo"]')).not.toBeNull();
+    expect(el.querySelector('.pagina__acciones')?.textContent).toContain('Adjuntar comprobante');
+  });
+
+  it('el administrador no ve Registrar gasto ni Adjuntar comprobante, pero sí lo pendiente y el recorrido', () => {
+    const el = montar([gasto(1, 'Registrado', 120)], [], { cargado: true, error: false }, 'admin');
+    expect(el.querySelector('a[href="/app/gastos/nuevo"]')).toBeNull();
+    expect(el.querySelector('.pagina__acciones')).toBeNull();
+    expect(el.textContent).not.toContain('Adjuntar comprobante');
+    expect(el.querySelectorAll('.recorrido__hito')).toHaveLength(3);
+    expect(el.querySelector('.atender')).not.toBeNull();
+  });
+
+  it('al administrador, sin gastos, no se le manda a registrar uno', () => {
+    const el = montar([], [], { cargado: true, error: false }, 'admin');
+    expect(el.textContent).toContain('Todavía no hay gastos registrados.');
+    expect(el.querySelector('a[href="/app/gastos/nuevo"]')).toBeNull();
+    expect(el.textContent).not.toContain('necesitas al menos un viaje');
   });
 
   it('si el servicio de gastos no responde, no muestra ceros: avisa y ofrece Reintentar', () => {

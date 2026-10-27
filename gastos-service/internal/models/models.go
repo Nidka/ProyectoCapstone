@@ -13,6 +13,8 @@ type Gasto struct {
 	Estado    string    `json:"estado"`
 	CreadoPor string    `json:"creado_por"`
 	CreadoEn  time.Time `json:"creado_en"`
+	// FechaCobro es cuándo se espera cobrar el gasto al cliente; opcional (null si no se indicó).
+	FechaCobro *time.Time `json:"fecha_cobro"`
 }
 
 // Comprobante representa un comprobante de pago adjuntado a un gasto.

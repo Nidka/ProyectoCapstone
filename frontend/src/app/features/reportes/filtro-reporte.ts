@@ -14,6 +14,10 @@ export const MSG_FECHA_INVALIDA = 'Fecha inválida: use AAAA-MM-DD.';
 export const MSG_RANGO_INVERTIDO = 'La fecha inicial no puede ser posterior a la final.';
 export const MSG_RANGO_LARGO = 'El rango no puede superar 24 meses.';
 
+export const MSG_FECHA_FUERA_DEL_RANGO =
+  'Esta fecha es anterior a los últimos 12 meses: el gasto no saldrá en el dashboard con su rango por defecto. Revisa que sea la correcta.';
+export const MSG_FECHA_FUTURA = 'Esta fecha es posterior a hoy: el gasto no saldrá en el dashboard hasta ese día.';
+
 const RANGO_MAXIMO_DIAS = 731;
 const ISO = /^(\d{4})-(\d{2})-(\d{2})$/;
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -85,4 +89,15 @@ export function mesCompleto(filtro: FiltroReporte): string | null {
 export function nombreMes(mes: string): string {
   const [anio, m] = anioMes(mes);
   return `${MESES[m - 1]} ${anio}`;
+}
+
+/**
+ * Aviso para quien registra un gasto con una fecha que el dashboard no mostraría con su rango por
+ * defecto (los últimos 12 meses hasta hoy): el reporte cuenta por la fecha del gasto, no por el día en
+ * que se registró. Vacío si la fecha cae dentro o no es una fecha real.
+ */
+export function avisoFechaGasto(fecha: string, hoy: string): string {
+  if (!fecha || !fechaValida(fecha)) return '';
+  if (fecha > hoy) return MSG_FECHA_FUTURA;
+  return fecha < rangoDeAtajo('ultimos-12', hoy).desde ? MSG_FECHA_FUERA_DEL_RANGO : '';
 }

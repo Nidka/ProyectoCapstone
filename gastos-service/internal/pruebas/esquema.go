@@ -35,6 +35,22 @@ const tablasMinimas = `
 // del servicio, y lo borra al terminar la prueba. Sin TEST_DATABASE_URL, la prueba se omite.
 func NuevoEsquema(t testing.TB) *pgxpool.Pool {
 	t.Helper()
+	return nuevoEsquema(t, tablasMinimas)
+}
+
+// NuevoEsquemaCompleto es como NuevoEsquema pero con el esquema y los datos reales de db.sql
+// (todas las tablas del sistema, no solo las mínimas), para las pruebas de la API de maestros.
+func NuevoEsquemaCompleto(t testing.TB) *pgxpool.Pool {
+	t.Helper()
+	sql, err := os.ReadFile(filepath.Join(raizModulo(t), "..", "db.sql"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return nuevoEsquema(t, string(sql))
+}
+
+func nuevoEsquema(t testing.TB, ddl string) *pgxpool.Pool {
+	t.Helper()
 	url := os.Getenv("TEST_DATABASE_URL")
 	if url == "" {
 		t.Skip("TEST_DATABASE_URL no definida: se omiten las pruebas contra PostgreSQL")
@@ -66,7 +82,7 @@ func NuevoEsquema(t testing.TB) *pgxpool.Pool {
 	}
 	t.Cleanup(pool.Close)
 
-	if _, err := pool.Exec(ctx, tablasMinimas); err != nil {
+	if _, err := pool.Exec(ctx, ddl); err != nil {
 		t.Fatal(err)
 	}
 	if err := db.RunMigrations(pool, directorioMigraciones(t)); err != nil {
@@ -99,3 +115,7 @@ func raizModulo(t testing.TB) string {
 		dir = padre
 	}
 }
+
+// DirectorioMigraciones es el directorio de migraciones del servicio, para las pruebas que las
+// reaplican (el servicio las reaplica todas en cada arranque).
+func DirectorioMigraciones(t testing.TB) string { return directorioMigraciones(t) }

@@ -7,8 +7,11 @@ import { ToastService } from '../../../core/services/toast.service';
 import { GastosStore } from '../../../core/state/gastos.store';
 import { mensajeError } from '../../../core/utils/error-messages';
 import { hoyIso } from '../../../core/utils/format';
+import { avisoFechaGasto } from '../../reportes/filtro-reporte';
 import { IconoComponent } from '../../../shared/ui/icono/icono.component';
 import { SelectorReferenciaComponent } from '../../../shared/ui/selector-referencia/selector-referencia.component';
+
+const MSG_COBRO_ANTERIOR = 'La fecha de cobro no puede ser anterior a la fecha del gasto.';
 
 @Component({
   selector: 'app-gasto-form',
@@ -29,12 +32,19 @@ export class GastoFormComponent implements OnInit {
   protected readonly clienteId = signal('');
   protected monto: string | number | null = '';
   protected fecha = hoyIso();
+  /** Opcional: cuándo se espera cobrar al cliente; vacía = sin fecha */
+  protected fechaCobro = '';
   protected readonly saving = signal(false);
 
   protected readonly viajeError = signal('');
   protected readonly clienteError = signal('');
   protected readonly montoError = signal('');
   protected readonly fechaError = signal('');
+  /** Aviso (no error) cuando la fecha deja el gasto fuera del dashboard; no impide registrar */
+  protected avisoFecha(): string {
+    return avisoFechaGasto(this.fecha, hoyIso());
+  }
+  protected readonly fechaCobroError = signal('');
 
   protected readonly opcionesViaje = computed(() => this.crud.opciones('viaje'));
   protected readonly opcionesCliente = computed(() => this.crud.opciones('cliente'));
@@ -61,14 +71,22 @@ export class GastoFormComponent implements OnInit {
     const montoNum = Number(this.monto);
     this.montoError.set(this.monto !== '' && this.monto !== null && montoNum > 0 ? '' : 'Ingresa un monto mayor a S/ 0.00.');
     this.fechaError.set(this.fecha ? '' : 'Selecciona la fecha del gasto.');
-    return !this.viajeError() && !this.clienteError() && !this.montoError() && !this.fechaError();
+    // Espejo del servidor: el cobro no puede ser anterior al gasto (AAAA-MM-DD se compara como texto)
+    this.fechaCobroError.set(this.fechaCobro && this.fecha && this.fechaCobro < this.fecha ? MSG_COBRO_ANTERIOR : '');
+    return !this.viajeError() && !this.clienteError() && !this.montoError() && !this.fechaError() && !this.fechaCobroError();
   }
 
   protected save(): void {
     if (!this.validar()) return;
     this.saving.set(true);
     this.store
-      .registrar({ viaje_id: Number(this.viajeId()), cliente_id: Number(this.clienteId()), monto: Number(this.monto), fecha: this.fecha })
+      .registrar({
+        viaje_id: Number(this.viajeId()),
+        cliente_id: Number(this.clienteId()),
+        monto: Number(this.monto),
+        fecha: this.fecha,
+        ...(this.fechaCobro ? { fecha_cobro: this.fechaCobro } : {}),
+      })
       .subscribe({
         next: gasto => {
           this.saving.set(false);
@@ -79,6 +97,10 @@ export class GastoFormComponent implements OnInit {
           this.saving.set(false);
           if (err instanceof HttpErrorResponse && err.status === 422) {
             this.viajeError.set('Este viaje no existe o no está disponible. Verifica el número de viaje.');
+            return;
+          }
+          if (err instanceof HttpErrorResponse && err.status === 400 && /cobro/i.test(String(err.error?.error ?? ''))) {
+            this.fechaCobroError.set(/anterior/i.test(String(err.error.error)) ? MSG_COBRO_ANTERIOR : 'Revisa la fecha de cobro.');
             return;
           }
           this.toast.show(mensajeError(err), '', 'err');

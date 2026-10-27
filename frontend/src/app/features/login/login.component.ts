@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { exigeCambioDeClave } from '../../core/models/auth.model';
 import { destinoTrasLogin } from '../../core/navigation/navegacion';
 import { AuthService } from '../../core/services/auth.service';
 import { IconoComponent } from '../../shared/ui/icono/icono.component';
@@ -9,7 +10,7 @@ import { PanelAccesoComponent } from '../../shared/ui/panel-acceso/panel-acceso.
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, RouterLink, MarcaComponent, IconoComponent, PanelAccesoComponent],
+  imports: [FormsModule, MarcaComponent, IconoComponent, PanelAccesoComponent],
   templateUrl: './login.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -23,7 +24,6 @@ export class LoginComponent {
   protected readonly loading = signal(false);
   protected readonly error = signal('');
   protected readonly showPass = signal(false);
-  protected readonly registrado = this.ruta.snapshot.queryParamMap.get('registered') === '1';
 
   protected submit(): void {
     if (!this.username.trim() || !this.password) {
@@ -33,7 +33,15 @@ export class LoginComponent {
     this.error.set('');
     this.loading.set(true);
     this.auth.login({ username: this.username, password: this.password }).subscribe({
-      next: () => this.router.navigateByUrl(destinoTrasLogin(this.ruta.snapshot.queryParamMap.get('volver'))),
+      next: res => {
+        const volver = destinoTrasLogin(this.ruta.snapshot.queryParamMap.get('volver'));
+        // Cuenta nueva o con la clave restablecida: antes de entrar debe cambiarla
+        if (exigeCambioDeClave(res)) {
+          this.router.navigate(['/cambiar-clave'], volver === '/app/inicio' ? {} : { queryParams: { volver } });
+        } else {
+          this.router.navigateByUrl(volver);
+        }
+      },
       error: e => {
         this.error.set(e?.error?.detail ?? 'Credenciales incorrectas');
         this.loading.set(false);

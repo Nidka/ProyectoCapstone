@@ -1,0 +1,69 @@
+<div class="campana">
+  <button
+    type="button"
+    class="avisos__boton"
+    aria-haspopup="dialog"
+    [attr.aria-expanded]="abierto()"
+    [attr.aria-controls]="abierto() ? 'avisos-panel' : null"
+    [attr.aria-label]="etiqueta()"
+    (click)="alternar()"
+  >
+    <app-icono nombre="bell" [tamano]="20" />
+    @if (noLeidas() > 0) {
+      <span class="avisos__insignia" aria-hidden="true">{{ textoInsignia(noLeidas()) }}</span>
+    }
+  </button>
+
+  @if (abierto()) {
+    <div #panel id="avisos-panel" class="avisos__panel" role="dialog" aria-labelledby="avisos-titulo" tabindex="-1" (keydown)="alTeclear($event)">
+      <header class="avisos__cabecera">
+        <h2 id="avisos-titulo" class="avisos__titulo">Avisos</h2>
+        @if (noLeidas() > 0) {
+          <span class="avisos__resumen">{{ noLeidas() }} sin leer</span>
+        }
+      </header>
+
+      @if (store.error() && store.cargado()) {
+        <p class="avisos__nota">
+          No se pudo actualizar.
+          <button type="button" class="enlace-boton" (click)="store.cargar()">Reintentar</button>
+        </p>
+      }
+
+      @if (!store.cargado()) {
+        @if (store.error()) {
+          <app-estado-vacio [compacto]="true" icono="cloud-off" titulo="No se pudieron cargar los avisos." texto="Revisa tu conexión e inténtalo de nuevo.">
+            <button type="button" class="btn btn--secundario btn--sm" (click)="store.cargar()">Reintentar</button>
+          </app-estado-vacio>
+        } @else {
+          <div class="avisos__esqueleto" aria-busy="true">
+            <div class="esqueleto esqueleto--fila"></div>
+            <div class="esqueleto esqueleto--fila"></div>
+          </div>
+        }
+      } @else if (store.lista().length === 0) {
+        <p class="avisos__vacio">No tienes avisos por ahora.</p>
+      } @else {
+        <ul class="avisos__lista">
+          @for (a of store.lista(); track a.id) {
+            <li>
+              <a class="avisos__item" [class.avisos__item--nuevo]="!a.leida" [routerLink]="['/app/gastos', a.id_gasto]" (click)="abrirAviso(a)">
+                <span class="avisos__icono" aria-hidden="true"><app-icono [nombre]="a.tipo === 'cobro_proximo' ? 'calendar' : 'clock'" [tamano]="18" /></span>
+                <span class="avisos__texto">
+                  <span class="avisos__asunto">
+                    @if (!a.leida) {
+                      <span class="oculto-visual">Sin leer. </span>
+                    }
+                    {{ tituloAviso(a.tipo) }}
+                  </span>
+                  <span class="avisos__mensaje">{{ a.mensaje }}</span>
+                  <time class="avisos__fecha" [attr.datetime]="a.creada_en">{{ formatFechaHora(a.creada_en) }}</time>
+                </span>
+              </a>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  }
+</div>

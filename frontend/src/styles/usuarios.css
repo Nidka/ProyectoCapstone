@@ -1,0 +1,63 @@
+/* ══ Usuarios: lista y confirmación en línea (solo administrador) ══ */
+.usuarios__nombre {
+  font-weight: 600;
+}
+
+.usuarios__yo {
+  margin-left: var(--e-2);
+}
+
+.usuarios__fila--inactiva td {
+  color: var(--tinta-3);
+}
+
+.usuarios__fila--inactiva .usuarios__nombre {
+  font-weight: 500;
+}
+
+/* La confirmación ocupa la fila de abajo y se lee como parte de la misma fila */
+.tabla tbody tr.usuarios__confirmacion td {
+  height: auto;
+  padding: var(--e-2) var(--e-4) var(--e-3);
+  background: var(--panel-2);
+}
+
+.usuarios__confirmacion .alerta {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.usuarios__confirmacion-texto {
+  flex: 1 1 18rem;
+  min-width: 0;
+}
+
+.usuarios__confirmacion-error {
+  margin-top: var(--e-1);
+  font-weight: 600;
+}
+
+.usuarios__confirmacion-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2);
+}
+
+/* Error del servidor dentro de la hoja de usuario */
+.hoja__error {
+  margin-top: var(--e-4);
+}
+
+select.control {
+  cursor: pointer;
+}
+
+select.control:disabled {
+  cursor: not-allowed;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tabla tbody tr.usuarios__confirmacion:hover {
+    background: transparent;
+  }
+}

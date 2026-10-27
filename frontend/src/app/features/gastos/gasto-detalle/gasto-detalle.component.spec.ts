@@ -9,7 +9,10 @@ import { AdjuntarComprobanteComponent } from '../adjuntar-comprobante/adjuntar-c
 import { GastosStore } from '../../../core/state/gastos.store';
 import { CrudService } from '../../../core/services/crud.service';
 import { GastosApiService } from '../../../core/services/gastos-api.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { HistorialService } from '../../../core/services/historial.service';
 import { Comprobante, Gasto } from '../../../core/models/gasto.model';
+import { RegistroHistorial } from '../../../core/models/historial';
 import { comprobantesDe } from '../../../core/state/gastos.logic';
 
 function gasto(id: number, estado: Gasto['estado']): Gasto {
@@ -28,13 +31,19 @@ function storeFalso(gastos: Gasto[], comprobantes: Comprobante[], cargado = true
   };
 }
 
-function montar(store: ReturnType<typeof storeFalso>, id: string) {
+const historialFalso = () => ({ deGasto: vi.fn((_id: number) => of<RegistroHistorial[]>([])) });
+
+function montar(
+  store: ReturnType<typeof storeFalso>, id: string, rol: 'admin' | 'logistica' = 'logistica', historial = historialFalso(),
+) {
   TestBed.configureTestingModule({
     providers: [
       provideRouter([]),
       { provide: GastosStore, useValue: store },
       { provide: CrudService, useValue: { etiqueta: () => 'Agro Norte SAC', asegurarCargado: vi.fn() } },
       { provide: GastosApiService, useValue: { fileUrl: (u: string) => u } },
+      { provide: AuthService, useValue: { esLogistica: signal(rol === 'logistica') } },
+      { provide: HistorialService, useValue: historial },
     ],
   });
   const f = TestBed.createComponent(GastoDetalleComponent);
@@ -98,6 +107,27 @@ describe('GastoDetalleComponent', () => {
     expect(f.nativeElement.textContent).toContain('S/ 120.50');
   });
 
+  it('al administrador un gasto registrado le explica que Logística adjunta el comprobante, sin formulario', () => {
+    const f = montar(storeFalso([gasto(31, 'Registrado')], []), '31', 'admin');
+    const paso: HTMLElement = f.nativeElement.querySelector('#paso');
+    expect(paso.querySelector('app-adjuntar-comprobante')).toBeNull();
+    expect(paso.querySelector('input[type="file"]')).toBeNull();
+    expect(paso.textContent).toContain('Falta el comprobante de pago');
+    expect(paso.textContent).toContain('Lo adjunta Logística');
+  });
+
+  it('al administrador un gasto pagado le muestra el comprobante a revisar, sin aprobar ni rechazar', () => {
+    const pendiente: Comprobante = {
+      id: 9, gasto_id: 32, archivo_url: '/u/9.jpg', tipo_archivo: 'imagen', estado: 'Pendiente', creado_en: '2026-10-01T17:00:00Z',
+    };
+    const f = montar(storeFalso([gasto(32, 'Pagado')], [pendiente]), '32', 'admin');
+    const paso: HTMLElement = f.nativeElement.querySelector('#paso');
+    expect(paso.querySelector('app-revision-comprobante')).toBeNull();
+    expect(paso.textContent).toContain('Esperando la revisión de Logística');
+    expect(paso.querySelector('a[href="/u/9.jpg"]')).not.toBeNull();
+    expect([...paso.querySelectorAll('button')]).toHaveLength(0);
+  });
+
   it('un gasto pagado muestra la revisión del comprobante pendiente', () => {
     const pendiente: Comprobante = {
       id: 9, gasto_id: 32, archivo_url: '/u/9.jpg', tipo_archivo: 'imagen', estado: 'Pendiente', creado_en: '2026-10-01T17:00:00Z',
@@ -126,6 +156,20 @@ describe('GastoDetalleComponent', () => {
     const f = montar(storeFalso([gasto(29, 'Sustentado')], [aprobado]), '29');
     expect(f.nativeElement.querySelector('#paso h2.cartel--guia')?.textContent?.trim()).toBe('Gasto sustentado');
     expect(f.nativeElement.querySelector('#paso').classList).toContain('detalle__paso--senal');
+  });
+
+  it('muestra la fecha de cobro cuando el gasto la tiene', () => {
+    const f = montar(storeFalso([{ ...gasto(31, 'Registrado'), fecha_cobro: '2026-10-20T00:00:00Z' }], []), '31');
+    const dato = [...f.nativeElement.querySelectorAll('.detalle__datos > div')].find((d: Element) => d.querySelector('dt')?.textContent === 'Fecha de cobro');
+    expect(dato?.querySelector('dd')?.textContent).toBe('20/10/2026');
+  });
+
+  it('sin fecha de cobro (null o ausente) no muestra el dato', () => {
+    for (const fecha_cobro of [null, undefined]) {
+      TestBed.resetTestingModule();
+      const f = montar(storeFalso([{ ...gasto(31, 'Registrado'), fecha_cobro }], []), '31');
+      expect(f.nativeElement.querySelector('.detalle__datos')?.textContent).not.toContain('Fecha de cobro');
+    }
   });
 
   it('Cliente y Viaje llevan a su ficha en Operación', () => {
@@ -162,6 +206,42 @@ describe('GastoDetalleComponent', () => {
     const f = montar(storeFalso([gasto(29, 'Sustentado')], [antiguo]), '29');
     expect(f.nativeElement.querySelector('.historial__checklist')).toBeNull();
     expect(f.nativeElement.querySelector('.historial__revisor')).toBeNull();
+  });
+
+  it('muestra el historial de cambios del gasto, también al administrador', () => {
+    for (const rol of ['logistica', 'admin'] as const) {
+      TestBed.resetTestingModule();
+      const historial = historialFalso();
+      historial.deGasto.mockReturnValue(of([
+        { fecha: '2026-10-01T10:00:00-05:00', usuario: 'Ana Quispe', accion: 'gasto.registrar', entidad: 'gasto', id_entidad: 31, detalle: {} },
+      ]));
+      const f = montar(storeFalso([gasto(31, 'Registrado')], []), '31', rol, historial);
+      const seccion: HTMLElement = f.nativeElement.querySelector('app-historial-gasto');
+      expect(historial.deGasto).toHaveBeenCalledWith(31);
+      expect(seccion.querySelector('h2')?.textContent).toContain('Historial de cambios');
+      expect(seccion.textContent).toContain('Registró el gasto');
+    }
+  });
+
+  it('el historial no se pide mientras no hay gasto que mostrar', () => {
+    const historial = historialFalso();
+    montar(storeFalso([], [], false), '31', 'logistica', historial);
+    expect(historial.deGasto).not.toHaveBeenCalled();
+  });
+
+  it('el historial se vuelve a pedir cuando un comprobante del gasto cambia de estado', () => {
+    const historial = historialFalso();
+    const pendiente: Comprobante = {
+      id: 9, gasto_id: 32, archivo_url: '/u/9.jpg', tipo_archivo: 'imagen', estado: 'Pendiente', creado_en: '2026-10-01T17:00:00Z',
+    };
+    const store = storeFalso([gasto(32, 'Pagado')], [pendiente]);
+    const f = montar(store, '32', 'logistica', historial);
+    expect(historial.deGasto).toHaveBeenCalledTimes(1);
+    store.gastos.set([gasto(32, 'Sustentado')]);
+    store.comprobantes.set([{ ...pendiente, estado: 'Aprobado' }]);
+    f.detectChanges();
+    expect(historial.deGasto).toHaveBeenCalledTimes(2);
+    expect(historial.deGasto).toHaveBeenLastCalledWith(32);
   });
 
   it('«Gastos» vuelve a la pestaña de origen', () => {

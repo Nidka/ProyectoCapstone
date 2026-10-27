@@ -5,6 +5,8 @@
 
 # Salidas y registros
 *.log
+logs/
+respaldos/
 .angular/
 
 # Archivos de trabajo del asistente (bitácoras, respaldos y fuentes de planes)

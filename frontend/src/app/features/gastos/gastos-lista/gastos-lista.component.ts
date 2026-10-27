@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 import { CrudService } from '../../../core/services/crud.service';
 import { ReportesService } from '../../../core/services/reportes.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -36,6 +37,7 @@ export class GastosListaComponent implements OnInit {
   readonly cliente = input<string | undefined>(undefined);
 
   protected readonly store = inject(GastosStore);
+  protected readonly auth = inject(AuthService);
   private readonly crud = inject(CrudService);
   private readonly router = inject(Router);
   private readonly reportes = inject(ReportesService);
@@ -74,7 +76,11 @@ export class GastosListaComponent implements OnInit {
   );
   protected readonly exportando = signal(false);
   protected readonly total = computed(() => totalMonto(this.visibles()));
-  protected readonly vacio = computed(() => VACIOS[this.pestana()]);
+  protected readonly vacio = computed(() => {
+    const v = VACIOS[this.pestana()];
+    // Quien solo consulta no registra gastos: no se le manda a «Registrar gasto»
+    return this.pestana() === 'todos' && !this.auth.esLogistica() ? { ...v, texto: 'Aparecerán aquí cuando Logística registre el primero.' } : v;
+  });
   protected readonly formatMonto = formatMonto;
 
   ngOnInit(): void {

@@ -21,7 +21,7 @@ export class ApiService {
   private resolveInitialBase(): string {
     const isLocalDev = ['localhost', '127.0.0.1'].includes(window.location.hostname);
     if (isLocalDev) {
-      const localBase = 'http://localhost:8000/api/v1';
+      const localBase = 'http://localhost:8081/api/v1';
       localStorage.setItem(this.storageKey, localBase);
       return localBase;
     }

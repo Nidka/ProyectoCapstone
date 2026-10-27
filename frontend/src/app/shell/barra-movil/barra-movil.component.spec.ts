@@ -9,11 +9,11 @@ import { GastosStore } from '../../core/state/gastos.store';
 @Component({ template: '' })
 class Vacio {}
 
-async function montar(url: string) {
+async function montar(url: string, rol: 'admin' | 'logistica' = 'logistica') {
   TestBed.configureTestingModule({
     providers: [
       provideRouter([{ path: '**', component: Vacio }]),
-      { provide: AuthService, useValue: { usuario: signal({ nombre: 'Ana Quispe' }), logout: vi.fn() } },
+      { provide: AuthService, useValue: { usuario: signal({ nombre: 'Ana Quispe', rol }), logout: vi.fn() } },
       { provide: GastosStore, useValue: { pendientes: signal([]) } },
     ],
   });
@@ -37,5 +37,21 @@ describe('BarraMovilComponent', () => {
     expect(botonMas(await montar('/app/reportes?desde=2026-01-01')).classList).toContain('tabbar__item--activo');
     TestBed.resetTestingModule();
     expect(botonMas(await montar('/app/catalogos/ubigeo')).classList).toContain('tabbar__item--activo');
+  });
+
+  it('«Usuarios» aparece en la hoja «Más» solo para el administrador', async () => {
+    const enlaces = (el: HTMLElement) => [...el.querySelectorAll<HTMLAnchorElement>('dialog a')].map(a => a.getAttribute('href'));
+    expect(enlaces(await montar('/app/inicio', 'admin'))).toContain('/app/usuarios');
+    TestBed.resetTestingModule();
+    expect(enlaces(await montar('/app/inicio', 'logistica'))).not.toContain('/app/usuarios');
+  });
+
+  it('en Usuarios se marca «Más» como activo', async () => {
+    expect(botonMas(await montar('/app/usuarios', 'admin')).classList).toContain('tabbar__item--activo');
+  });
+
+  it('la hoja «Más» ofrece cambiar la contraseña', async () => {
+    const el = await montar('/app/inicio');
+    expect([...el.querySelectorAll<HTMLAnchorElement>('dialog a')].find(a => a.textContent?.includes('Cambiar contraseña'))?.getAttribute('href')).toBe('/cambiar-clave');
   });
 });

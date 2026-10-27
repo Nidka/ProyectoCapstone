@@ -13,6 +13,7 @@ interface Formulario {
   clienteId: { set(v: string): void };
   monto: string;
   fecha: string;
+  fechaCobro: string;
 }
 
 function montar(registrar: () => Observable<unknown> = vi.fn(() => of({ id: 31 }))) {
@@ -36,6 +37,38 @@ function enviar(el: HTMLElement): void {
 }
 
 describe('GastoFormComponent', () => {
+  describe('aviso de fecha fuera del dashboard', () => {
+    const aviso = (f: { nativeElement: HTMLElement }) => f.nativeElement.querySelector('#gf-fecha-aviso');
+
+    it('con la fecha de hoy no avisa nada', () => {
+      const { f } = montar();
+      expect(aviso(f)).toBeNull();
+    });
+
+    it('con una fecha de hace años avisa que no saldrá en el dashboard, pero deja registrar', () => {
+      const { f, form, registrar } = montar();
+      form.viajeId.set('12');
+      form.clienteId.set('5');
+      form.monto = '513';
+      form.fecha = '2019-09-26';
+      f.detectChanges();
+      expect(aviso(f)?.textContent?.trim()).toContain('no saldrá en el dashboard');
+      expect(f.nativeElement.querySelector('#gf-fecha')?.getAttribute('aria-describedby')).toBe('gf-fecha-aviso');
+      enviar(f.nativeElement);
+      expect(registrar).toHaveBeenCalledWith({ viaje_id: 12, cliente_id: 5, monto: 513, fecha: '2019-09-26' });
+    });
+
+    it('con una fecha futura avisa que saldrá ese día', async () => {
+      const { f } = montar();
+      await f.whenStable();
+      const campo = f.nativeElement.querySelector('#gf-fecha') as HTMLInputElement;
+      campo.value = '2099-01-01';
+      campo.dispatchEvent(new Event('input'));
+      f.detectChanges();
+      expect(aviso(f)?.textContent?.trim()).toContain('hasta ese día');
+    });
+  });
+
   it('si la lista de viajes no carga, el selector lo dice en vez de «Aún no hay viajes.»', () => {
     TestBed.configureTestingModule({
       providers: [
@@ -122,5 +155,74 @@ describe('GastoFormComponent', () => {
     expect(f.nativeElement.querySelector('#gf-viaje-error')?.textContent?.trim()).toBe(
       'Este viaje no existe o no está disponible. Verifica el número de viaje.',
     );
+  });
+
+  describe('fecha de cobro', () => {
+    function llenar(form: Formulario): void {
+      form.viajeId.set('12');
+      form.clienteId.set('5');
+      form.monto = '120.5';
+      form.fecha = '2026-10-02';
+    }
+
+    it('es opcional: tiene su campo de fecha, sin asterisco de obligatorio', () => {
+      const { f } = montar();
+      const campo = f.nativeElement.querySelector('#gf-cobro') as HTMLInputElement;
+      expect(campo.type).toBe('date');
+      expect(f.nativeElement.querySelector('label[for="gf-cobro"]')?.textContent?.trim()).toBe('Fecha de cobro (opcional)');
+      expect(f.nativeElement.querySelector('label[for="gf-cobro"] .req')).toBeNull();
+    });
+
+    it('sin fecha de cobro no la manda', () => {
+      const { f, form, registrar } = montar();
+      TestBed.inject(Router).navigate = vi.fn().mockResolvedValue(true);
+      llenar(form);
+      enviar(f.nativeElement);
+      expect(registrar).toHaveBeenCalledWith({ viaje_id: 12, cliente_id: 5, monto: 120.5, fecha: '2026-10-02' });
+    });
+
+    it('con fecha de cobro la manda como fecha_cobro', () => {
+      const { f, form, registrar } = montar();
+      TestBed.inject(Router).navigate = vi.fn().mockResolvedValue(true);
+      llenar(form);
+      form.fechaCobro = '2026-10-20';
+      enviar(f.nativeElement);
+      expect(registrar).toHaveBeenCalledWith({ viaje_id: 12, cliente_id: 5, monto: 120.5, fecha: '2026-10-02', fecha_cobro: '2026-10-20' });
+    });
+
+    it('el mismo día del gasto vale', () => {
+      const { f, form, registrar } = montar();
+      TestBed.inject(Router).navigate = vi.fn().mockResolvedValue(true);
+      llenar(form);
+      form.fechaCobro = '2026-10-02';
+      enviar(f.nativeElement);
+      expect(registrar).toHaveBeenCalled();
+    });
+
+    it('no deja registrar si el cobro es anterior a la fecha del gasto', () => {
+      const { f, form, registrar } = montar();
+      llenar(form);
+      form.fechaCobro = '2026-10-01';
+      enviar(f.nativeElement);
+      f.detectChanges();
+      expect(registrar).not.toHaveBeenCalled();
+      const error = f.nativeElement.querySelector('#gf-cobro-error');
+      expect(error?.textContent?.trim()).toBe('La fecha de cobro no puede ser anterior a la fecha del gasto.');
+      expect(f.nativeElement.querySelector('#gf-cobro').getAttribute('aria-invalid')).toBe('true');
+      expect(f.nativeElement.querySelector('#gf-cobro').getAttribute('aria-describedby')).toBe('gf-cobro-error');
+    });
+
+    it('si el servidor rechaza la fecha de cobro con 400, la marca en el campo', () => {
+      const { f, form } = montar(vi.fn(() => throwError(
+        () => new HttpErrorResponse({ status: 400, error: { error: 'la fecha de cobro no puede ser anterior a la fecha del gasto' } }),
+      )));
+      llenar(form);
+      form.fechaCobro = '2026-10-20';
+      enviar(f.nativeElement);
+      f.detectChanges();
+      expect(f.nativeElement.querySelector('#gf-cobro-error')?.textContent?.trim()).toBe(
+        'La fecha de cobro no puede ser anterior a la fecha del gasto.',
+      );
+    });
   });
 });

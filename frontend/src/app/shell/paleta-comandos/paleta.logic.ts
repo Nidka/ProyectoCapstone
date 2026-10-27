@@ -1,5 +1,6 @@
+import { Rol } from '../../core/models/auth.model';
 import { Gasto } from '../../core/models/gasto.model';
-import { ACCIONES_PALETA, EntradaPaleta, destinosPaleta } from '../../core/navigation/navegacion';
+import { EntradaPaleta, accionesPaleta, destinosPaleta, visiblesPara } from '../../core/navigation/navegacion';
 import { buscarGastos, ordenarRecientes } from '../../core/state/gastos.logic';
 import { formatMonto } from '../../core/utils/format';
 import { normalizar } from '../../core/utils/texto';
@@ -7,8 +8,13 @@ import { normalizar } from '../../core/utils/texto';
 export const MAX_GASTOS_PALETA = 6;
 
 /** Acciones, destinos y gastos que coinciden con lo escrito en la paleta (⌘K). */
-export function resultadosPaleta(termino: string, gastos: Gasto[], nombreCliente: (clienteId: number) => string): EntradaPaleta[] {
-  const fijas = [...ACCIONES_PALETA, ...destinosPaleta()];
+export function resultadosPaleta(
+  termino: string,
+  gastos: Gasto[],
+  nombreCliente: (clienteId: number) => string,
+  rol: Rol | null | undefined,
+): EntradaPaleta[] {
+  const fijas = [...accionesPaleta(rol), ...visiblesPara(destinosPaleta(), rol)];
   const t = normalizar(termino).trim();
   if (!t) return fijas;
   const coinciden = fijas.filter(e => normalizar(`${e.etiqueta} ${e.detalle ?? ''}`).includes(t));

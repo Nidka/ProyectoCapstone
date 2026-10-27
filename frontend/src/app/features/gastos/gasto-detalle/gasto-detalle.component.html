@@ -18,6 +18,9 @@
           <dd><a class="enlace" routerLink="/app/operacion/viajes" [queryParams]="{ ver: g.viaje_id }">{{ viaje() }}</a></dd>
         </div>
         <div><dt>Fecha del gasto</dt><dd>{{ formatFecha(g.fecha) }}</dd></div>
+        @if (g.fecha_cobro) {
+          <div><dt>Fecha de cobro</dt><dd>{{ formatFecha(g.fecha_cobro) }}</dd></div>
+        }
         <div><dt>Registrado por</dt><dd>{{ g.creado_por }} · {{ formatFechaHora(g.creado_en) }}</dd></div>
       </dl>
     </header>
@@ -33,12 +36,28 @@
       @switch (actual.estado) {
         @case ('Registrado') {
           <h2 id="t-paso" class="seccion-titulo">Adjuntar comprobante de pago</h2>
-          <app-adjuntar-comprobante [gasto]="g" [rechazoPrevio]="rechazoPrevio()" />
+          @if (auth.esLogistica()) {
+            <app-adjuntar-comprobante [gasto]="g" [rechazoPrevio]="rechazoPrevio()" />
+          } @else {
+            <!-- El administrador consulta: adjuntar es de Logística -->
+            <p class="texto-secundario">Falta el comprobante de pago. Lo adjunta Logística.</p>
+            @if (rechazoPrevio(); as r) {
+              <p class="texto-secundario">El último comprobante fue rechazado: {{ r.motivo_rechazo }}</p>
+            }
+          }
         }
         @case ('Pagado') {
           <h2 id="t-paso" class="cartel cartel--informativa"><app-icono nombre="info-circle" [tamano]="20" />Revisar comprobante</h2>
           @if (pendiente(); as c) {
-            <app-revision-comprobante [comprobante]="c" [gasto]="g" />
+            @if (auth.esLogistica()) {
+              <app-revision-comprobante [comprobante]="c" [gasto]="g" />
+            } @else {
+              <!-- El administrador consulta: aprobar y rechazar son de Logística -->
+              <p class="texto-secundario">Esperando la revisión de Logística.</p>
+              <a class="btn btn--secundario btn--sm" [href]="archivo(c)" target="_blank" rel="noopener">
+                <app-icono nombre="external-link" [tamano]="16" />Ver comprobante
+              </a>
+            }
           } @else {
             <p class="texto-secundario">
               No encontramos el comprobante pendiente.
@@ -94,6 +113,8 @@
         <p class="campo__ayuda">Este comprobante no se puede editar. Si es incorrecto, adjunta uno nuevo.</p>
       }
     </section>
+
+    <app-historial-gasto [gastoId]="g.id" [marca]="marcaHistorial()" />
   } @else if (sinServicio()) {
     <app-estado-vacio icono="cloud-off" titulo="No se pudieron cargar los gastos." texto="Revisa tu conexión e inténtalo de nuevo.">
       <button type="button" class="btn btn--secundario" (click)="reintentar()">Reintentar</button>

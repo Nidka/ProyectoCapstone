@@ -1,0 +1,7 @@
+.env
+uploads/
+logs/
+respaldos/
+*.exe
+tools/
+internal/crud/contrato/

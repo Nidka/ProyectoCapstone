@@ -92,11 +92,6 @@
   color: var(--sustentado-tinta);
 }
 
-.indicador__formula {
-  color: var(--tinta-2);
-  font-size: var(--t-12);
-}
-
 .indicador__nota {
   color: var(--tinta-3);
   font-size: var(--t-13);

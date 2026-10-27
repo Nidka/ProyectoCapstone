@@ -438,6 +438,69 @@
   font-size: var(--t-13);
 }
 
+/* Historial de cambios del gasto: quién hizo qué y cuándo, del más antiguo al más reciente */
+.detalle__bitacora {
+  margin-top: var(--e-6);
+}
+
+.detalle__bitacora .seccion-titulo {
+  margin-bottom: var(--e-3);
+}
+
+.bitacora__esqueleto {
+  border-radius: var(--r-panel);
+  overflow: hidden;
+}
+
+.bitacora {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bitacora__item {
+  display: grid;
+  grid-template-columns: 9.5rem 1fr;
+  gap: var(--e-1) var(--e-4);
+  padding: var(--e-3) 0;
+  border-bottom: 1px solid var(--linea);
+}
+
+.bitacora__item:last-child {
+  border-bottom: 0;
+}
+
+.bitacora__fecha {
+  color: var(--tinta-2);
+  font-size: var(--t-13);
+  font-variant-numeric: tabular-nums;
+}
+
+.bitacora__texto {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.bitacora__accion {
+  font-weight: 500;
+}
+
+.bitacora__usuario,
+.bitacora__detalle {
+  color: var(--tinta-2);
+  font-size: var(--t-13);
+  overflow-wrap: anywhere;
+}
+
+/* En el celular la fecha pasa encima del texto */
+@media (max-width: 520px) {
+  .bitacora__item {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Zona para soltar el comprobante ── */
 .soltar {
   display: grid;
@@ -609,6 +672,275 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Lectura automática del comprobante: ayuda a comparar; sugiere, nunca decide */
+/* Casilla | texto | etiqueta; en el celular la etiqueta baja bajo el texto en lugar de empujar la casilla */
+.checklist__criterio {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: start;
+  column-gap: var(--e-2);
+  row-gap: var(--e-1);
+  padding: var(--e-2) 0;
+}
+
+.checklist__criterio input {
+  margin-top: 2px;
+}
+
+.checklist__criterio .checklist__sugerencia {
+  grid-column: 2;
+  justify-self: start;
+}
+
+@media (min-width: 768px) {
+  .checklist__criterio {
+    grid-template-columns: 18px minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .checklist__criterio input {
+    margin-top: 0;
+  }
+
+  .checklist__criterio .checklist__sugerencia {
+    grid-column: 3;
+    grid-row: 1;
+  }
+}
+
+.checklist__lectura {
+  display: flex;
+  align-items: center;
+  margin-top: var(--e-1);
+  color: var(--tinta-2);
+  font-size: var(--t-13);
+}
+
+.checklist__lectura:empty {
+  display: none;
+}
+
+.checklist__aviso {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-1);
+}
+
+/* Mientras lee: un anillo que gira junto al texto */
+.checklist__leyendo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-2);
+}
+
+.checklist__leyendo::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--linea-2);
+  border-top-color: var(--pagado);
+  border-radius: 50%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .checklist__leyendo::before {
+    animation: lectura-giro 0.8s linear infinite;
+  }
+}
+
+@keyframes lectura-giro {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Etiqueta junto a la casilla: ámbar pide mirar; verde coincide */
+.checklist__sugerencia {
+  padding: 1px var(--e-2);
+  border-radius: var(--r-pastilla);
+  background: var(--pendiente-suave);
+  color: var(--pendiente-tinta);
+  font-size: var(--t-12);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.checklist__sugerencia--si {
+  background: var(--sustentado-suave);
+  color: var(--sustentado-tinta);
+}
+
+/* Panel «Lectura automática»: el gasto frente a lo que leyó el comprobante */
+.lectura {
+  margin-top: var(--e-3);
+  padding: var(--e-3) var(--e-4);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-panel);
+  background: var(--panel-2);
+}
+
+.lectura__cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-2);
+}
+
+.lectura__titulo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-2);
+  margin: 0;
+  font-size: var(--t-15);
+  font-weight: 700;
+}
+
+.lectura__cuenta {
+  font-variant-numeric: tabular-nums;
+}
+
+.lectura__aplicadas {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-1);
+  color: var(--sustentado-tinta);
+  font-size: var(--t-13);
+  font-weight: 600;
+}
+
+.lectura__tabla {
+  width: 100%;
+  margin-top: var(--e-2);
+  border-collapse: collapse;
+  font-size: var(--t-14);
+  font-variant-numeric: tabular-nums;
+}
+
+.lectura__tabla th,
+.lectura__tabla td {
+  padding: var(--e-2) var(--e-2) var(--e-2) 0;
+  border-bottom: 1px solid var(--linea);
+  text-align: left;
+  vertical-align: baseline;
+}
+
+.lectura__tabla thead th {
+  color: var(--tinta-3);
+  font-size: var(--t-12);
+  font-weight: 600;
+}
+
+.lectura__tabla tbody th {
+  font-weight: 600;
+}
+
+.lectura__tabla tbody tr:last-child th,
+.lectura__tabla tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.lectura__fila--revisar td:nth-child(3) {
+  color: var(--pendiente-tinta);
+  font-weight: 600;
+}
+
+.lectura__estado {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-1);
+  color: var(--pendiente-tinta);
+  font-size: var(--t-13);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.lectura__estado--si {
+  color: var(--sustentado-tinta);
+}
+
+.lectura__nota {
+  margin: var(--e-2) 0 0;
+  color: var(--tinta-3);
+  font-size: var(--t-13);
+}
+
+/* Avance del checklist */
+.checklist__avance {
+  height: 6px;
+  margin-top: var(--e-3);
+  border-radius: var(--r-pastilla);
+  background: var(--linea);
+  overflow: hidden;
+}
+
+.checklist__avance-relleno {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--sustentado);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .checklist__avance-relleno {
+    transition: width var(--d-base) var(--ease-out);
+  }
+}
+
+@media (max-width: 767px) {
+  /* En el celular la tabla se apila: cada dato en su propia tarjeta */
+  .lectura__tabla thead {
+    display: none;
+  }
+
+  .lectura__tabla,
+  .lectura__tabla tbody,
+  .lectura__tabla tr {
+    display: block;
+  }
+
+  .lectura__tabla .lectura__fila {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0 var(--e-2);
+    padding: var(--e-2) var(--e-3) var(--e-2) 0;
+    border-bottom: 1px solid var(--linea);
+  }
+
+  .lectura__tabla th,
+  .lectura__tabla td {
+    padding: 0;
+    border: 0;
+  }
+
+  .lectura__fila td:nth-child(2)::before {
+    content: 'Gasto: ';
+    color: var(--tinta-3);
+    font-weight: 400;
+  }
+
+  .lectura__fila td:nth-child(3)::before {
+    content: 'Comprobante: ';
+    color: var(--tinta-3);
+    font-weight: 400;
+  }
+
+  .lectura__fila th {
+    grid-column: 1;
+  }
+
+  .lectura__fila td:nth-child(2),
+  .lectura__fila td:nth-child(3) {
+    grid-column: 1;
+  }
+
+  .lectura__fila td:nth-child(4) {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    align-self: center;
+  }
+}
+
 @media (max-width: 767px) {
   /* Objetivos táctiles de 44 px */
   .checklist__criterio {
@@ -760,4 +1092,96 @@
   .criterio--nuevo .criterio__campo {
     flex-basis: auto;
   }
+}
+
+/* Veredicto de la lectura: qué hacer con el comprobante */
+.lectura__veredicto {
+  display: grid;
+  gap: var(--e-1);
+  margin-top: var(--e-3);
+  padding: var(--e-3);
+  border-radius: var(--r-control);
+}
+
+.lectura__veredicto--si {
+  background: var(--sustentado-suave);
+  color: var(--sustentado-tinta);
+}
+
+.lectura__veredicto--revisar {
+  background: var(--pendiente-suave);
+  color: var(--pendiente-tinta);
+}
+
+.lectura__veredicto-texto {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+  margin: 0;
+  font-size: var(--t-14);
+}
+
+.lectura__veredicto-ayuda {
+  margin: 0;
+  font-size: var(--t-13);
+}
+
+.lectura__veredicto .btn {
+  justify-self: start;
+  margin-top: var(--e-1);
+}
+
+/* Corregir el gasto con lo leído: formulario en línea dentro del panel */
+.lectura__corregir {
+  display: block;
+  margin-top: var(--e-1);
+  padding-left: 0;
+  color: var(--pagado-tinta);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+
+.lectura__correccion {
+  display: grid;
+  gap: var(--e-2);
+  margin-top: var(--e-3);
+  padding: var(--e-3);
+  border: 1px solid var(--linea-2);
+  border-radius: var(--r-control);
+  background: var(--panel);
+}
+
+.lectura__correccion-titulo {
+  margin: 0;
+  font-size: var(--t-15);
+  font-weight: 700;
+}
+
+.lectura__correccion-ahora,
+.lectura__correccion-aviso {
+  margin: 0;
+  color: var(--tinta-2);
+  font-size: var(--t-13);
+}
+
+@media (max-width: 767px) {
+  .lectura__fila td:nth-child(4) {
+    justify-self: end;
+    text-align: right;
+  }
+}
+
+/* Aviso junto a un campo: pide revisar, no impide seguir */
+.campo__ayuda--aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--e-1);
+  color: var(--pendiente-tinta);
+}
+
+.campo__ayuda--aviso .icono {
+  flex: none;
+  margin-top: 2px;
 }

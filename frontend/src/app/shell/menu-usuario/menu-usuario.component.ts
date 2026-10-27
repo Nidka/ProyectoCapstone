@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { ROL_ETIQUETA } from '../../core/models/auth.model';
 import { AuthService } from '../../core/services/auth.service';
 import { IconoComponent } from '../../shared/ui/icono/icono.component';
 
@@ -26,6 +28,9 @@ export function iniciales(nombre: string): string {
           <span class="menu__rol">{{ rol() }}</span>
         }
       </div>
+      <button type="button" class="menu__item" role="menuitem" (click)="cambiarClave()">
+        <app-icono nombre="lock" [tamano]="16" />Cambiar contraseña
+      </button>
       <button type="button" class="menu__item" role="menuitem" (click)="salir()">
         <app-icono nombre="logout" [tamano]="16" />Cerrar sesión
       </button>
@@ -35,12 +40,25 @@ export function iniciales(nombre: string): string {
 })
 export class MenuUsuarioComponent {
   private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
   protected readonly nombre = computed(() => this.auth.usuario()?.nombre ?? 'Usuario');
-  protected readonly rol = computed(() => this.auth.usuario()?.rol ?? '');
+  protected readonly rol = computed(() => {
+    const rol = this.auth.usuario()?.rol;
+    return rol ? ROL_ETIQUETA[rol] ?? rol : '';
+  });
   protected readonly siglas = computed(() => iniciales(this.nombre()));
 
+  protected cambiarClave(): void {
+    this.cerrarMenu();
+    this.router.navigate(['/cambiar-clave']);
+  }
+
   protected salir(): void {
-    (document.getElementById('menu-usuario') as (HTMLElement & { hidePopover?: () => void }) | null)?.hidePopover?.();
+    this.cerrarMenu();
     this.auth.logout();
+  }
+
+  private cerrarMenu(): void {
+    (document.getElementById('menu-usuario') as (HTMLElement & { hidePopover?: () => void }) | null)?.hidePopover?.();
   }
 }

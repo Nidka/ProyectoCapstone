@@ -3,7 +3,7 @@
     <a class="barra__marca" routerLink="/app/inicio" aria-label="LIZAR, ir a Inicio"><app-marca /></a>
     <span class="barra__titulo-movil" aria-hidden="true">{{ titulo() }}</span>
     <nav class="barra__nav" aria-label="Principal">
-      @for (e of enlaces; track e.ruta) {
+      @for (e of enlaces(); track e.ruta) {
         <a class="barra__enlace" [routerLink]="e.ruta" routerLinkActive="barra__enlace--activo" ariaCurrentWhenActive="page">
           {{ e.etiqueta }}
           @if (e.ruta === '/app/gastos' && pendientes() > 0) {
@@ -25,6 +25,10 @@
         <span class="barra__buscar-texto">Buscar o ir a…</span>
         <kbd class="barra__atajo">{{ atajo }}</kbd>
       </button>
+      <!-- Los avisos de gastos sin comprobante o con cobro cerca son de Logística; al administrador el servicio se los niega -->
+      @if (auth.esLogistica()) {
+        <app-campana />
+      }
       <app-menu-usuario />
     </div>
   </div>

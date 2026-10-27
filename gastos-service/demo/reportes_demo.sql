@@ -35,7 +35,7 @@ FROM unnest(ARRAY[
 ]) AS d;
 
 INSERT INTO cliente (razon_social, ruc, contacto, id_rubro, estado_cliente)
-SELECT nombre || ' (DEMO)', ruc, 'DEMO', (SELECT min(id_rubro) FROM rubro), TRUE
+SELECT nombre, ruc, 'DEMO', (SELECT min(id_rubro) FROM rubro), TRUE
 FROM (VALUES
     ('Agroexportadora Norte SAC', '99000000001'),
     ('Minera Andina del Sur SA', '99000000002'),

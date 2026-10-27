@@ -9,7 +9,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"gastos-service/internal/config"
 	"gastos-service/internal/handlers"
 	"gastos-service/internal/models"
 	"gastos-service/internal/pruebas"
@@ -19,16 +18,24 @@ import (
 
 type entorno struct {
 	pool *pgxpool.Pool
-	mux  *http.ServeMux
+	// mux es el servicio completo, con CORS y el middleware de autenticación reales.
+	mux     http.Handler
+	uploads string
+	// Tokens de Ana Quispe (logistica) y de Admin Prueba (admin), ambos activos.
+	tokenLogistica, tokenAdmin string
 }
 
-// nuevoEntorno arma un esquema temporal (ver internal/pruebas) y el mux del servicio.
+// nuevoEntorno arma un esquema temporal (ver internal/pruebas) y el servicio con sus dos usuarios.
 func nuevoEntorno(t *testing.T) *entorno {
 	t.Helper()
 	pool := pruebas.NuevoEsquema(t)
-	mux := http.NewServeMux()
-	handlers.New(pool, config.Config{UploadsDir: t.TempDir()}).Register(mux)
-	return &entorno{pool: pool, mux: mux}
+	return armarEntorno(t, pool, handlers.New(pool, configDePrueba(t.TempDir())))
+}
+
+func armarEntorno(t *testing.T, pool *pgxpool.Pool, h *handlers.Handler) *entorno {
+	t.Helper()
+	servidor, logistica, admin := servidorAutenticado(t, pool, h)
+	return &entorno{pool: pool, mux: servidor, uploads: h.Cfg.UploadsDir, tokenLogistica: logistica, tokenAdmin: admin}
 }
 
 // comprobantePendiente crea un viaje, un cliente, un gasto Pagado y su comprobante Pendiente.
@@ -61,8 +68,7 @@ func (e *entorno) post(t *testing.T, ruta string, cuerpo any) *httptest.Response
 	}
 	req := httptest.NewRequest(http.MethodPost, ruta, bytes.NewReader(b))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-User-Role", "logistica")
-	req.Header.Set("X-User-Name", "Ana Quispe")
+	req.Header.Set("Authorization", "Bearer "+e.tokenLogistica)
 	rec := httptest.NewRecorder()
 	e.mux.ServeHTTP(rec, req)
 	return rec
@@ -211,9 +217,7 @@ func TestListarDevuelveChecklistOrdenado(t *testing.T) {
 	if rec := e.post(t, fmt.Sprintf("/comprobantes/%d/aprobar", revisado), map[string]any{"checklist": completo()}); rec.Code != http.StatusOK {
 		t.Fatalf("aprobación: %d", rec.Code)
 	}
-	req := httptest.NewRequest(http.MethodGet, "/comprobantes", nil)
-	rec := httptest.NewRecorder()
-	e.mux.ServeHTTP(rec, req)
+	rec := e.get("/comprobantes")
 	var lista []models.Comprobante
 	if err := json.Unmarshal(rec.Body.Bytes(), &lista); err != nil {
 		t.Fatal(err)

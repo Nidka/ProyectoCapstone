@@ -25,6 +25,110 @@
   } @else {
     <fieldset class="checklist" [disabled]="enviando()">
       <legend class="checklist__titulo">Checklist documental</legend>
+      <div class="checklist__lectura" aria-live="polite">
+        @if (leyendo()) {
+          <span class="checklist__leyendo" aria-busy="true">Leyendo comprobante…</span>
+        } @else if (avisoLectura()) {
+          <span class="checklist__aviso"><app-icono nombre="info-circle" [tamano]="16" />{{ avisoLectura() }}</span>
+        }
+      </div>
+      @if (filas().length) {
+        <section class="lectura" aria-labelledby="lectura-titulo">
+          <header class="lectura__cabecera">
+            <h3 class="lectura__titulo" id="lectura-titulo"><app-icono nombre="eye" [tamano]="18" />Lectura automática</h3>
+            @if (aplicadas()) {
+              <span class="lectura__aplicadas"><app-icono nombre="check" [tamano]="16" />Sugerencias aplicadas</span>
+            } @else if (sugeridas().length) {
+              <button type="button" class="btn btn--secundario btn--sm" (click)="aplicarSugerencias()">
+                <app-icono nombre="check" [tamano]="16" />Aplicar sugerencias <span class="lectura__cuenta">({{ sugeridas().length }})</span>
+              </button>
+            }
+          </header>
+          @if (diferencias().length) {
+            <div class="lectura__veredicto lectura__veredicto--revisar" role="status">
+              <p class="lectura__veredicto-texto">
+                <app-icono nombre="alert-triangle" [tamano]="18" /><strong>{{ veredicto() }}</strong>
+              </p>
+              <p class="lectura__veredicto-ayuda">Si el comprobante es incorrecto, recházalo: el gasto vuelve a «Registrado» y se adjunta uno nuevo.</p>
+              @if (!rechazando()) {
+                <button type="button" class="btn btn--secundario btn--sm" [disabled]="enviando()" (click)="rechazarConLectura()">
+                  <app-icono nombre="x" [tamano]="16" />Rechazar con este motivo
+                </button>
+              }
+            </div>
+          } @else {
+            <p class="lectura__veredicto lectura__veredicto--si lectura__veredicto-texto" role="status">
+              <app-icono nombre="check" [tamano]="18" /><strong>Todo coincide con el gasto. Puedes aprobar.</strong>
+            </p>
+          }
+          <div class="tabla-marco">
+            <table class="lectura__tabla">
+              <thead>
+                <tr>
+                  <th scope="col">Dato</th><th scope="col">En el gasto</th><th scope="col">En el comprobante</th>
+                  <th scope="col"><span class="oculto-visual">Resultado</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (f of filas(); track f.clave) {
+                  <tr class="lectura__fila" [class.lectura__fila--revisar]="!f.coincide">
+                    <th scope="row">{{ f.dato }}</th>
+                    <td>{{ f.gasto }}</td>
+                    <td>{{ f.leido }}</td>
+                    <td>
+                      <span class="lectura__estado" [class.lectura__estado--si]="f.coincide">
+                        <app-icono [nombre]="f.coincide ? 'check' : 'alert-triangle'" [tamano]="16" />{{ f.coincide ? 'Coincide' : 'Revisar' }}
+                      </span>
+                      @if (f.corregible && !corrigiendo()) {
+                        <button type="button" class="btn btn--fantasma btn--sm lectura__corregir" (click)="abrirCorreccion(f)">{{ textoCorregir(f) }}</button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          @if (corrigiendo(); as c) {
+            <form class="lectura__correccion" (ngSubmit)="confirmarCorreccion()" aria-labelledby="correccion-titulo" novalidate>
+              <h4 class="lectura__correccion-titulo" id="correccion-titulo">
+                {{ c.corregible?.campo === 'monto' ? 'Corregir el monto del gasto' : 'Corregir la fecha del gasto' }}
+              </h4>
+              <p class="lectura__correccion-ahora">Ahora: {{ c.gasto }}</p>
+              <div class="campo">
+                <label class="campo__etiqueta" for="correccion-valor">{{ c.corregible?.campo === 'monto' ? 'Monto correcto (S/)' : 'Fecha correcta' }}</label>
+                @if (c.corregible?.campo === 'monto') {
+                  <input class="control" id="correccion-valor" name="valor" type="number" step="0.01" min="0.01" inputmode="decimal" [(ngModel)]="valorCorreccion" />
+                } @else {
+                  <input class="control" id="correccion-valor" name="valor" type="date" [(ngModel)]="valorCorreccion" />
+                }
+              </div>
+              <div class="campo" [class.campo--con-error]="errorCorreccion()">
+                <label class="campo__etiqueta" for="correccion-motivo">Motivo de la corrección <span class="req" aria-hidden="true">*</span></label>
+                <input
+                  class="control"
+                  id="correccion-motivo"
+                  name="motivo"
+                  type="text"
+                  maxlength="200"
+                  placeholder="Ej. error de digitación; el comprobante dice otro monto"
+                  [(ngModel)]="motivoCorreccion"
+                  [attr.aria-invalid]="!!errorCorreccion() || null"
+                  [attr.aria-describedby]="errorCorreccion() ? 'correccion-error' : null"
+                />
+                @if (errorCorreccion()) {
+                  <p class="campo__error" id="correccion-error">{{ errorCorreccion() }}</p>
+                }
+              </div>
+              <p class="lectura__correccion-aviso">Queda en el historial con tu nombre. Después de aprobar ya no se puede corregir.</p>
+              <div class="formulario__acciones">
+                <button type="submit" class="btn btn--primario btn--sm" [disabled]="enviando()">Confirmar corrección</button>
+                <button type="button" class="btn btn--fantasma btn--sm" (click)="cancelarCorreccion()">Cancelar</button>
+              </div>
+            </form>
+          }
+          <p class="lectura__nota">Es una ayuda: tú decides si aprobar.</p>
+        </section>
+      }
       <ul class="checklist__lista">
         @for (criterio of criterios(); track criterio.clave) {
           <li>
@@ -35,10 +139,23 @@
                 (change)="marcar(criterio.clave, $any($event.target).checked)"
               />
               <span>{{ textoDe(criterio) }}</span>
+              @if (sugerenciaDe(criterio.clave); as nota) {
+                <span class="checklist__sugerencia" [class.checklist__sugerencia--si]="sugeridas().includes(criterio.clave)">{{ nota }}</span>
+              }
             </label>
           </li>
         }
       </ul>
+      <div
+        class="checklist__avance"
+        role="progressbar"
+        aria-label="Criterios cumplidos"
+        [attr.aria-valuenow]="marcados()"
+        aria-valuemin="0"
+        [attr.aria-valuemax]="criterios().length"
+      >
+        <span class="checklist__avance-relleno" [style.width.%]="avance()"></span>
+      </div>
       <p class="checklist__conteo" aria-live="polite">{{ marcados() }} de {{ criterios().length }} criterios</p>
     </fieldset>
   }
@@ -59,7 +176,7 @@
       </button>
     </div>
     @if (!completo()) {
-      <p class="campo__ayuda" id="checklist-aviso">Marca todos los criterios para aprobar.</p>
+      <p class="campo__ayuda" id="checklist-aviso">{{ faltan() }}</p>
     }
   } @else {
     <div class="revision__rechazo">

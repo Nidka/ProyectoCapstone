@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  MSG_FECHA_INVALIDA, MSG_RANGO_INVERTIDO, MSG_RANGO_LARGO, atajosActivos, errorDeFiltro, fechaValida, filtroDesdeConsulta,
+  MSG_FECHA_FUERA_DEL_RANGO, MSG_FECHA_FUTURA, MSG_FECHA_INVALIDA, MSG_RANGO_INVERTIDO, MSG_RANGO_LARGO, atajosActivos, avisoFechaGasto, errorDeFiltro, fechaValida, filtroDesdeConsulta,
   mesCompleto, nombreMes, rangoDeAtajo, rangoDelMes,
 } from './filtro-reporte';
 
@@ -46,5 +46,27 @@ describe('filtro de reportes', () => {
     expect(mesCompleto({ desde: '2026-02-01', hasta: '2026-02-28' })).toBe('2026-02');
     expect(mesCompleto({ desde: '2026-02-01', hasta: '2026-02-27' })).toBeNull();
     expect(nombreMes('2026-10')).toBe('octubre 2026');
+  });
+});
+
+describe('avisoFechaGasto: la fecha de un gasto frente al dashboard', () => {
+  it('no avisa con fechas dentro de los últimos 12 meses, de hoy hacia atrás', () => {
+    expect(avisoFechaGasto('2026-10-17', HOY)).toBe('');
+    expect(avisoFechaGasto('2026-03-02', HOY)).toBe('');
+    expect(avisoFechaGasto('2025-11-01', HOY)).toBe('');
+  });
+
+  it('avisa que un gasto más antiguo no saldrá con el rango por defecto', () => {
+    expect(avisoFechaGasto('2025-10-31', HOY)).toBe(MSG_FECHA_FUERA_DEL_RANGO);
+    expect(avisoFechaGasto('2019-09-26', HOY)).toBe(MSG_FECHA_FUERA_DEL_RANGO);
+  });
+
+  it('avisa que una fecha posterior a hoy no saldrá todavía', () => {
+    expect(avisoFechaGasto('2026-10-18', HOY)).toBe(MSG_FECHA_FUTURA);
+  });
+
+  it('sin fecha o con una fecha que no existe no dice nada: eso ya lo valida el formulario', () => {
+    expect(avisoFechaGasto('', HOY)).toBe('');
+    expect(avisoFechaGasto('2026-02-31', HOY)).toBe('');
   });
 });

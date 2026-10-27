@@ -1,0 +1,193 @@
+/* ══ Avisos: campana de la barra superior y su lista (solo Logística) ══ */
+/* Su contenedor es .campana: .avisos ya es el de los toasts fijos abajo a la derecha */
+.campana {
+  display: inline-flex;
+}
+
+.avisos__boton {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--r-control);
+  background: transparent;
+  color: var(--asfalto-tinta);
+  touch-action: manipulation;
+}
+
+.avisos__boton:hover,
+.avisos__boton[aria-expanded='true'] {
+  background: var(--asfalto-2);
+  color: #fff;
+}
+
+/* Contador sobre la esquina de la campana; el número exacto va en el nombre del botón */
+.avisos__insignia {
+  position: absolute;
+  top: 1px;
+  right: 0;
+  display: grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border: 2px solid var(--asfalto);
+  box-sizing: content-box;
+  border-radius: var(--r-pastilla);
+  background: var(--rojo);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.avisos__panel {
+  position: fixed;
+  top: calc(var(--barra-h) + 8px);
+  right: max(var(--margen), calc((100vw - var(--contenido-max)) / 2 + var(--margen)));
+  display: flex;
+  flex-direction: column;
+  width: min(380px, calc(100vw - 2 * var(--margen)));
+  max-height: min(480px, calc(100dvh - var(--barra-h) - 24px));
+  border: 1px solid var(--linea);
+  border-radius: var(--r-panel);
+  background: var(--panel);
+  color: var(--tinta);
+  box-shadow: var(--sombra-2);
+  transform-origin: top right;
+  outline: none;
+}
+
+.avisos__cabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e-3);
+  padding: var(--e-3) var(--e-4);
+  border-bottom: 1px solid var(--linea);
+}
+
+.avisos__titulo {
+  font-size: var(--t-16);
+  font-weight: 700;
+}
+
+.avisos__resumen {
+  color: var(--tinta-2);
+  font-size: var(--t-13);
+  font-weight: 600;
+}
+
+.avisos__nota {
+  padding: var(--e-2) var(--e-4);
+  background: var(--via-suave);
+  color: var(--via-tinta);
+  font-size: var(--t-13);
+}
+
+.avisos__lista {
+  padding: var(--e-1);
+  overflow-y: auto;
+}
+
+.avisos__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--e-3);
+  padding: var(--e-3);
+  border-radius: var(--r-control);
+  color: var(--tinta-2);
+  text-decoration: none;
+}
+
+.avisos__item:hover,
+.avisos__item:focus-visible {
+  background: var(--panel-2);
+}
+
+.avisos__item--nuevo {
+  color: var(--tinta);
+}
+
+.avisos__icono {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-control);
+  background: var(--panel-2);
+  color: var(--tinta-3);
+}
+
+/* Lo que aún no se leyó lleva el color de atención y un punto, además del texto «Sin leer» para lectores de pantalla */
+.avisos__item--nuevo .avisos__icono {
+  background: var(--via-suave);
+  color: var(--via-tinta);
+}
+
+.avisos__texto {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.avisos__asunto {
+  font-size: var(--t-14);
+  font-weight: 600;
+}
+
+.avisos__item--nuevo .avisos__asunto::after {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-left: var(--e-2);
+  border-radius: 50%;
+  background: var(--rojo);
+}
+
+.avisos__mensaje {
+  font-size: var(--t-14);
+  overflow-wrap: anywhere;
+}
+
+.avisos__fecha {
+  color: var(--tinta-3);
+  font-size: var(--t-12);
+}
+
+.avisos__vacio {
+  padding: var(--e-6) var(--e-4);
+  color: var(--tinta-2);
+  text-align: center;
+}
+
+.avisos__esqueleto {
+  display: grid;
+  gap: var(--e-2);
+  padding: var(--e-3) var(--e-4);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .avisos__panel {
+    animation: avisos-entrada 160ms var(--ease-out);
+  }
+}
+
+@keyframes avisos-entrada {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+/* En el celular la barra inferior ocupa el pie: la lista no debe pasar por debajo de ella */
+@media (max-width: 767px) {
+  .avisos__panel {
+    max-height: calc(100dvh - var(--barra-h) - var(--tabbar-h) - 24px);
+  }
+}

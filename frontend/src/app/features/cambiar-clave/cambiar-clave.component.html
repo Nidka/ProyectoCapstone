@@ -1,0 +1,101 @@
+<div class="acceso">
+  <app-panel-acceso />
+  <header class="acceso__cabecera-movil">
+    <div class="acceso__cabecera-movil-interior"><app-marca /></div>
+    <div class="cinta" aria-hidden="true"></div>
+  </header>
+
+  <main class="acceso__principal">
+    <div class="acceso__tarjeta">
+      <h1 class="acceso__titulo">Cambiar contraseña</h1>
+      <p class="acceso__bajada">
+        @if (obligatorio) {
+          Por seguridad, elige una contraseña nueva antes de continuar.
+        } @else {
+          Escribe tu contraseña actual y la nueva.
+        }
+      </p>
+
+      @if (general()) {
+        <p class="alerta alerta--error" role="alert">
+          <app-icono nombre="alert-triangle" [tamano]="18" /><span>{{ general() }}</span>
+        </p>
+      }
+
+      <form class="formulario" (ngSubmit)="enviar()" novalidate>
+        <div class="campo" [class.campo--con-error]="!!errores().actual">
+          <label class="campo__etiqueta" for="clave-actual">Contraseña actual</label>
+          <div class="control-con-icono">
+            <app-icono nombre="lock" [tamano]="18" />
+            <input
+              class="control" id="clave-actual" name="actual" autocomplete="current-password"
+              [type]="mostrar() ? 'text' : 'password'"
+              [ngModel]="actual()" (ngModelChange)="escribir('actual', $event)" [disabled]="guardando()"
+              [attr.aria-invalid]="errores().actual ? true : null"
+              [attr.aria-describedby]="errores().actual ? 'clave-actual-error' : null"
+            />
+          </div>
+          @if (errores().actual; as e) {
+            <p class="campo__error" id="clave-actual-error">{{ e }}</p>
+          }
+        </div>
+
+        <div class="campo" [class.campo--con-error]="!!errores().nueva">
+          <label class="campo__etiqueta" for="clave-nueva">Contraseña nueva</label>
+          <div class="control-con-icono">
+            <app-icono nombre="lock" [tamano]="18" />
+            <input
+              class="control" id="clave-nueva" name="nueva" autocomplete="new-password"
+              [type]="mostrar() ? 'text' : 'password'" [placeholder]="'Mínimo ' + minimo + ' caracteres'"
+              [ngModel]="nueva()" (ngModelChange)="escribir('nueva', $event)" [disabled]="guardando()"
+              [attr.aria-invalid]="errores().nueva ? true : null"
+              [attr.aria-describedby]="errores().nueva ? 'clave-nueva-error' : null"
+            />
+          </div>
+          @if (errores().nueva; as e) {
+            <p class="campo__error" id="clave-nueva-error">{{ e }}</p>
+          }
+        </div>
+
+        <div class="campo" [class.campo--con-error]="!!errores().confirmacion">
+          <label class="campo__etiqueta" for="clave-confirmacion">Repite la contraseña nueva</label>
+          <div class="control-con-icono">
+            <app-icono nombre="check" [tamano]="18" />
+            <input
+              class="control" id="clave-confirmacion" name="confirmacion" autocomplete="new-password"
+              [type]="mostrar() ? 'text' : 'password'"
+              [ngModel]="confirmacion()" (ngModelChange)="escribir('confirmacion', $event)" [disabled]="guardando()"
+              [attr.aria-invalid]="errores().confirmacion ? true : null"
+              [attr.aria-describedby]="errores().confirmacion ? 'clave-confirmacion-error' : null"
+            />
+          </div>
+          @if (errores().confirmacion; as e) {
+            <p class="campo__error" id="clave-confirmacion-error">{{ e }}</p>
+          }
+        </div>
+
+        <label class="casilla">
+          <input type="checkbox" [checked]="mostrar()" (change)="mostrar.set(!mostrar())" />
+          Mostrar contraseñas
+        </label>
+
+        <button class="btn btn--primario btn--lg btn--bloque" type="submit" [disabled]="guardando()">
+          @if (guardando()) {
+            <span class="girador" aria-hidden="true"></span>Guardando…
+          } @else {
+            <app-icono nombre="check" [tamano]="18" />Guardar contraseña
+          }
+        </button>
+      </form>
+
+      @if (obligatorio) {
+        <button type="button" class="btn btn--fantasma btn--bloque acceso__salir" (click)="salir()">
+          <app-icono nombre="logout" [tamano]="18" />Cerrar sesión
+        </button>
+      } @else {
+        <p class="acceso__enlace"><a routerLink="/app/inicio">Cancelar</a></p>
+      }
+    </div>
+    <p class="acceso__pie">LIZAR SRL · Trujillo, Perú</p>
+  </main>
+</div>

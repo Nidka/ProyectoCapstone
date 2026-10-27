@@ -95,7 +95,7 @@
                   <td [innerHTML]="celda"></td>
                 }
                 <td class="tabla__acciones">
-                  @if (d.accionFila; as a) {
+                  @if (accionFila(); as a) {
                     <a class="btn btn--secundario btn--sm" [routerLink]="a.ruta" [queryParams]="consultaAccion(a.parametro, fila.item)">
                       <app-icono [nombre]="a.icono ?? 'plus'" [tamano]="16" />{{ a.texto }}
                     </a>

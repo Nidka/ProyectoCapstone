@@ -13,6 +13,15 @@ export interface NuevoGasto {
   cliente_id: number;
   monto: number;
   fecha: string;
+  /** Opcional (AAAA-MM-DD, no anterior a `fecha`): el servicio avisa cuando se acerca */
+  fecha_cobro?: string;
+}
+
+/** Lo que se corrige de un gasto aún no sustentado: monto y/o fecha (AAAA-MM-DD), siempre con motivo */
+export interface CorreccionGasto {
+  monto?: number;
+  fecha?: string;
+  motivo: string;
 }
 
 /** Gastos y comprobantes compartidos por Inicio, la bandeja, el detalle, la barra y la paleta. */
@@ -78,6 +87,10 @@ export class GastosStore {
 
   registrar(datos: NuevoGasto): Observable<Gasto> {
     return this.api.post<Gasto>('/gastos', datos).pipe(timeout(HTTP_TIMEOUT_MS), tap(() => this.cargar()));
+  }
+
+  corregir(gastoId: number, datos: CorreccionGasto): Observable<Gasto> {
+    return this.api.post<Gasto>(`/gastos/${gastoId}/correccion`, datos).pipe(timeout(HTTP_TIMEOUT_MS), tap(() => this.cargar()));
   }
 
   adjuntar(gastoId: number, archivo: File): Observable<Comprobante> {

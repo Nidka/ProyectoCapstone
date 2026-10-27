@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
-  ACCIONES_PALETA, ENLACES_PRINCIPALES, MODULOS, SECCIONES, destinoTrasLogin, destinosPaleta,
-  esSeccion, moduloPorClave, moduloPorSlug, rutaDeClave, rutaModulo, seccion,
+  ACCIONES_PALETA, ENLACES_PRINCIPALES, MODULOS, SECCIONES, accionesPaleta, destinoTrasLogin, destinosPaleta,
+  esSeccion, moduloPorClave, moduloPorSlug, rutaDeClave, rutaModulo, seccion, visiblesPara,
 } from './navegacion';
 
 describe('módulos visibles', () => {
@@ -35,15 +35,51 @@ describe('módulos visibles', () => {
 });
 
 describe('enlaces y paleta', () => {
-  it('la barra tiene Inicio, Gastos, Reportes, Operación y Catálogos', () => {
-    expect(ENLACES_PRINCIPALES.map(e => e.ruta)).toEqual(['/app/inicio', '/app/gastos', '/app/reportes', '/app/operacion', '/app/catalogos']);
+  it('la barra tiene Inicio, Gastos, Reportes, Operación, Catálogos y Usuarios', () => {
+    expect(ENLACES_PRINCIPALES.map(e => e.ruta)).toEqual([
+      '/app/inicio', '/app/gastos', '/app/reportes', '/app/operacion', '/app/catalogos', '/app/usuarios',
+    ]);
+  });
+
+  it('«Usuarios» es solo del administrador, en la barra y en la paleta', () => {
+    expect(ENLACES_PRINCIPALES.find(e => e.ruta === '/app/usuarios')?.roles).toEqual(['admin']);
+    expect(destinosPaleta().find(d => d.ruta === '/app/usuarios')).toMatchObject({ etiqueta: 'Usuarios', roles: ['admin'] });
   });
 
   it('la paleta ofrece las acciones del flujo y todos los destinos', () => {
     expect(ACCIONES_PALETA.map(a => a.etiqueta)).toEqual(['Registrar gasto', 'Adjuntar comprobante', 'Revisar comprobantes por aprobar']);
-    expect(destinosPaleta()).toHaveLength(3 + MODULOS.length);
+    expect(destinosPaleta()).toHaveLength(4 + MODULOS.length);
     expect(destinosPaleta().find(d => d.etiqueta === 'Reportes')?.ruta).toBe('/app/reportes');
     expect(destinosPaleta().find(d => d.etiqueta === 'Flota')?.detalle).toBe('Operación');
+  });
+});
+
+describe('visibilidad por rol', () => {
+  it('Logística ve todas las acciones del flujo', () => {
+    expect(accionesPaleta('logistica').map(a => a.id)).toEqual(['accion-registrar', 'accion-adjuntar', 'accion-revisar']);
+  });
+
+  it('el administrador no ve acciones que registran, adjuntan ni revisan', () => {
+    expect(accionesPaleta('admin')).toEqual([]);
+  });
+
+  it('sin rol conocido no se ofrece ninguna acción', () => {
+    expect(accionesPaleta(undefined)).toEqual([]);
+    expect(accionesPaleta(null)).toEqual([]);
+  });
+
+  it('los enlaces sin roles los ven todos; los que tienen roles, solo esos', () => {
+    const items = [{ id: 'a' }, { id: 'b', roles: ['admin'] as const }, { id: 'c', roles: ['logistica'] as const }];
+    expect(visiblesPara(items, 'admin').map(i => i.id)).toEqual(['a', 'b']);
+    expect(visiblesPara(items, 'logistica').map(i => i.id)).toEqual(['a', 'c']);
+    expect(visiblesPara(items, undefined).map(i => i.id)).toEqual(['a']);
+  });
+
+  it('la barra principal la ven ambos roles; «Usuarios» solo el administrador', () => {
+    expect(visiblesPara(ENLACES_PRINCIPALES, 'admin').map(e => e.etiqueta)).toContain('Usuarios');
+    expect(visiblesPara(ENLACES_PRINCIPALES, 'admin')).toHaveLength(6);
+    expect(visiblesPara(ENLACES_PRINCIPALES, 'logistica')).toHaveLength(5);
+    expect(visiblesPara(ENLACES_PRINCIPALES, 'logistica').map(e => e.etiqueta)).not.toContain('Usuarios');
   });
 });
 

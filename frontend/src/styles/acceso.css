@@ -183,6 +183,11 @@
   font-weight: 600;
 }
 
+/* Salida de la pantalla de cambio obligatorio de contraseña */
+.acceso__salir {
+  margin-top: var(--e-3);
+}
+
 .acceso__pie {
   color: var(--tinta-3);
   font-size: var(--t-13);

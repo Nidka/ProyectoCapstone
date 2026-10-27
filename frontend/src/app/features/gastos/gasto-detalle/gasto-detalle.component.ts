@@ -5,6 +5,7 @@ import {
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Comprobante } from '../../../core/models/gasto.model';
 import { ESTADO_GASTO_LABEL } from '../../../core/models/gasto-estados';
+import { AuthService } from '../../../core/services/auth.service';
 import { CrudService } from '../../../core/services/crud.service';
 import { GastosApiService } from '../../../core/services/gastos-api.service';
 import { esPestana, pasosRuta, ultimoRechazo } from '../../../core/state/gastos.logic';
@@ -16,6 +17,7 @@ import { IconoComponent } from '../../../shared/ui/icono/icono.component';
 import { InsigniaEstadoComponent } from '../../../shared/ui/insignia-estado/insignia-estado.component';
 import { RutaGastoComponent } from '../../../shared/ui/ruta-gasto/ruta-gasto.component';
 import { AdjuntarComprobanteComponent } from '../adjuntar-comprobante/adjuntar-comprobante.component';
+import { HistorialGastoComponent } from '../historial-gasto/historial-gasto.component';
 import { RevisionComprobanteComponent } from '../revision-comprobante/revision-comprobante.component';
 
 /** La bandeja pasa { origen } en el state de la navegación; «← Gastos» vuelve a esa pestaña. */
@@ -28,7 +30,7 @@ export function consultaDeOrigen(estado: unknown): Record<string, string> {
   selector: 'app-gasto-detalle',
   imports: [
     RouterLink, IconoComponent, InsigniaEstadoComponent, RutaGastoComponent, EstadoVacioComponent, HitoComponent,
-    AdjuntarComprobanteComponent, RevisionComprobanteComponent,
+    AdjuntarComprobanteComponent, RevisionComprobanteComponent, HistorialGastoComponent,
   ],
   templateUrl: './gasto-detalle.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,6 +40,7 @@ export class GastoDetalleComponent implements OnInit {
   readonly id = input.required<string>();
 
   protected readonly store = inject(GastosStore);
+  protected readonly auth = inject(AuthService);
   private readonly crud = inject(CrudService);
   private readonly gastosApi = inject(GastosApiService);
   private readonly ruta = inject(ActivatedRoute);
@@ -57,6 +60,10 @@ export class GastoDetalleComponent implements OnInit {
     const g = this.gasto();
     return g ? pasosRuta(g, this.store.comprobantes()) : [];
   });
+  /** Cambia cuando el gasto o sus comprobantes cambian de estado: el historial se vuelve a pedir */
+  protected readonly marcaHistorial = computed(
+    () => `${this.gasto()?.estado}|${this.comprobantes().map(c => `${c.id}:${c.estado}`).join(',')}`,
+  );
   protected readonly pendiente = computed(() => this.comprobantes().find(c => c.estado === 'Pendiente'));
   protected readonly aprobado = computed(() => this.comprobantes().find(c => c.estado === 'Aprobado'));
   protected readonly rechazoReciente = computed(() => this.comprobantes().find(c => c.estado === 'Rechazado'));

@@ -38,7 +38,7 @@ func (e *entorno) checklistDe(t *testing.T, clienteID int) (int, checklistJSON) 
 	return rec.Code, c
 }
 
-// enviar hace una petición con el rol de logística (o sin rol si rol es "").
+// enviar hace una petición con el token del rol dado ("logistica" o "admin"), o sin token si rol es "".
 func (e *entorno) enviar(t *testing.T, metodo, ruta, rol string, cuerpo any) *httptest.ResponseRecorder {
 	t.Helper()
 	var b []byte
@@ -46,9 +46,8 @@ func (e *entorno) enviar(t *testing.T, metodo, ruta, rol string, cuerpo any) *ht
 		b, _ = json.Marshal(cuerpo)
 	}
 	req := httptest.NewRequest(metodo, ruta, bytes.NewReader(b))
-	if rol != "" {
-		req.Header.Set("X-User-Role", rol)
-		req.Header.Set("X-User-Name", "Ana Quispe")
+	if token := e.conRol(rol); token != "" {
+		req.Header.Set("Authorization", "Bearer "+token)
 	}
 	rec := httptest.NewRecorder()
 	e.mux.ServeHTTP(rec, req)
@@ -87,7 +86,7 @@ func TestConfigurarElChecklistDeUnCliente(t *testing.T) {
 	ruta := fmt.Sprintf("/clientes/%d/checklist", cliente)
 	cuerpo := map[string]any{"criterios": []criterioJSON{{Clave: "legible", Texto: "Se lee completo"}, {Texto: "Lleva sello de recepción"}}}
 
-	if rec := e.enviar(t, "PUT", ruta, "", cuerpo); rec.Code != http.StatusForbidden {
+	if rec := e.enviar(t, "PUT", ruta, "admin", cuerpo); rec.Code != http.StatusForbidden {
 		t.Fatalf("sin rol de logística: %d", rec.Code)
 	}
 	rec := e.enviar(t, "PUT", ruta, "logistica", cuerpo)
@@ -127,7 +126,7 @@ func TestRestablecerDevuelveElEstandar(t *testing.T) {
 	cliente := e.clienteDe(t, gastoID)
 	ruta := fmt.Sprintf("/clientes/%d/checklist", cliente)
 	e.enviar(t, "PUT", ruta, "logistica", map[string]any{"criterios": []criterioJSON{{Texto: "Solo este criterio"}}})
-	if rec := e.enviar(t, "DELETE", ruta, "", nil); rec.Code != http.StatusForbidden {
+	if rec := e.enviar(t, "DELETE", ruta, "admin", nil); rec.Code != http.StatusForbidden {
 		t.Fatalf("sin rol: %d", rec.Code)
 	}
 	if rec := e.enviar(t, "DELETE", ruta, "logistica", nil); rec.Code != http.StatusOK {

@@ -6,7 +6,8 @@ import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml, Title } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
 import { OpcionRef } from '../../core/models/crud.model';
-import { SeccionId, moduloPorSlug, rutaDeClave, rutaModulo, seccion } from '../../core/navigation/navegacion';
+import { SeccionId, moduloPorSlug, rutaDeClave, rutaModulo, seccion, visiblesPara } from '../../core/navigation/navegacion';
+import { AuthService } from '../../core/services/auth.service';
 import { CrudService } from '../../core/services/crud.service';
 import { ToastService } from '../../core/services/toast.service';
 import { normalizar } from '../../core/utils/texto';
@@ -31,6 +32,7 @@ export class CrudPageComponent {
   readonly ver = input<string>();
 
   protected readonly crud = inject(CrudService);
+  private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly titulo = inject(Title);
@@ -45,6 +47,11 @@ export class CrudPageComponent {
   protected readonly def = computed(() => {
     const m = this.mod();
     return m ? this.crud.getCrud(m.clave) : undefined;
+  });
+  /** La acción de cada fila que continúa en otro módulo, solo si el rol puede usarla */
+  protected readonly accionFila = computed(() => {
+    const a = this.def()?.accionFila;
+    return a && visiblesPara([a], this.auth.usuario()?.rol).length ? a : undefined;
   });
   protected readonly termino = signal('');
   protected readonly campos = signal<EstadoCampo[]>([]);

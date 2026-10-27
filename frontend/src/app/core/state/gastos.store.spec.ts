@@ -80,6 +80,11 @@ describe('GastosStore', () => {
     expect(api.get).toHaveBeenCalledTimes(GETS_POR_CARGA);
   });
 
+  it('registrar manda la fecha de cobro tal cual cuando se indicó', () => {
+    store.registrar({ viaje_id: 1, cliente_id: 1, monto: 50, fecha: '2026-10-02', fecha_cobro: '2026-10-20' }).subscribe();
+    expect(api.post).toHaveBeenCalledWith('/gastos', { viaje_id: 1, cliente_id: 1, monto: 50, fecha: '2026-10-02', fecha_cobro: '2026-10-20' });
+  });
+
   it('las mutaciones llaman a la API correcta y recargan', () => {
     const archivo = new File(['x'], 'boleta.jpg', { type: 'image/jpeg' });
     store.registrar({ viaje_id: 1, cliente_id: 1, monto: 50, fecha: '2026-10-02' }).subscribe();
@@ -93,6 +98,12 @@ describe('GastosStore', () => {
     expect(api.post).toHaveBeenCalledWith('/comprobantes/9/aprobar', { checklist: todo });
     expect(api.post).toHaveBeenCalledWith('/comprobantes/9/rechazar', { motivo_rechazo: 'Ilegible', checklist: parcial });
     expect(api.get).toHaveBeenCalledTimes(4 * GETS_POR_CARGA);
+  });
+
+  it('corregir manda el cambio y el motivo al gasto y recarga', () => {
+    store.corregir(7, { monto: 513, motivo: 'Error de digitación' }).subscribe();
+    expect(api.post).toHaveBeenCalledWith('/gastos/7/correccion', { monto: 513, motivo: 'Error de digitación' });
+    expect(api.get).toHaveBeenCalledTimes(GETS_POR_CARGA);
   });
 
   it('si la carga falla marca el error y avisa con el copy exacto', () => {

@@ -10,6 +10,7 @@ import { ToastService } from '../../../core/services/toast.service';
 import { GastosListaComponent } from './gastos-lista.component';
 import { GastosStore } from '../../../core/state/gastos.store';
 import { CrudService } from '../../../core/services/crud.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Comprobante, Gasto } from '../../../core/models/gasto.model';
 import { contarPorEstado } from '../../../core/state/gastos.logic';
 
@@ -40,13 +41,14 @@ const crudFalso = {
   asegurarCargado: vi.fn(),
 };
 
-function montar(store: ReturnType<typeof storeFalso>, estado?: string, filtros: { viaje?: string; cliente?: string } = {}, excel?: ReturnType<typeof excelFalso>) {
+function montar(store: ReturnType<typeof storeFalso>, estado?: string, filtros: { viaje?: string; cliente?: string } = {}, excel?: ReturnType<typeof excelFalso>, rol: 'admin' | 'logistica' = 'logistica') {
   TestBed.configureTestingModule({
     providers: [
       provideRouter([]),
       { provide: GastosStore, useValue: store },
       { provide: CrudService, useValue: crudFalso },
       { provide: ReportesService, useValue: excel ?? excelFalso() },
+      { provide: AuthService, useValue: { esLogistica: signal(rol === 'logistica'), usuario: signal({ rol }) } },
     ],
   });
   const f = TestBed.createComponent(GastosListaComponent);
@@ -71,6 +73,32 @@ describe('GastosListaComponent', () => {
     expect(filas[0].textContent).toContain('N° 2');
     expect(filas[0].querySelector('.fila-gasto__accion')?.textContent).toContain('Revisar');
     expect(el.querySelector('.lista-gastos__total')?.textContent).toContain('S/ 85.50');
+  });
+
+  it('Logística ve Registrar gasto arriba y en el vacío', () => {
+    const el: HTMLElement = montar(storeFalso(gastos)).nativeElement;
+    expect(el.querySelector('.pagina__acciones a[href="/app/gastos/nuevo"]')?.textContent).toContain('Registrar gasto');
+    TestBed.resetTestingModule();
+    const vacio: HTMLElement = montar(storeFalso([])).nativeElement;
+    expect(vacio.querySelector('.vacio a[href="/app/gastos/nuevo"]')).not.toBeNull();
+  });
+
+  it('el administrador consulta: sin Registrar gasto, y las filas dicen Ver en vez de Adjuntar o Revisar', () => {
+    TestBed.resetTestingModule();
+    const el: HTMLElement = montar(storeFalso(gastos), undefined, {}, undefined, 'admin').nativeElement;
+    expect(el.querySelector('a[href="/app/gastos/nuevo"]')).toBeNull();
+    const acciones = [...el.querySelectorAll('.fila-gasto__accion')].map(a => a.textContent?.trim());
+    expect(acciones).toEqual(['Ver', 'Ver', 'Ver']);
+    expect(el.textContent).not.toContain('Adjuntar comprobante');
+    expect(el.textContent).not.toContain('Revisar');
+  });
+
+  it('al administrador, sin gastos, no se le pide registrar el primero', () => {
+    TestBed.resetTestingModule();
+    const el: HTMLElement = montar(storeFalso([]), undefined, {}, undefined, 'admin').nativeElement;
+    expect(el.querySelector('a[href="/app/gastos/nuevo"]')).toBeNull();
+    expect(el.textContent).not.toContain('Presiona "Registrar gasto"');
+    expect(el.textContent).toContain('Todavía no hay gastos registrados.');
   });
 
   it('cada pestaña muestra su conteo', () => {

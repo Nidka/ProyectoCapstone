@@ -162,7 +162,7 @@ export const CRUDS: CrudDef[] = [
     idKey: 'id_cliente',
     nombre: i => texto(i['razon_social']),
     textos: { nuevo: 'Nuevo cliente', guardado: 'Cliente guardado', singular: 'cliente', plural: 'clientes' },
-    accionFila: { texto: 'Checklist', ruta: '/app/checklist', parametro: 'cliente', icono: 'clipboard-check' },
+    accionFila: { texto: 'Checklist', ruta: '/app/checklist', parametro: 'cliente', icono: 'clipboard-check', roles: ['logistica'] },
     fields: [
       { id: 'cl_r', l: 'Razón social', tp: 'text', req: true },
       { id: 'cl_ruc', l: 'RUC', tp: 'text', req: true, half: true, rule: v => /^\d{11}$/.test(v), msg: '11 dígitos' },
@@ -232,7 +232,7 @@ export const CRUDS: CrudDef[] = [
     idKey: 'id_viaje',
     nombre: i => `Viaje N° ${texto(i['id_viaje'])} · ${formatFecha(i['fecha_programado'] as string | null)}`,
     textos: { nuevo: 'Nuevo viaje', guardado: 'Viaje guardado', singular: 'viaje', plural: 'viajes' },
-    accionFila: { texto: 'Registrar gasto', ruta: '/app/gastos/nuevo', parametro: 'viaje' },
+    accionFila: { texto: 'Registrar gasto', ruta: '/app/gastos/nuevo', parametro: 'viaje', roles: ['logistica'] },
     fields: [
       { id: 'vi_tr', l: 'Tracto', tp: 'ref', ref: 'unidad', req: true, half: true },
       { id: 'vi_ca', l: 'Carreta', tp: 'ref', ref: 'unidad', req: false, half: true },

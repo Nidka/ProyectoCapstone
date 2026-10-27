@@ -30,6 +30,7 @@ func (e *entorno) subirComprobante(t *testing.T, gastoID int, nombre string, con
 	_ = m.Close()
 	req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/gastos/%d/comprobantes", gastoID), &cuerpo)
 	req.Header.Set("Content-Type", m.FormDataContentType())
+	req.Header.Set("Authorization", "Bearer "+e.tokenLogistica)
 	rec := httptest.NewRecorder()
 	e.mux.ServeHTTP(rec, req)
 	return rec

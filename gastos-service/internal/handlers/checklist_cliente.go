@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"gastos-service/internal/bitacora"
 	"gastos-service/internal/checklist"
 
 	"github.com/jackc/pgx/v5"
@@ -53,6 +54,18 @@ func criteriosVigentes(ctx context.Context, q consultador, clienteID int) (crite
 	return criterios, false, err
 }
 
+// bloquearChecklist serializa los cambios al checklist de un cliente: así el «antes» que queda en la
+// bitácora es siempre lo que realmente había. Dura hasta el final de la transacción.
+func bloquearChecklist(ctx context.Context, tx pgx.Tx, clienteID int) error {
+	_, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock($1, $2)`, int32(0x434C4B31), int32(clienteID))
+	return err
+}
+
+// estadoChecklist es el checklist de un cliente tal como queda en la bitácora.
+func estadoChecklist(personalizado bool, criterios []checklist.Criterio) map[string]any {
+	return map[string]any{"personalizado": personalizado, "criterios": criterios}
+}
+
 func (h *Handler) clienteExiste(ctx context.Context, id int) (bool, error) {
 	var existe bool
 	err := h.DB.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM cliente WHERE id_cliente = $1)`, id).Scan(&existe)
@@ -67,7 +80,7 @@ func (h *Handler) clienteDeRuta(w http.ResponseWriter, r *http.Request) (int, bo
 	}
 	existe, err := h.clienteExiste(r.Context(), id)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "error validando el cliente")
+		writeFallo(w, r, err, "error validando el cliente")
 		return 0, false
 	}
 	if !existe {
@@ -77,10 +90,10 @@ func (h *Handler) clienteDeRuta(w http.ResponseWriter, r *http.Request) (int, bo
 	return id, true
 }
 
-func (h *Handler) responderChecklist(w http.ResponseWriter, ctx context.Context, clienteID int) {
+func (h *Handler) responderChecklist(w http.ResponseWriter, r *http.Request, ctx context.Context, clienteID int) {
 	criterios, personalizado, err := criteriosVigentes(ctx, h.DB, clienteID)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo leer el checklist")
+		writeFallo(w, r, err, "no se pudo leer el checklist")
 		return
 	}
 	writeJSON(w, http.StatusOK, checklistCliente{ClienteID: clienteID, Personalizado: personalizado, Criterios: criterios})
@@ -92,7 +105,7 @@ func (h *Handler) getChecklistCliente(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	h.responderChecklist(w, r.Context(), id)
+	h.responderChecklist(w, r, r.Context(), id)
 }
 
 // putChecklistCliente reemplaza el checklist de un cliente (REQ-15): de 1 a 15 criterios; los que
@@ -122,28 +135,46 @@ func (h *Handler) putChecklistCliente(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	tx, err := h.DB.Begin(ctx)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo iniciar la operación")
+		writeFallo(w, r, err, "no se pudo iniciar la operación")
 		return
 	}
 	defer tx.Rollback(ctx)
+	if err := bloquearChecklist(ctx, tx, id); err != nil {
+		writeFallo(w, r, err, "no se pudo guardar el checklist")
+		return
+	}
+	antes, eraPersonalizado, err := criteriosVigentes(ctx, tx, id)
+	if err != nil {
+		writeFallo(w, r, err, "no se pudo guardar el checklist")
+		return
+	}
 	if _, err := tx.Exec(ctx, `DELETE FROM criterio_checklist WHERE cliente_id = $1`, id); err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo guardar el checklist")
+		writeFallo(w, r, err, "no se pudo guardar el checklist")
 		return
 	}
 	for orden, c := range criterios {
 		if _, err := tx.Exec(ctx, `INSERT INTO criterio_checklist (cliente_id, clave, texto, orden) VALUES ($1, $2, $3, $4)`, id, c.Clave, c.Texto, orden+1); err != nil {
-			writeError(w, http.StatusInternalServerError, "no se pudo guardar el checklist")
+			writeFallo(w, r, err, "no se pudo guardar el checklist")
 			return
 		}
 	}
-	if err := tx.Commit(ctx); err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo confirmar la operación")
+	err = bitacora.Registrar(ctx, tx, bitacora.Entrada{
+		Actor: actorDe(r), Accion: "checklist.configurar", Entidad: "cliente", IDEntidad: int64(id),
+		Detalle: map[string]any{"antes": estadoChecklist(eraPersonalizado, antes), "despues": estadoChecklist(true, criterios)},
+	})
+	if err != nil {
+		writeFallo(w, r, err, "no se pudo guardar el checklist")
 		return
 	}
-	h.responderChecklist(w, ctx, id)
+	if err := tx.Commit(ctx); err != nil {
+		writeFallo(w, r, err, "no se pudo confirmar la operación")
+		return
+	}
+	h.responderChecklist(w, r, ctx, id)
 }
 
-// deleteChecklistCliente devuelve al cliente al checklist estándar.
+// deleteChecklistCliente devuelve al cliente al checklist estándar. Si ya usaba el estándar no hay
+// nada que cambiar y no se registra nada.
 func (h *Handler) deleteChecklistCliente(w http.ResponseWriter, r *http.Request) {
 	if _, autorizado := requireLogistica(r); !autorizado {
 		writeError(w, http.StatusForbidden, "solo el Encargado de Logística puede configurar el checklist")
@@ -153,9 +184,44 @@ func (h *Handler) deleteChecklistCliente(w http.ResponseWriter, r *http.Request)
 	if !ok {
 		return
 	}
-	if _, err := h.DB.Exec(r.Context(), `DELETE FROM criterio_checklist WHERE cliente_id = $1`, id); err != nil {
-		writeError(w, http.StatusInternalServerError, "no se pudo restablecer el checklist")
+	ctx := r.Context()
+	tx, err := h.DB.Begin(ctx)
+	if err != nil {
+		writeFallo(w, r, err, "no se pudo iniciar la operación")
 		return
 	}
-	h.responderChecklist(w, r.Context(), id)
+	defer tx.Rollback(ctx)
+	if err := bloquearChecklist(ctx, tx, id); err != nil {
+		writeFallo(w, r, err, "no se pudo restablecer el checklist")
+		return
+	}
+	antes, eraPersonalizado, err := criteriosVigentes(ctx, tx, id)
+	if err != nil {
+		writeFallo(w, r, err, "no se pudo restablecer el checklist")
+		return
+	}
+	if eraPersonalizado {
+		if _, err := tx.Exec(ctx, `DELETE FROM criterio_checklist WHERE cliente_id = $1`, id); err != nil {
+			writeFallo(w, r, err, "no se pudo restablecer el checklist")
+			return
+		}
+		estandar, err := leerCriterios(ctx, tx, nil)
+		if err != nil {
+			writeFallo(w, r, err, "no se pudo restablecer el checklist")
+			return
+		}
+		err = bitacora.Registrar(ctx, tx, bitacora.Entrada{
+			Actor: actorDe(r), Accion: "checklist.restablecer", Entidad: "cliente", IDEntidad: int64(id),
+			Detalle: map[string]any{"antes": estadoChecklist(true, antes), "despues": estadoChecklist(false, estandar)},
+		})
+		if err != nil {
+			writeFallo(w, r, err, "no se pudo restablecer el checklist")
+			return
+		}
+	}
+	if err := tx.Commit(ctx); err != nil {
+		writeFallo(w, r, err, "no se pudo confirmar la operación")
+		return
+	}
+	h.responderChecklist(w, r, ctx, id)
 }

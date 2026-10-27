@@ -10,14 +10,11 @@ import (
 	"os"
 	"testing"
 
-	"gastos-service/internal/handlers"
 	"gastos-service/internal/reportes"
 )
 
 func (e *entorno) get(ruta string) *httptest.ResponseRecorder {
-	rec := httptest.NewRecorder()
-	handlers.CORS(e.mux).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, ruta, nil))
-	return rec
+	return pedir(e.mux, http.MethodGet, ruta, e.tokenLogistica, nil)
 }
 
 func (e *entorno) gastoEn(t *testing.T, fecha, estado string, monto float64) {
@@ -102,7 +99,10 @@ func TestReporteConFalloDeBaseDa500YQuedaEnElLog(t *testing.T) {
 	var registro bytes.Buffer
 	log.SetOutput(&registro)
 	t.Cleanup(func() { log.SetOutput(os.Stderr) })
-	e.pool.Close()
+	// Sin la tabla de gastos el reporte falla, pero el middleware aún puede validar al usuario.
+	if _, err := e.pool.Exec(context.Background(), `DROP TABLE gasto CASCADE`); err != nil {
+		t.Fatal(err)
+	}
 	for _, ruta := range []string{"/reportes/resumen", "/reportes/estadistico.pdf"} {
 		rec := e.get(ruta)
 		var cuerpo map[string]string

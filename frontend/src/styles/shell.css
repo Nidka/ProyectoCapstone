@@ -284,6 +284,11 @@
   background: var(--rojo);
 }
 
+/* Cambiar contraseña y Cerrar sesión, uno bajo el otro */
+.hoja__cuerpo > .btn--bloque + .btn--bloque {
+  margin-top: var(--e-2);
+}
+
 @media (max-width: 1023px) {
   .barra__buscar {
     min-width: 0;

@@ -1,9 +1,11 @@
 <div class="pagina">
   <header class="pagina__encabezado">
     <h1 class="pagina__titulo pagina__titulo--en-barra">Gastos</h1>
-    <div class="pagina__acciones">
-      <a class="btn btn--primario" routerLink="/app/gastos/nuevo"><app-icono nombre="plus" />Registrar gasto</a>
-    </div>
+    @if (auth.esLogistica()) {
+      <div class="pagina__acciones">
+        <a class="btn btn--primario" routerLink="/app/gastos/nuevo"><app-icono nombre="plus" />Registrar gasto</a>
+      </div>
+    }
   </header>
 
   <nav class="pestanas" aria-label="Filtrar gastos por estado">
@@ -78,7 +80,7 @@
       </app-estado-vacio>
     } @else {
       <app-estado-vacio icono="inbox" [titulo]="vacio().titulo" [texto]="vacio().texto">
-        @if (pestana() === 'todos') {
+        @if (pestana() === 'todos' && auth.esLogistica()) {
           <a class="btn btn--primario" routerLink="/app/gastos/nuevo">Registrar gasto</a>
         }
       </app-estado-vacio>

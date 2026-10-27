@@ -9,6 +9,7 @@ services:
       POSTGRES_PASSWORD: lizar_demo_pass
     volumes:
       - lizar_demo_pgdata:/var/lib/postgresql/data
+      - ./db.sql:/docker-entrypoint-initdb.d/01-db.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U lizar -d lizar_demo"]
       interval: 10s
@@ -17,16 +18,28 @@ services:
 
   api:
     build:
-      context: ./backend
+      context: ./gastos-service
     container_name: lizar-demo-api
     restart: unless-stopped
-    env_file:
-      - ./backend/.env.demo
+    environment:
+      PORT: "8081"
+      DATABASE_URL: postgres://lizar:lizar_demo_pass@db:5432/lizar_demo?sslmode=disable
+      UPLOADS_DIR: /app/uploads
+      LOG_ARCHIVO: /app/logs/errores.log
+      # Obligatoria: el servicio no arranca sin una clave propia de al menos 32 caracteres.
+      # Ejemplo: JWT_SECRET=$(openssl rand -hex 32) docker compose -f docker-compose.demo.yml up
+      JWT_SECRET: ${JWT_SECRET:?define JWT_SECRET (al menos 32 caracteres) antes de levantar la demo}
+      APP_ENV: demo
+    volumes:
+      - lizar_demo_uploads:/app/uploads
+      - lizar_demo_logs:/app/logs
     depends_on:
       db:
         condition: service_healthy
     ports:
-      - "8000:8000"
+      - "8081:8081"
 
 volumes:
   lizar_demo_pgdata:
+  lizar_demo_uploads:
+  lizar_demo_logs:

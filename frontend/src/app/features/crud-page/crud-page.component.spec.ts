@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -44,7 +44,58 @@ interface Pagina {
   campos(): { value: string }[];
 }
 
+/** El rol viene de la sesión guardada: AuthService la lee al crearse */
+function conSesion(rol: 'admin' | 'logistica'): void {
+  localStorage.setItem('lizar_token', 'tok');
+  localStorage.setItem('lizar_user', JSON.stringify({ id_usuario: 1, username: 'u', email: 'u@lizar.pe', nombre: 'Ana Quispe', rol, estado: true }));
+}
+
+const VIAJE = { id_viaje: 14, id_tracto: 2, id_cliente: 1, id_direccion_origen: 5, id_direccion_destino: 6, fecha_programado: '2026-09-29' };
+
+function viajesCargados(crud: CrudService): void {
+  crud.data.set({
+    viaje: [VIAJE],
+    unidad: [{ id_unidad: 2, placa: 'T4K-829', modelo: 'FH 460' }],
+    cond_uni: [{ id_conductor_unidad: 1, id_conductor: 4, id_unidad: 2 }],
+    cliente: [{ id_cliente: 1, razon_social: 'Agro Norte SAC' }],
+    direccion: [{ id_direccion: 5, direccion_detallada: 'Av. A 100' }, { id_direccion: 6, direccion_detallada: 'Av. B 200' }],
+  });
+  crud.cargado.set({ viaje: true, unidad: true, cond_uni: true, cliente: true, direccion: true });
+}
+
 describe('CrudPageComponent', () => {
+  beforeEach(() => conSesion('logistica'));
+  afterEach(() => localStorage.clear());
+
+  it('Logística ve Checklist en cada cliente', () => {
+    const { el } = montar('operacion', 'clientes', clientesCargados);
+    const accion = [...el.querySelectorAll('tbody a')].find(a => a.textContent?.includes('Checklist'));
+    expect(accion?.getAttribute('href')).toBe('/app/checklist?cliente=1');
+  });
+
+  it('el administrador no ve Checklist ni Registrar gasto en las filas, pero sí Ver registro', () => {
+    TestBed.resetTestingModule();
+    conSesion('admin');
+    const clientes = montar('operacion', 'clientes', clientesCargados).el;
+    expect(clientes.querySelector('tbody a')).toBeNull();
+    expect([...clientes.querySelectorAll('tbody button')].some(b => b.textContent?.includes('Ver registro'))).toBe(true);
+    TestBed.resetTestingModule();
+    conSesion('admin');
+    const viajes = montar('operacion', 'viajes', viajesCargados).el;
+    expect([...viajes.querySelectorAll('tbody a')].some(a => a.textContent?.includes('Registrar gasto'))).toBe(false);
+    expect([...viajes.querySelectorAll('tbody button')].some(b => b.textContent?.includes('Ver registro'))).toBe(true);
+  });
+
+  it('los maestros se siguen pudiendo crear con cualquiera de los dos roles', () => {
+    TestBed.resetTestingModule();
+    conSesion('admin');
+    const { el } = montar('catalogos', 'rubros', crud => {
+      crud.data.set({ rubro: [] });
+      crud.cargado.set({ rubro: true });
+    });
+    expect([...el.querySelectorAll('button')].some(b => b.textContent?.includes('Nuevo rubro'))).toBe(true);
+  });
+
   it('un módulo desconocido redirige al primero de la sección', () => {
     const { navegar } = montar('catalogos', 'xyz');
     expect(navegar).toHaveBeenCalledWith(['/app', 'catalogos', 'ubigeo'], { replaceUrl: true });

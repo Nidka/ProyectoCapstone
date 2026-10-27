@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, viewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ApiService } from '../core/services/api.service';
+import { AuthService } from '../core/services/auth.service';
 import { GastosStore } from '../core/state/gastos.store';
 import { BarraMovilComponent } from './barra-movil/barra-movil.component';
 import { BarraSuperiorComponent } from './barra-superior/barra-superior.component';
@@ -15,11 +16,13 @@ import { PaletaComandosComponent } from './paleta-comandos/paleta-comandos.compo
 })
 export class ShellComponent implements OnInit {
   private readonly api = inject(ApiService);
+  private readonly auth = inject(AuthService);
   private readonly store = inject(GastosStore);
   private readonly paleta = viewChild.required(PaletaComandosComponent);
 
   ngOnInit(): void {
     this.api.checkHealth();
+    this.auth.refrescar();
     this.store.asegurarCargado();
   }
 

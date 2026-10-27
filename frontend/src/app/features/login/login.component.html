@@ -10,11 +10,6 @@
       <h1 class="acceso__titulo">Iniciar sesión</h1>
       <p class="acceso__bajada">Ingresa tus credenciales para acceder al sistema</p>
 
-      @if (registrado) {
-        <p class="alerta alerta--exito" role="status">
-          <app-icono nombre="circle-check" [tamano]="18" /><span>Usuario creado. Ya puedes iniciar sesión.</span>
-        </p>
-      }
       @if (error()) {
         <p class="alerta alerta--error" role="alert">
           <app-icono nombre="alert-triangle" [tamano]="18" /><span>{{ error() }}</span>
@@ -55,7 +50,6 @@
       </form>
 
       <p class="acceso__pista">Usuario por defecto: <code>admin</code> / <code>admin123</code></p>
-      <p class="acceso__enlace">¿Necesitas una cuenta? <a routerLink="/register">Crear usuario</a></p>
     </div>
     <p class="acceso__pie">LIZAR SRL · Trujillo, Perú</p>
   </main>
