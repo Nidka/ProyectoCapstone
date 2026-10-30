@@ -10,7 +10,7 @@ web
 
 - **Logística en oficina (computadora de escritorio).** Registra los gastos adicionales de cada viaje, revisa los comprobantes de pago y los aprueba o rechaza. En el sistema actúa como "Encargado de Logística".
 - **Conductores u operadores en ruta (celular).** Suben el comprobante de pago de un gasto (foto o PDF) desde el teléfono y consultan en qué estado está.
-- Roles de cuenta existentes: `admin` y `operador`.
+- Roles de cuenta: `admin` (Administrador del Sistema) y `logistica` (Encargado de Logística). Los conductores no inician sesión: sus comprobantes los registra el Encargado de Logística.
 
 ## Product Purpose
 
@@ -29,10 +29,10 @@ LIZAR SRL · Fleet Manager Pro es el sistema interno de LIZAR SRL, empresa de tr
 ## Capabilities and Constraints
 
 - Frontend Angular 21 (componentes standalone y signals) con CSS propio, sin librería de componentes.
-- Dos servicios: la API principal (FastAPI, `/api/v1`, autenticación JWT) para usuarios y datos maestros, y el servicio de gastos (Go) para gastos y comprobantes.
+- Un solo servicio en Go (`gastos-service`, puerto 8081) con autenticación JWT: maestros, operación, gastos, comprobantes, reportes, lectura OCR, usuarios y bitácora. La carpeta `backend/` (Python/FastAPI) ya fue migrada y se conserva solo como referencia.
 - **Copy exacto de UX writing (RNF-1):** las etiquetas y colores de estado (`gasto-estados.ts`) y los mensajes de error (`error-messages.ts`) no se reformulan. Estados de gasto: Registrado = gris, Pagado = azul, Sustentado = verde. Estados de comprobante: Pendiente = amarillo, Aprobado = verde, Rechazado = rojo.
 - Fuera del alcance de esta iteración, y ocultos: tipos de gasto, categorías de producto, guías de transportista, viajes realizados, productos transportados, facturas y presupuestos.
-- Todavía no existe gestión de usuarios (RF-19 a RF-21): la sesión actual actúa como Encargado de Logística para aprobar o rechazar.
+- Gestión de usuarios (REQ-28 a REQ-32): solo el administrador crea, edita, desactiva y reactiva cuentas; el rol de cada sesión sale del token, y la contraseña inicial se cambia en el primer ingreso. Solo el rol de logística registra gastos y aprueba o rechaza comprobantes.
 
 ## Brand Commitments
 

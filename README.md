@@ -13,10 +13,10 @@ Sistema de gestión de flota: maestros y operación (clientes, flota, viajes…)
 ## Arranque local
 
 1. PostgreSQL con la base cargada: `psql "$DATABASE_URL" -f db.sql` (una sola vez).
-2. API: `cd gastos-service && cp .env.example .env` (si existe) o define `DATABASE_URL`, y `go run .`. Al arrancar aplica las migraciones y crea el usuario `admin` / `admin123` si no hay usuarios.
+2. API: `cd gastos-service && cp .env.example .env` (si existe) o define `DATABASE_URL`, y `go run .`. Al arrancar aplica las migraciones y crea un usuario `admin` inicial si no hay usuarios; ese acceso inicial es solo de arranque y el sistema exige cambiar su contraseña en el primer ingreso (REQ-32).
 3. Frontend: `cd frontend && npm install && npx ng serve`.
 
-Variables: `PORT` (8081), `DATABASE_URL`, `UPLOADS_DIR`, `LOG_ARCHIVO` (`logs/errores.log`), `JWT_SECRET` y `APP_ENV` (`dev`). `JWT_SECRET` es obligatoria (al menos 32 caracteres, por ejemplo `openssl rand -hex 32`): sin ella, o con la clave pública de versiones anteriores, el servicio no arranca. Cambia además la contraseña de `admin`. `GET /uploads/...` no pide token (el navegador carga los comprobantes con `<img>` y `<a href>`), pero no lista la carpeta y los nombres nuevos llevan una parte aleatoria.
+Variables: `PORT` (8081), `DATABASE_URL`, `UPLOADS_DIR`, `LOG_ARCHIVO` (`logs/errores.log`), `JWT_SECRET` y `APP_ENV` (`dev`). `JWT_SECRET` es obligatoria (al menos 32 caracteres, por ejemplo `openssl rand -hex 32`): sin ella, o con la clave pública de versiones anteriores, el servicio no arranca. La contraseña del `admin` inicial se cambia en el primer ingreso. `GET /uploads/...` no pide token (el navegador carga los comprobantes con `<img>` y `<a href>`), pero no lista la carpeta y los nombres nuevos llevan una parte aleatoria.
 
 ## Registro de errores y respaldo
 
@@ -30,7 +30,14 @@ Variables: `PORT` (8081), `DATABASE_URL`, `UPLOADS_DIR`, `LOG_ARCHIVO` (`logs/er
   0 3 * * * UPLOADS_DIR=/ruta/a/gastos-service/uploads RESPALDO_DIR=/ruta/a/respaldos /ruta/a/gastos-service/scripts/respaldo.sh >> /ruta/a/respaldos/respaldo.log 2>&1
   ```
 
-  Cada ejecución deja un respaldo completo: borra a mano los más viejos cuando ya no los necesites. Para que el respaldo sea útil, `RESPALDO_DIR` debería estar en otro disco o equipo. En Docker, el volumen `lizar_demo_uploads` guarda los comprobantes y `lizar_demo_logs` el archivo de errores.
+  Cada ejecución deja un respaldo completo. Política de retención recomendada: conservar los últimos 7 respaldos y borrar a mano los más antiguos. El script no borra respaldos por sí solo, y el respaldo es automático únicamente cuando la línea de cron está instalada en el servidor. Para que el respaldo sea útil, `RESPALDO_DIR` debería estar en otro disco o equipo. En Docker, el volumen `lizar_demo_uploads` guarda los comprobantes y `lizar_demo_logs` el archivo de errores.
+
+## Avisos de gastos pendientes (REQ-20 y REQ-21)
+
+El servicio revisa cada hora y genera avisos para el rol de logística, sin duplicarlos:
+
+- REQ-20: gastos con más de 3 días sin comprobante adjunto.
+- REQ-21: gastos que aún no están en estado Sustentado y cuya fecha de cobro es dentro de 2 días o menos. Es el comportamiento real del código; el DRS lo redacta ahora igual.
 
 ## Pruebas
 
