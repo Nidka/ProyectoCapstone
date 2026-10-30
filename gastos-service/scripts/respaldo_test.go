@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -34,6 +35,9 @@ func TestRespaldoEsEjecutable(t *testing.T) {
 	info, err := os.Stat("respaldo.sh")
 	if err != nil {
 		t.Fatal(err)
+	}
+	if runtime.GOOS == "windows" {
+		t.Skip("Windows no expone el bit de ejecución POSIX; se comprueba en Linux")
 	}
 	if info.Mode().Perm()&0o111 == 0 {
 		t.Fatalf("respaldo.sh no es ejecutable: %v", info.Mode())

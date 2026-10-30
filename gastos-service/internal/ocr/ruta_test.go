@@ -4,6 +4,8 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"runtime"
+	"syscall"
 	"testing"
 )
 
@@ -32,13 +34,9 @@ func TestRutaSeguraRechazaLoQueSaleDeUploads(t *testing.T) {
 	if err := os.WriteFile(secreto, []byte("clave"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.Symlink(secreto, filepath.Join(dir, "enlace.pdf")); err != nil {
-		t.Fatal(err)
-	}
 	for _, url := range []string{
 		"/uploads/../secreto.txt",
 		"/uploads/../../../../etc/passwd",
-		"/uploads/enlace.pdf",
 		"/uploads/",
 		"/uploads/..",
 		"/otra/secreto.txt",
@@ -48,6 +46,29 @@ func TestRutaSeguraRechazaLoQueSaleDeUploads(t *testing.T) {
 		if _, err := RutaSegura(dir, url); !errors.Is(err, ErrRutaFuera) {
 			t.Errorf("%q: se esperaba ErrRutaFuera, llegó %v", url, err)
 		}
+	}
+}
+
+func TestRutaSeguraRechazaEnlaceFueraDeUploads(t *testing.T) {
+	raiz := t.TempDir()
+	dir := filepath.Join(raiz, "uploads")
+	if err := os.Mkdir(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	secreto := filepath.Join(raiz, "secreto.txt")
+	if err := os.WriteFile(secreto, []byte("clave"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(secreto, filepath.Join(dir, "enlace.pdf")); err != nil {
+		// ERROR_PRIVILEGE_NOT_HELD: Windows requiere modo desarrollador o
+		// el privilegio de crear enlaces. Los otros rechazos se prueban aparte.
+		if runtime.GOOS == "windows" && errors.Is(err, syscall.Errno(1314)) {
+			t.Skip("Windows no permite crear enlaces simbólicos sin el privilegio correspondiente")
+		}
+		t.Fatal(err)
+	}
+	if _, err := RutaSegura(dir, "/uploads/enlace.pdf"); !errors.Is(err, ErrRutaFuera) {
+		t.Fatalf("se esperaba ErrRutaFuera, llegó %v", err)
 	}
 }
 
