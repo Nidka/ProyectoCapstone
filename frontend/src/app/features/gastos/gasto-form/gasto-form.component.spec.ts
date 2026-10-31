@@ -47,6 +47,7 @@ describe('GastoFormComponent', () => {
 
     it('con una fecha de hace años avisa que no saldrá en el dashboard, pero deja registrar', () => {
       const { f, form, registrar } = montar();
+      const navegar = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
       form.viajeId.set('12');
       form.clienteId.set('5');
       form.monto = '513';
@@ -56,6 +57,7 @@ describe('GastoFormComponent', () => {
       expect(f.nativeElement.querySelector('#gf-fecha')?.getAttribute('aria-describedby')).toBe('gf-fecha-aviso');
       enviar(f.nativeElement);
       expect(registrar).toHaveBeenCalledWith({ viaje_id: 12, cliente_id: 5, monto: 513, fecha: '2019-09-26' });
+      expect(navegar).toHaveBeenCalledWith(['/app/gastos', 31], { fragment: 'paso' });
     });
 
     it('con una fecha futura avisa que saldrá ese día', async () => {

@@ -39,6 +39,15 @@ describe('pestañas', () => {
 });
 
 describe('conteos y montos', () => {
+  it('sin gastos mantiene los tres estados con conteos y montos en cero', () => {
+    expect(contarPorEstado([])).toEqual({ Registrado: 0, Pagado: 0, Sustentado: 0 });
+    expect(sumaPorEstado([])).toEqual({ Registrado: 0, Pagado: 0, Sustentado: 0 });
+    expect(totalMonto([])).toBe(0);
+    for (const pestana of ['sin-comprobante', 'por-aprobar', 'sustentados'] as const) {
+      expect(filtrarPorPestana([], pestana)).toEqual([]);
+    }
+  });
+
   it('cuenta y suma por estado', () => {
     expect(contarPorEstado(gastos)).toEqual({ Registrado: 2, Pagado: 1, Sustentado: 1 });
     expect(sumaPorEstado(gastos)).toEqual({ Registrado: 160.25, Pagado: 85.5, Sustentado: 310 });

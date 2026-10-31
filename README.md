@@ -45,6 +45,10 @@ El servicio revisa cada hora y genera avisos para el rol de logística, sin dupl
 - Frontend: `cd frontend && npx ng test --watch=false`.
 - Contrato con la API de Python: las respuestas capturadas están en `gastos-service/internal/crud/contrato/`; para regenerarlas, `gastos-service/tools/contrato/`.
 
+En Windows, las pruebas unitarias de OCR usan ejecutables Go de prueba y no necesitan una shell Unix ni Tesseract. Las pruebas con OCR real se omiten si faltan Poppler (`pdftotext`, `pdftoppm`) o Tesseract con el idioma español (`spa`). Las pruebas contra PostgreSQL se omiten sin `TEST_DATABASE_URL`. Usa `go test -v ./...` para ver las omisiones.
+
+La prueba de escape por enlace simbólico se omite únicamente si Windows no concede el privilegio de crear enlaces (error 1314); las pruebas de otras rutas inseguras sí se ejecutan. La comprobación del bit de ejecución de `scripts/respaldo.sh` corresponde a Linux y se omite en Windows, que no expone ese permiso POSIX. Las pruebas que ejecutan el respaldo requieren Bash.
+
 ## Demo en Docker
 
 `docker compose -f docker-compose.demo.yml up --build` levanta PostgreSQL (con `db.sql`) y la API Go en el puerto 8081.
