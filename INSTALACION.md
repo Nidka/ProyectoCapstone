@@ -44,8 +44,8 @@ psql --version      # solo opción B: 17.x
 ## 2. Clonar el repositorio
 
 ```bash
-git clone https://github.com/Nidka/ProyectoCampstone.git
-cd ProyectoCampstone
+git clone https://github.com/Nidka/ProyectoCapstone.git
+cd ProyectoCapstone
 ```
 
 La rama estable es `main`.
