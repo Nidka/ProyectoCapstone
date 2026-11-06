@@ -4,7 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, Subject, TimeoutError, of, throwError } from 'rxjs';
 import { RevisionComprobanteComponent } from './revision-comprobante.component';
 import { GastosStore } from '../../../core/state/gastos.store';
-import { GastosApiService } from '../../../core/services/gastos-api.service';
+import { ComprobanteArchivoService } from '../../../core/services/comprobante-archivo.service';
 import { ChecklistService } from '../../../core/services/checklist.service';
 import { LecturaService } from '../../../core/services/lectura.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -84,12 +84,13 @@ async function montar(op: Opciones = {}) {
   const store = { aprobar: vi.fn(op.respuesta ?? (() => of({}))), rechazar: vi.fn(op.respuesta ?? (() => of({}))), corregir: vi.fn(op.correccion ?? (() => of({}))), cargar: vi.fn() };
   const checklists = { deCliente: vi.fn(op.checklist ?? (() => of(ESTANDAR))) };
   const lecturas = { lectura: vi.fn(op.lectura ?? (() => of(lecturaCon('leido')))) };
+  const archivos = { urlTemporal: vi.fn((u: string) => of(`blob:prueba${u}`)), abrir: vi.fn() };
   TestBed.configureTestingModule({
     providers: [
       { provide: GastosStore, useValue: store },
       { provide: ChecklistService, useValue: checklists },
       { provide: LecturaService, useValue: lecturas },
-      { provide: GastosApiService, useValue: { fileUrl: (u: string) => `http://localhost:8081${u}` } },
+      { provide: ComprobanteArchivoService, useValue: archivos },
     ],
   });
   const f = TestBed.createComponent(RevisionComprobanteComponent);
@@ -119,7 +120,7 @@ async function montar(op: Opciones = {}) {
         .map(li => [casillas().indexOf(li.querySelector('input')!), li.querySelector('.checklist__sugerencia')!.textContent?.trim()]),
     );
   const lecturaTexto = () => el.querySelector('.checklist__lectura')?.textContent?.trim() ?? '';
-  return { f, el, store, checklists, lecturas, boton, casillas, marcar, refrescar, sugerencias, lecturaTexto };
+  return { f, el, store, archivos, checklists, lecturas, boton, casillas, marcar, refrescar, sugerencias, lecturaTexto };
 }
 
 describe('RevisionComprobanteComponent', () => {
@@ -148,8 +149,12 @@ describe('RevisionComprobanteComponent', () => {
   });
 
   it('muestra el comprobante para revisarlo', async () => {
-    const { el } = await montar();
-    expect(el.querySelector('img')?.getAttribute('src')).toBe('http://localhost:8081/uploads/9.jpg');
+    const { el, archivos, boton } = await montar();
+    // La imagen se descarga con la sesión (SEG-01) y se muestra desde una URL temporal, no desde la ruta pública.
+    expect(archivos.urlTemporal).toHaveBeenCalledWith('/uploads/9.jpg');
+    expect(el.querySelector('img')?.getAttribute('src')).toBe('blob:prueba/uploads/9.jpg');
+    boton('Ver en tamaño completo').click();
+    expect(archivos.abrir).toHaveBeenCalledWith('/uploads/9.jpg');
   });
 
   it('pide los criterios del cliente del gasto y los muestra con el monto y la fecha', async () => {

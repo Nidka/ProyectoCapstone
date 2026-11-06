@@ -1,0 +1,25 @@
+# API en Docker contra una base en Neon (sin contenedor de PostgreSQL).
+#   NEON_DATABASE_URL="postgres://USUARIO:CLAVE@ep-xxxx.sa-east-1.aws.neon.tech/neondb?sslmode=require" \
+#   JWT_SECRET=$(openssl rand -hex 32) docker compose -f docker-compose.neon.yml up --build
+services:
+  api:
+    build:
+      context: ./gastos-service
+    container_name: lizar-neon-api
+    restart: unless-stopped
+    environment:
+      PORT: "8081"
+      DATABASE_URL: ${NEON_DATABASE_URL:?define NEON_DATABASE_URL con la cadena de conexión de Neon (sslmode=require)}
+      UPLOADS_DIR: /app/uploads
+      LOG_ARCHIVO: /app/logs/errores.log
+      JWT_SECRET: ${JWT_SECRET:?define JWT_SECRET (al menos 32 caracteres)}
+      APP_ENV: prod
+    volumes:
+      - lizar_neon_uploads:/app/uploads
+      - lizar_neon_logs:/app/logs
+    ports:
+      - "8081:8081"
+
+volumes:
+  lizar_neon_uploads:
+  lizar_neon_logs:

@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import {
-  ChangeDetectionStrategy, Component, Injector, afterNextRender, computed, inject, input, linkedSignal, signal,
+  ChangeDetectionStrategy, Component, DestroyRef, Injector, afterNextRender, computed, effect, inject, input, linkedSignal, signal,
 } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -13,7 +13,7 @@ import {
   FilaLectura, MSG_GASTO_NO_CORREGIBLE, MSG_LECTURA_FALLIDA, clavesSugeridas, etiquetaSugerencia, filasLectura, motivoDesdeLectura,
 } from '../../../core/models/lectura';
 import { ChecklistService } from '../../../core/services/checklist.service';
-import { GastosApiService } from '../../../core/services/gastos-api.service';
+import { ComprobanteArchivoService } from '../../../core/services/comprobante-archivo.service';
 import { LecturaService } from '../../../core/services/lectura.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { GastosStore } from '../../../core/state/gastos.store';
@@ -39,7 +39,7 @@ export class RevisionComprobanteComponent {
 
   private readonly store = inject(GastosStore);
   private readonly toast = inject(ToastService);
-  private readonly gastosApi = inject(GastosApiService);
+  private readonly archivos = inject(ComprobanteArchivoService);
   private readonly checklists = inject(ChecklistService);
   private readonly lecturas = inject(LecturaService);
   private readonly injector = inject(Injector);
@@ -109,9 +109,26 @@ export class RevisionComprobanteComponent {
   protected motivo = '';
   /** Último motivo propuesto: si la persona no lo editó, sigue a las casillas */
   private motivoPropuesto = '';
-  protected readonly url = computed(() => this.gastosApi.fileUrl(this.comprobante().archivo_url));
+  /** La imagen se descarga con la sesión (SEG-01) y se muestra desde una URL temporal; el PDF solo se abre a demanda */
+  protected readonly imagen = rxResource({
+    params: () => (this.comprobante().tipo_archivo === 'pdf' ? undefined : this.comprobante().archivo_url),
+    stream: ({ params }) => this.archivos.urlTemporal(params),
+  });
+  private urlLiberable = '';
+  private readonly liberarUrl = effect(() => {
+    const nueva = this.imagen.hasValue() ? this.imagen.value() : '';
+    if (this.urlLiberable && this.urlLiberable !== nueva) URL.revokeObjectURL(this.urlLiberable);
+    this.urlLiberable = nueva;
+  });
+  private readonly alDestruir = inject(DestroyRef).onDestroy(() => {
+    if (this.urlLiberable) URL.revokeObjectURL(this.urlLiberable);
+  });
   protected readonly esPdf = computed(() => this.comprobante().tipo_archivo === 'pdf');
   protected readonly formatFechaHora = formatFechaHora;
+  protected abrir(): void {
+    this.archivos.abrir(this.comprobante().archivo_url);
+  }
+
   protected textoDe(criterio: CriterioCliente): string {
     return textoConDato(criterio, this.gasto());
   }

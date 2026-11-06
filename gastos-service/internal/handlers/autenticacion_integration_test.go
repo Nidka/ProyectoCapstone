@@ -175,14 +175,20 @@ func TestLasCabecerasXUserYaNoDanAcceso(t *testing.T) {
 	}
 }
 
-func TestUploadsSeSirveSinToken(t *testing.T) {
+func TestUploadsExigeToken(t *testing.T) {
 	e := nuevoEntorno(t)
 	if err := os.WriteFile(filepath.Join(e.uploads, "boleta.jpg"), []byte("contenido"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	rec := pedir(e.mux, "GET", "/uploads/boleta.jpg", "", nil)
+	if rec := pedir(e.mux, "GET", "/uploads/boleta.jpg", "", nil); rec.Code != http.StatusUnauthorized || strings.Contains(rec.Body.String(), "contenido") {
+		t.Errorf("/uploads sin token = %d %q, quiero 401 sin el archivo", rec.Code, rec.Body)
+	}
+	if rec := pedir(e.mux, "GET", "/uploads/boleta.jpg", "Bearer basura", nil); rec.Code != http.StatusUnauthorized {
+		t.Errorf("/uploads con token inválido = %d, quiero 401", rec.Code)
+	}
+	rec := pedir(e.mux, "GET", "/uploads/boleta.jpg", e.tokenAdmin, nil)
 	if rec.Code != http.StatusOK || rec.Body.String() != "contenido" {
-		t.Errorf("/uploads sin token = %d %q", rec.Code, rec.Body)
+		t.Errorf("/uploads con token = %d %q", rec.Code, rec.Body)
 	}
 }
 

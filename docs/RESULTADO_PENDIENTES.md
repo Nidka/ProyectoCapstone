@@ -67,8 +67,8 @@ Notas del contrato de usuarios:
 
 ## 3. Excepciones y decisiones de seguridad
 
-- Públicas (sin token): `GET|HEAD /health`, `POST /api/v1/auth/login`, `GET|HEAD /uploads/*` y `OPTIONS`.
-- `GET /uploads/<archivo>` queda sin token a propósito: el navegador carga los comprobantes con `<img>` y `<a href>`, que no pueden enviar cabeceras. Mitigaciones: `/uploads/` y cualquier carpeta dan 404 (no hay listado) y los nombres nuevos llevan 128 bits aleatorios. Los comprobantes subidos antes de este cambio conservan su nombre anterior (`gasto-<id>-<hora>`), deducible por fuerza bruta. Cerrarlo del todo exige servir los archivos con token (descarga con `fetch` o URLs firmadas), un cambio de frontend que no se hizo.
+- Públicas (sin token): `GET|HEAD /health`, `POST /api/v1/auth/login` y `OPTIONS`. `GET /uploads/*` exige token (SEG-01).
+- `GET /uploads/<archivo>` exige token (SEG-01, resuelto): el frontend descarga el comprobante con HttpClient (el interceptor agrega el Bearer) y lo muestra desde una URL de Blob. Sigue sin haber listado de carpetas (404) y los nombres nuevos llevan 128 bits aleatorios.
 - La clave JWT ya no tiene valor por defecto: `JWT_SECRET` es obligatoria, de al menos 32 caracteres y distinta de la clave pública antigua; sin ella el servicio no arranca (`log.Fatalf` con el motivo). Un token sin `exp` se rechaza.
 - Los 403 de gastos, comprobantes, checklist y notificaciones usan `{"error": ...}`; los de usuarios, register y los 401 usan `{"detail": ...}`. El frontend lee ambas formas.
 
@@ -122,7 +122,7 @@ Por HTTP, con resultados reales:
 - `POST /gastos` como admin: 403; como logistica: 201 (`creado_por` = nombre autenticado, ignorando el del cuerpo, con `fecha_cobro`); con cobro anterior al gasto: 400. Adjuntar como admin: 403; como logistica: 201 (archivo con modo `-r--r--r--`). Aprobar como admin: 403; como logistica con checklist incompleto: 422; con 5 de 5: 200 y el gasto pasa a Sustentado.
 - `GET /gastos/{id}/historial`: 3 entradas en orden (`gasto.registrar`, `comprobante.adjuntar`, `comprobante.aprobar`); id inválido 400; inexistente 404.
 - Notificaciones: tras reiniciar el servicio, la pasada creó «Mañana es el cobro del gasto N° 2 (23/10/2026) y su comprobante aún no está aprobado.»; `GET /notificaciones` 200 a logistica y 403 a admin; `POST .../leida` 200 y repetido 200 sin duplicar la bitácora.
-- Desactivar a la logistica: 200; con su token vigente recibe 401 «Usuario inactivo» de inmediato; reactivar: 200; el admin no puede desactivarse a sí mismo: 409. Logout 200 con token; 401 sin token. `GET /uploads/` da 404.
+- Desactivar a la logistica: 200; con su token vigente recibe 401 «Usuario inactivo» de inmediato; reactivar: 200; el admin no puede desactivarse a sí mismo: 409. Logout 200 con token; 401 sin token. `GET /uploads/` da 404 con token y 401 sin token.
 - La bitácora quedó con 16 entradas en el recorrido por HTTP; `UPDATE` y `TRUNCATE` sobre ella fallaron con «La bitácora no admite modificar ni borrar registros».
 
 En Chrome headless (Playwright), sin errores de consola, sin fallos de red ni respuestas HTTP 4xx inesperadas en ninguna pantalla:

@@ -13,8 +13,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// /uploads se sirve sin token (el navegador carga los comprobantes con <img> y <a href>), así que
-// al menos no debe ofrecer el listado de la carpeta a quien no tiene cuenta.
+// /uploads exige token (SEG-01) y, aun con sesión, no debe ofrecer el listado de la carpeta.
 func TestUploadsNoListaLaCarpeta(t *testing.T) {
 	e := nuevoEntorno(t)
 	if err := os.WriteFile(filepath.Join(e.uploads, "gasto-34-secreto.pdf"), []byte("contenido"), 0o444); err != nil {
@@ -24,7 +23,10 @@ func TestUploadsNoListaLaCarpeta(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, ruta := range []string{"/uploads/", "/uploads/sub/", "/uploads/sub"} {
-		for _, token := range []string{"", e.tokenLogistica} {
+		if rec := pedir(e.mux, "GET", ruta, "", nil); rec.Code != http.StatusUnauthorized {
+			t.Errorf("GET %s sin token = %d, quiero 401", ruta, rec.Code)
+		}
+		for _, token := range []string{e.tokenLogistica} {
 			rec := pedir(e.mux, "GET", ruta, token, nil)
 			if rec.Code != http.StatusNotFound {
 				t.Errorf("GET %s = %d, quiero 404", ruta, rec.Code)
@@ -34,8 +36,11 @@ func TestUploadsNoListaLaCarpeta(t *testing.T) {
 			}
 		}
 	}
-	// El archivo pedido por su nombre sigue sirviéndose.
-	if rec := pedir(e.mux, "GET", "/uploads/gasto-34-secreto.pdf", "", nil); rec.Code != http.StatusOK || rec.Body.String() != "contenido" {
+	// El archivo pedido por su nombre se sirve solo con token.
+	if rec := pedir(e.mux, "GET", "/uploads/gasto-34-secreto.pdf", "", nil); rec.Code != http.StatusUnauthorized {
+		t.Errorf("el archivo sin token = %d, quiero 401", rec.Code)
+	}
+	if rec := pedir(e.mux, "GET", "/uploads/gasto-34-secreto.pdf", e.tokenLogistica, nil); rec.Code != http.StatusOK || rec.Body.String() != "contenido" {
 		t.Errorf("el archivo debía servirse: %d %q", rec.Code, rec.Body)
 	}
 }

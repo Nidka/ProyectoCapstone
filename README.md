@@ -2,6 +2,8 @@
 
 Sistema de gestión de flota: maestros y operación (clientes, flota, viajes…), gastos adicionales con comprobantes, checklist documental, aprobación y reportes.
 
+> **¿Instalarlo en otra PC?** Sigue la guía paso a paso: [INSTALACION.md](INSTALACION.md).
+
 ## Servicios
 
 | Carpeta | Qué es | Puerto |
@@ -16,7 +18,7 @@ Sistema de gestión de flota: maestros y operación (clientes, flota, viajes…)
 2. API: `cd gastos-service && cp .env.example .env` (si existe) o define `DATABASE_URL`, y `go run .`. Al arrancar aplica las migraciones y crea un usuario `admin` inicial si no hay usuarios; ese acceso inicial es solo de arranque y el sistema exige cambiar su contraseña en el primer ingreso (REQ-32).
 3. Frontend: `cd frontend && npm install && npx ng serve`.
 
-Variables: `PORT` (8081), `DATABASE_URL`, `UPLOADS_DIR`, `LOG_ARCHIVO` (`logs/errores.log`), `JWT_SECRET` y `APP_ENV` (`dev`). `JWT_SECRET` es obligatoria (al menos 32 caracteres, por ejemplo `openssl rand -hex 32`): sin ella, o con la clave pública de versiones anteriores, el servicio no arranca. La contraseña del `admin` inicial se cambia en el primer ingreso. `GET /uploads/...` no pide token (el navegador carga los comprobantes con `<img>` y `<a href>`), pero no lista la carpeta y los nombres nuevos llevan una parte aleatoria.
+Variables: `PORT` (8081), `DATABASE_URL`, `UPLOADS_DIR`, `LOG_ARCHIVO` (`logs/errores.log`), `JWT_SECRET` y `APP_ENV` (`dev`). `JWT_SECRET` es obligatoria (al menos 32 caracteres, por ejemplo `openssl rand -hex 32`): sin ella, o con la clave pública de versiones anteriores, el servicio no arranca. `GET /uploads/...` exige token como el resto de la API (SEG-01): el frontend descarga el comprobante con la sesión iniciada y lo muestra desde un Blob; además no lista la carpeta y los nombres nuevos llevan una parte aleatoria.
 
 ## Registro de errores y respaldo
 
@@ -48,6 +50,10 @@ El servicio revisa cada hora y genera avisos para el rol de logística, sin dupl
 En Windows, las pruebas unitarias de OCR usan ejecutables Go de prueba y no necesitan una shell Unix ni Tesseract. Las pruebas con OCR real se omiten si faltan Poppler (`pdftotext`, `pdftoppm`) o Tesseract con el idioma español (`spa`). Las pruebas contra PostgreSQL se omiten sin `TEST_DATABASE_URL`. Usa `go test -v ./...` para ver las omisiones.
 
 La prueba de escape por enlace simbólico se omite únicamente si Windows no concede el privilegio de crear enlaces (error 1314); las pruebas de otras rutas inseguras sí se ejecutan. La comprobación del bit de ejecución de `scripts/respaldo.sh` corresponde a Linux y se omite en Windows, que no expone ese permiso POSIX. Las pruebas que ejecutan el respaldo requieren Bash.
+
+## Base de datos en Neon
+
+Ver `docs/DESPLIEGUE_NEON.md` y `docker-compose.neon.yml`: la base se crea en Neon (PostgreSQL 17, `sslmode=require`), se carga `db.sql` una vez y el servicio aplica las migraciones al arrancar.
 
 ## Demo en Docker
 

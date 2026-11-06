@@ -6,11 +6,17 @@
         <span>Comprobante en PDF</span>
       </div>
     } @else {
-      <img class="revision__imagen" [src]="url()" alt="Comprobante de pago adjuntado" loading="lazy" />
+      @if (imagen.hasValue()) {
+        <img class="revision__imagen" [src]="imagen.value()" alt="Comprobante de pago adjuntado" />
+      } @else if (imagen.error()) {
+        <p class="checklist__estado" role="alert">No se pudo cargar la imagen del comprobante.</p>
+      } @else {
+        <p class="checklist__estado" aria-busy="true">Cargando comprobante…</p>
+      }
     }
     <figcaption class="revision__pie">
       <span>Adjuntado el {{ formatFechaHora(comprobante().creado_en) }}</span>
-      <a class="enlace" [href]="url()" target="_blank" rel="noopener">{{ esPdf() ? 'Abrir PDF' : 'Ver en tamaño completo' }}</a>
+      <button type="button" class="enlace-boton" (click)="abrir()">{{ esPdf() ? 'Abrir PDF' : 'Ver en tamaño completo' }}</button>
     </figcaption>
   </figure>
 

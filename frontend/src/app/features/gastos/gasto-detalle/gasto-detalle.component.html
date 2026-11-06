@@ -54,9 +54,9 @@
             } @else {
               <!-- El administrador consulta: aprobar y rechazar son de Logística -->
               <p class="texto-secundario">Esperando la revisión de Logística.</p>
-              <a class="btn btn--secundario btn--sm" [href]="archivo(c)" target="_blank" rel="noopener">
+              <button type="button" class="btn btn--secundario btn--sm" (click)="verComprobante(c)">
                 <app-icono nombre="external-link" [tamano]="16" />Ver comprobante
-              </a>
+              </button>
             }
           } @else {
             <p class="texto-secundario">
@@ -71,9 +71,9 @@
             <p class="detalle__cierre">
               Aprobado por {{ c.aprobado_por ?? 'Logística' }} el {{ formatFechaHora(c.aprobado_en) }}.
             </p>
-            <a class="btn btn--secundario btn--sm" [href]="archivo(c)" target="_blank" rel="noopener">
+            <button type="button" class="btn btn--secundario btn--sm" (click)="verComprobante(c)">
               <app-icono nombre="external-link" [tamano]="16" />Ver comprobante
-            </a>
+            </button>
           }
         }
       }
@@ -106,7 +106,7 @@
                 }
               </div>
               <app-insignia-estado tipo="comprobante" [estado]="c.estado" />
-              <a class="enlace" [href]="archivo(c)" target="_blank" rel="noopener">Ver comprobante</a>
+              <button type="button" class="enlace-boton" (click)="verComprobante(c)">Ver comprobante</button>
             </li>
           }
         </ul>

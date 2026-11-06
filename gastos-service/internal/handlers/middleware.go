@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"net/http"
-	"strings"
 
 	"gastos-service/internal/auth"
 	"gastos-service/internal/bitacora"
@@ -46,20 +45,15 @@ func autorDeCambios(ctx context.Context) (bitacora.Actor, bool) {
 	return id.Actor(), ok
 }
 
-// esPublica lista lo único que se atiende sin token: la salud del servicio, el inicio de sesión y
-// los comprobantes subidos. Estos últimos los carga el navegador con <img> y <a href>, que no
-// pueden enviar la cabecera Authorization. Es una excepción consciente: quien conozca la URL exacta
-// de un archivo puede verlo. Por eso /uploads no lista carpetas (soloArchivos) y los nombres nuevos
-// llevan una parte aleatoria de 128 bits (comprobantes.go); los archivos subidos antes de ese
-// cambio conservan su nombre anterior (gasto-<id>-<hora>).
+// esPublica lista lo único que se atiende sin token: la salud del servicio y el inicio de sesión.
+// Los comprobantes subidos (/uploads/) exigen token como el resto: el frontend los descarga con
+// la sesión iniciada y los muestra desde un Blob (SEG-01).
 func esPublica(r *http.Request) bool {
 	lectura := r.Method == http.MethodGet || r.Method == http.MethodHead
 	switch {
 	case lectura && r.URL.Path == "/health":
 		return true
 	case r.Method == http.MethodPost && r.URL.Path == "/api/v1/auth/login":
-		return true
-	case lectura && strings.HasPrefix(r.URL.Path, "/uploads/"):
 		return true
 	}
 	return false

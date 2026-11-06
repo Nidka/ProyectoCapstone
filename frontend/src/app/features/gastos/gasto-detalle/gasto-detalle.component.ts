@@ -7,7 +7,7 @@ import { Comprobante } from '../../../core/models/gasto.model';
 import { ESTADO_GASTO_LABEL } from '../../../core/models/gasto-estados';
 import { AuthService } from '../../../core/services/auth.service';
 import { CrudService } from '../../../core/services/crud.service';
-import { GastosApiService } from '../../../core/services/gastos-api.service';
+import { ComprobanteArchivoService } from '../../../core/services/comprobante-archivo.service';
 import { esPestana, pasosRuta, ultimoRechazo } from '../../../core/state/gastos.logic';
 import { GastosStore } from '../../../core/state/gastos.store';
 import { formatFecha, formatFechaHora, formatMonto } from '../../../core/utils/format';
@@ -42,7 +42,7 @@ export class GastoDetalleComponent implements OnInit {
   protected readonly store = inject(GastosStore);
   protected readonly auth = inject(AuthService);
   private readonly crud = inject(CrudService);
-  private readonly gastosApi = inject(GastosApiService);
+  private readonly archivos = inject(ComprobanteArchivoService);
   private readonly ruta = inject(ActivatedRoute);
   private readonly location = inject(Location);
   /** Gasto al que ya se llevó la vista con #paso (el componente se reutiliza al pasar de un gasto a otro) */
@@ -128,7 +128,7 @@ export class GastoDetalleComponent implements OnInit {
     this.crud.asegurarCargado('viaje');
   }
 
-  protected archivo(c: Comprobante): string {
-    return this.gastosApi.fileUrl(c.archivo_url);
+  protected verComprobante(c: Comprobante): void {
+    this.archivos.abrir(c.archivo_url);
   }
 }

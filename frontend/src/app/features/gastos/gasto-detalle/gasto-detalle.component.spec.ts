@@ -8,7 +8,7 @@ import { GastoDetalleComponent, consultaDeOrigen } from './gasto-detalle.compone
 import { AdjuntarComprobanteComponent } from '../adjuntar-comprobante/adjuntar-comprobante.component';
 import { GastosStore } from '../../../core/state/gastos.store';
 import { CrudService } from '../../../core/services/crud.service';
-import { GastosApiService } from '../../../core/services/gastos-api.service';
+import { ComprobanteArchivoService } from '../../../core/services/comprobante-archivo.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { HistorialService } from '../../../core/services/historial.service';
 import { Comprobante, Gasto } from '../../../core/models/gasto.model';
@@ -33,6 +33,8 @@ function storeFalso(gastos: Gasto[], comprobantes: Comprobante[], cargado = true
 
 const historialFalso = () => ({ deGasto: vi.fn((_id: number) => of<RegistroHistorial[]>([])) });
 
+const abrirComprobante = vi.fn();
+
 function montar(
   store: ReturnType<typeof storeFalso>, id: string, rol: 'admin' | 'logistica' = 'logistica', historial = historialFalso(),
 ) {
@@ -41,7 +43,7 @@ function montar(
       provideRouter([]),
       { provide: GastosStore, useValue: store },
       { provide: CrudService, useValue: { etiqueta: () => 'Agro Norte SAC', asegurarCargado: vi.fn() } },
-      { provide: GastosApiService, useValue: { fileUrl: (u: string) => u } },
+      { provide: ComprobanteArchivoService, useValue: { abrir: abrirComprobante } },
       { provide: AuthService, useValue: { esLogistica: signal(rol === 'logistica') } },
       { provide: HistorialService, useValue: historial },
     ],
@@ -124,8 +126,11 @@ describe('GastoDetalleComponent', () => {
     const paso: HTMLElement = f.nativeElement.querySelector('#paso');
     expect(paso.querySelector('app-revision-comprobante')).toBeNull();
     expect(paso.textContent).toContain('Esperando la revisión de Logística');
-    expect(paso.querySelector('a[href="/u/9.jpg"]')).not.toBeNull();
-    expect([...paso.querySelectorAll('button')]).toHaveLength(0);
+    // Solo «Ver comprobante»: nada de aprobar ni rechazar.
+    const botones = [...paso.querySelectorAll('button')];
+    expect(botones.map(b => b.textContent?.trim())).toEqual(['Ver comprobante']);
+    botones[0].click();
+    expect(abrirComprobante).toHaveBeenCalledWith('/u/9.jpg');
   });
 
   it('un gasto pagado muestra la revisión del comprobante pendiente', () => {
