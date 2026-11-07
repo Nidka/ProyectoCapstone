@@ -30,6 +30,9 @@ WHERE creado_por = 'DEMO'
 
 DELETE FROM checklist_comprobante
 WHERE comprobante_id IN (SELECT id FROM comprobante WHERE gasto_id IN (SELECT id FROM demo_gastos));
+-- Las lecturas OCR guardadas (0005) también apuntan al comprobante.
+DELETE FROM lectura_comprobante
+WHERE comprobante_id IN (SELECT id FROM comprobante WHERE gasto_id IN (SELECT id FROM demo_gastos));
 DELETE FROM comprobante WHERE gasto_id IN (SELECT id FROM demo_gastos);
 -- Los avisos del generador (0009) apuntan al gasto y no se borran solos.
 DELETE FROM notificacion WHERE id_gasto IN (SELECT id FROM demo_gastos);
