@@ -6,12 +6,14 @@ Guía para poner en internet **LIZAR SRL · Fleet Manager Pro**: la API Go con s
 
 | Pieza | Dónde | Archivo que la describe |
 |---|---|---|
-| API Go (`gastos-service/`) | Render, servicio web Docker `lizar-gastos-api`, instancia de pago con disco de 1 GB en `/app/data` | `render.yaml`, `gastos-service/Dockerfile` |
+| API Go (`gastos-service/`) | Render, servicio web Docker `lizar-gastos-api`, **plan gratuito, sin disco** | `render.yaml`, `gastos-service/Dockerfile` |
 | Frontend (`frontend/`) | Render, sitio estático `lizar-frontend` (gratis) | `render.yaml` |
 | Base de datos | Neon (PostgreSQL), fuera de Render | `docs/DESPLIEGUE_NEON.md` |
 | `backend/` (Python) | No se despliega: ya migrado a Go | — |
 
 URLs que quedarán si Render acepta los nombres: API `https://lizar-gastos-api.onrender.com` y frontend `https://lizar-frontend.onrender.com`.
+
+> **Plan gratuito (elegido por ahora):** la API no tiene disco. Los comprobantes que se suban **se borran en cada despliegue o reinicio** (los datos en Neon se conservan), y la API se duerme tras unos 15 minutos sin uso y tarda cerca de un minuto en despertar. Para conservar los comprobantes, en `render.yaml` cambia `plan: free` por una instancia de pago (por ejemplo `0.5c-512mb`) y descomenta el bloque `disk`.
 
 ## 2. Lo que ya está listo en el repositorio
 
@@ -52,7 +54,7 @@ Hazlo **antes** del primer despliegue o con el servicio detenido.
 1. Crea una cuenta en https://render.com y conecta GitHub con acceso a `Nidka/ProyectoCapstone`.
 2. *New → Blueprint*, elige el repositorio y la rama `main`. Render lee `render.yaml` y muestra los dos servicios.
 3. Te pedirá **`DATABASE_URL`**: pega la cadena de Neon del paso 3.1.
-4. Revisa que la API quede en una instancia de pago (los discos no existen en el plan gratuito) y confirma. Render pedirá una forma de pago.
+4. Confirma. Los dos servicios usan planes gratuitos.
 5. Espera el primer despliegue (unos minutos cada uno).
 
 > Si Render avisa que el nombre `lizar-gastos-api` ya está tomado, quedará con otra URL. En ese caso ve al paso 3.5.

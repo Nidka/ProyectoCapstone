@@ -8,16 +8,18 @@ services:
     dockerfilePath: ./gastos-service/Dockerfile
     dockerContext: ./gastos-service
     branch: main
-    # Los discos persistentes solo existen en instancias de pago; esta es la más chica.
-    plan: 0.5c-512mb
+    # Plan gratuito: sin disco persistente, así que los comprobantes subidos se pierden en cada
+    # despliegue o reinicio (los datos en Neon se conservan). Para conservarlos, pasa a una
+    # instancia de pago (por ejemplo 0.5c-512mb) y agrega el bloque disk comentado más abajo.
+    plan: free
     # Ohio queda junto a la base de Neon (us-east-2).
     region: ohio
     healthCheckPath: /health
     autoDeployTrigger: commit
-    disk:
-      name: datos
-      mountPath: /app/data
-      sizeGB: 1
+    # disk:
+    #   name: datos
+    #   mountPath: /app/data
+    #   sizeGB: 1
     envVars:
       # Cadena directa de Neon (sin -pooler), terminada en ?sslmode=require. Render la pide al crear.
       - key: DATABASE_URL
