@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, of } from 'rxjs';
+import { origenApi } from './api-origen';
 
 export interface HealthStatus {
   connected: boolean;
@@ -10,7 +11,6 @@ export interface HealthStatus {
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly storageKey = 'lizar_api_base';
-  private readonly defaultBase = 'http://13.222.175.52:8000/api/v1';
   private _base = signal(this.resolveInitialBase());
 
   readonly base = this._base.asReadonly();
@@ -18,19 +18,12 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
+  // La base sale siempre de origenApi: una guardada de versiones anteriores (la API de Python
+  // del 8000 o su IP pública) dejaría al frontend hablando con un servicio que ya no existe.
   private resolveInitialBase(): string {
-    const isLocalDev = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-    if (isLocalDev) {
-      const localBase = 'http://localhost:8081/api/v1';
-      localStorage.setItem(this.storageKey, localBase);
-      return localBase;
-    }
-    const saved = localStorage.getItem(this.storageKey);
-    if (!saved || saved.includes('127.0.0.1:8000') || saved.includes('localhost:8000')) {
-      localStorage.setItem(this.storageKey, this.defaultBase);
-      return this.defaultBase;
-    }
-    return saved;
+    const base = `${origenApi()}/api/v1`;
+    localStorage.setItem(this.storageKey, base);
+    return base;
   }
 
   setBase(url: string): void {

@@ -1,0 +1,47 @@
+# Blueprint de Render: la API Go con su disco para comprobantes. La base es Neon (fuera de Render).
+# Pasos y explicación: docs/DESPLIEGUE_BACKEND.md
+services:
+  - type: web
+    name: lizar-gastos-api
+    runtime: docker
+    # Rutas desde la raíz del repositorio: la imagen se construye con gastos-service/ como contexto.
+    dockerfilePath: ./gastos-service/Dockerfile
+    dockerContext: ./gastos-service
+    branch: main
+    # Los discos persistentes solo existen en instancias de pago; esta es la más chica.
+    plan: 0.5c-512mb
+    # Ohio queda junto a la base de Neon (us-east-2).
+    region: ohio
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    disk:
+      name: datos
+      mountPath: /app/data
+      sizeGB: 1
+    envVars:
+      # Cadena directa de Neon (sin -pooler), terminada en ?sslmode=require. Render la pide al crear.
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: UPLOADS_DIR
+        value: /app/data/uploads
+      - key: LOG_ARCHIVO
+        value: /app/data/logs/errores.log
+      - key: APP_ENV
+        value: prod
+
+  # Frontend Angular como sitio estático. Llama a la API en la URL de
+  # frontend/src/app/core/services/api-origen.ts (API_PRODUCCION).
+  - type: web
+    name: lizar-frontend
+    runtime: static
+    branch: main
+    buildCommand: cd frontend && npm ci && npx ng build
+    staticPublishPath: ./frontend/dist/lizar-ng/browser
+    autoDeployTrigger: commit
+    # Angular resuelve las rutas en el navegador: cualquier ruta sirve index.html.
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

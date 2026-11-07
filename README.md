@@ -3,6 +3,7 @@
 Sistema de gestión de flota: maestros y operación (clientes, flota, viajes…), gastos adicionales con comprobantes, checklist documental, aprobación y reportes.
 
 > **¿Instalarlo en otra PC?** Sigue la guía paso a paso: [INSTALACION.md](INSTALACION.md).
+> **¿Desplegarlo en internet?** Render + Neon: [docs/DESPLIEGUE_BACKEND.md](docs/DESPLIEGUE_BACKEND.md).
 
 ## Servicios
 

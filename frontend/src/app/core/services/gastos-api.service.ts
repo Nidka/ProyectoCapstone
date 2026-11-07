@@ -1,12 +1,12 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { origenApi } from './api-origen';
 
 @Injectable({ providedIn: 'root' })
 export class GastosApiService {
   private readonly storageKey = 'lizar_gastos_api_base';
-  private readonly defaultBase = 'http://localhost:8081';
-  private _base = signal(localStorage.getItem(this.storageKey) ?? this.defaultBase);
+  private _base = signal(origenApi());
   readonly base = this._base.asReadonly();
 
   constructor(private http: HttpClient) {}
